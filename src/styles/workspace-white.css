@@ -118,12 +118,6 @@
   background: transparent;
 }
 
-:root:not([data-theme='dark']) .workspace .usage-records-page .usage-events-panel {
-  background: var(--theme-surface, #fff);
-  border: 1px solid var(--border-color);
-  box-shadow: none;
-}
-
 :root:not([data-theme='dark']) .workspace .usage-records-page :is(
   .usage-filter-item,
   .usage-filter-toggle

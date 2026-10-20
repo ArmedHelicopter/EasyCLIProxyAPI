@@ -5,7 +5,7 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  background: var(--theme-faf9f5);
+  background: var(--color-workspace);
 }
 
 .window-titlebar {
@@ -16,7 +16,7 @@
    * a tall dialog's own close button can sit underneath the window close button.
    */
   z-index: 40;
-  background: var(--theme-faf9f5);
+  background: var(--color-workspace);
   display: flex;
   flex: 0 0 var(--window-titlebar-height);
   min-width: 0;
@@ -51,9 +51,9 @@
 .window-controls button:active svg { transform: scale(0.92); }
 @media (hover: hover) {
   .window-controls button:hover { background: var(--bg-hover); }
-  .window-controls .window-close:hover { background: #c42b1c; color: #fff; }
+  .window-controls .window-close:hover { background: var(--color-surface-hover); color: var(--color-text-on-accent); }
 }
-.window-controls .window-close:active { background: #a82317; color: #fff; }
+.window-controls .window-close:active { background: var(--color-surface-active); color: var(--color-text-on-accent); }
 .window-content { flex: 1; min-height: 0; overflow: hidden; }
 
 /* Beginner mode has no sidebar and sizes itself to 100vh; fit it below the titlebar instead. */

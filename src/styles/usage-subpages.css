@@ -2,9 +2,9 @@
 .usage-records-page .usage-tab-panel:not([aria-labelledby='usage-tab-overview']),
 .usage-price-sync-dialog,
 .usage-column-dialog {
-  --usage-page-text: var(--theme-text-primary, #17212f);
-  --usage-page-muted: var(--theme-text-muted, #526071);
-  --usage-page-border: var(--theme-border, #e4e7ec);
+  --usage-page-text: var(--theme-text-primary, var(--color-border-default));
+  --usage-page-muted: var(--theme-text-muted, var(--color-border-default));
+  --usage-page-border: var(--theme-border, var(--color-border-default));
   --text-primary: var(--usage-page-text);
   --text-secondary: var(--usage-page-text);
   --text-tertiary: var(--usage-page-muted);
@@ -178,7 +178,7 @@
   top: 0;
   border: 0;
   background: var(--theme-sticky-background, var(--bg-card));
-  color: #3e4c5a;
+  color: var(--color-text-secondary);
   font-size: 13px;
   font-weight: 650;
   letter-spacing: .01em;

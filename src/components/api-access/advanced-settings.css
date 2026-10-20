@@ -10,9 +10,9 @@
 .provider-settings-group > h3 {
   margin: 0;
   padding: 10px 12px;
-  border-bottom: 1px solid var(--theme-e8e4dc);
+  border-bottom: 1px solid var(--color-border-subtle);
   font-size: var(--font-size-label);
-  color: var(--theme-2d2a26);
+  color: var(--color-text-primary);
 }
 
 .provider-settings-group-content {
@@ -41,7 +41,7 @@
 
 .provider-settings-group .provider-advanced-toggle {
   padding-top: 12px;
-  border-top: 1px solid var(--theme-e8e4dc);
+  border-top: 1px solid var(--color-border-subtle);
 }
 
 @media (max-width: 520px) {

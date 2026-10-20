@@ -1748,7 +1748,7 @@ export function AgentsPage({ embedded = false, onConfigurationApplied }: AgentsP
     editDesktopEntries(desktopEntries.map((entry, i) => i === index ? { ...entry, ...changes } : entry));
   };
   const desktopModelEditor = (
-    <section className="agent-core-setting-section agent-desktop-models">
+    <section className="agent-core-setting-section agent-desktop-models surface-section">
       <div className="agent-section-heading">
         <strong>{t('agents.claudeDesktopMapping.title')}</strong>
         <div className="agent-section-heading-actions">
@@ -1981,7 +1981,7 @@ export function AgentsPage({ embedded = false, onConfigurationApplied }: AgentsP
               {activeStatus && !activeStatus.installed ? <Notice tone="warn" variant="text" className="agent-detection-help" action={<button type="button" className="link-button" onClick={() => setActiveSubpage('management')}>{t('agents.executablePath.openManagement')}</button>}>{t('agents.executablePath.notDetected')}</Notice> : null}
 
               {!isClaudeModelMappingClient ? (
-                <section className="agent-core-setting-section agent-model-section">
+                <section className="agent-core-setting-section agent-model-section surface-section">
                   <div className="agent-section-heading">
                     <div><strong>{t(isDeepSeekHarnessClient ? 'agents.harness.defaultModel' : 'agents.useModel')}</strong></div>
                   </div>
@@ -2034,7 +2034,7 @@ export function AgentsPage({ embedded = false, onConfigurationApplied }: AgentsP
 
               {selected === 'claude-desktop' ? desktopModelEditor : null}
               {selected === 'claude-code' ? (
-                <section className="agent-core-setting-section agent-claude-desktop-mapping">
+                <section className="agent-core-setting-section agent-claude-desktop-mapping surface-section">
                   <div className="agent-section-heading">
                     <div>
                       <strong>{t(selected === 'claude-code'
@@ -2279,7 +2279,7 @@ export function AgentsPage({ embedded = false, onConfigurationApplied }: AgentsP
             ? t('agents.deepseekLaunch.dialogDescription')
             : t('agents.launchDirectory.dialogDescription', { client: activeDefinition.name })}</p>
           {isDeepSeekHarnessClient ? (
-            <div className="deepseek-harness-launch-options">
+            <div className="deepseek-harness-launch-options surface-section surface-muted">
               <label className="config-dialog-field deepseek-harness-launch-field">
                 <span>{t('agents.deepseekLaunch.mode.label')}</span>
                 <Select

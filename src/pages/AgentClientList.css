@@ -61,7 +61,7 @@
 .agent-client-pagination > span {
   text-align: center;
   font-size: var(--font-size-meta);
-  color: var(--theme-8a847c);
+  color: var(--color-text-muted);
 }
 
 .agent-client-list-footer > .compact-button {
@@ -72,7 +72,7 @@
 .agent-client-manager small,
 .agent-client-manager p,
 .agent-client-manager footer > span {
-  color: var(--theme-8a847c);
+  color: var(--color-text-muted);
   font-size: var(--font-size-meta);
   line-height: 1.5;
 }
@@ -84,9 +84,9 @@
   padding: 22px;
   border: 1px solid var(--border-primary);
   border-radius: 14px;
-  background: var(--theme-fffdf8);
-  color: var(--theme-2d2a26);
-  box-shadow: 0 24px 80px #0005;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-dialog);
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -125,7 +125,7 @@
   border: 1px solid var(--border-primary);
   border-radius: 8px;
   padding: 0 10px;
-  color: var(--theme-8a847c);
+  color: var(--color-text-muted);
 }
 
 .agent-client-search:focus-within {

@@ -1,7 +1,7 @@
 .usage-activity-card {
-  --usage-activity-success: var(--analysis-success, #28a786);
-  --usage-activity-failed: var(--analysis-failed, #e66b70);
-  --usage-activity-canceled: var(--analysis-canceled, #a8b1bf);
+  --usage-activity-success: var(--analysis-success, var(--color-border-default));
+  --usage-activity-failed: var(--analysis-failed, var(--color-border-default));
+  --usage-activity-canceled: var(--analysis-canceled, var(--color-border-default));
   display: flex;
   min-width: 0;
   flex-direction: column;
@@ -141,7 +141,7 @@
   border-radius: 10px;
   background: var(--bg-card);
   color: var(--text-primary);
-  box-shadow: var(--ui-panel-shadow);
+  box-shadow: var(--shadow-md);
   font-size: 11px;
   line-height: 1.3;
   font-variant-numeric: tabular-nums;

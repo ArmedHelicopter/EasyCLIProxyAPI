@@ -5,7 +5,7 @@
 
 :root[data-window-material] .immersive-window .window-titlebar,
 :root[data-window-material] .workspace {
-  background: color-mix(in srgb, var(--theme-faf9f5) var(--theme-window-material-workspace-opacity, 72%), transparent);
+  background: color-mix(in srgb, var(--color-workspace) var(--theme-window-material-workspace-opacity, 72%), transparent);
 }
 
 :root[data-window-material] .sidebar {

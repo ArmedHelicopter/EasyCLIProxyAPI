@@ -1,7 +1,7 @@
 .usage-analysis-grid.usage-analysis-view {
-  --analysis-success: #28a786;
-  --analysis-failed: #e66b70;
-  --analysis-canceled: #a8b1bf;
+  --analysis-success: var(--color-border-default);
+  --analysis-failed: var(--color-border-default);
+  --analysis-canceled: var(--color-border-default);
   display: flex;
   flex-direction: column;
   gap: 14px;

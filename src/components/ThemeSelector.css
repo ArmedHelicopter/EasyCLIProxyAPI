@@ -76,7 +76,7 @@
 .theme-selector-actions button:disabled { opacity: 0.55; cursor: default; }
 .theme-selector-mode:focus-visible, .theme-selector-card:focus-visible, .theme-selector-notice button:focus-visible , .theme-selector-actions button:focus-visible { outline: 2px solid var(--sidebar-focus); outline-offset: 1px; }
 
-.theme-thumbnail { display: flex; flex: none; width: 42px; height: 30px; overflow: hidden; border: 1px solid var(--sidebar-edge); border-radius: 5px; background: var(--preview-bg); box-shadow: 0 1px 2px #0000000d; box-sizing: border-box; }
+.theme-thumbnail { display: flex; flex: none; width: 42px; height: 30px; overflow: hidden; border: 1px solid var(--sidebar-edge); border-radius: 5px; background: var(--preview-bg); box-shadow: var(--shadow-xs); box-sizing: border-box; }
 .theme-thumbnail-sidebar { display: grid; align-content: start; gap: 3px; width: 10px; padding: 5px 2px; background: var(--preview-sidebar); }
 .theme-thumbnail-sidebar i { height: 3px; border-radius: 1px; background: var(--preview-accent); opacity: 0.35; }
 .theme-thumbnail-sidebar i:first-child { opacity: 1; }

@@ -309,7 +309,7 @@
   }
 
   .auth-files-page .auth-files-toolbar select {
-    border-top: 1px solid var(--theme-e3e1db);
+    border-top: 1px solid var(--color-border-default);
     border-left: 0;
   }
 }

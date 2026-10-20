@@ -1325,7 +1325,7 @@ function TokenComposition({ overview }: { overview: UsageOverview }) {
           <span>{t('usage.stat.cacheHitRate')} <b>{(overview.cacheHitRate * 100).toFixed(1)}%</b></span>
         </div>
         <div className="usage-token-context">
-          <section className="usage-token-context-group usage-token-results" aria-labelledby="usage-token-results-title">
+          <section className="usage-token-context-group usage-token-results surface-sunken" aria-labelledby="usage-token-results-title">
             <h3 id="usage-token-results-title"><Activity size={14} aria-hidden="true" />{t('usage.token.requestStatus')}</h3>
             <dl className="usage-token-context-metrics">
               <div className="tone-success"><dt>{t('usage.result.success')}</dt><dd>{compactNumber(overview.successCount)}</dd></div>
@@ -1333,14 +1333,14 @@ function TokenComposition({ overview }: { overview: UsageOverview }) {
               <div><dt>{t('usage.result.canceled')}</dt><dd>{compactNumber(overview.canceledCount)}</dd></div>
             </dl>
           </section>
-          <section className="usage-token-context-group" aria-labelledby="usage-token-performance-title">
+          <section className="usage-token-context-group surface-sunken" aria-labelledby="usage-token-performance-title">
             <h3 id="usage-token-performance-title"><Gauge size={14} aria-hidden="true" />{t('usage.token.performance')}</h3>
             <dl className="usage-token-context-metrics">
               <div><dt>{t('usage.stat.rpm')}</dt><dd>{overview.rpm.toFixed(2)}</dd></div>
               <div><dt>{t('usage.stat.averageLatency')}</dt><dd>{compactDuration(overview.averageLatencyMs)}</dd></div>
             </dl>
           </section>
-          <section className="usage-token-context-group" aria-labelledby="usage-token-pricing-title" title={t('usage.stat.costNote')}>
+          <section className="usage-token-context-group surface-sunken" aria-labelledby="usage-token-pricing-title" title={t('usage.stat.costNote')}>
             <h3 id="usage-token-pricing-title"><Wallet size={14} aria-hidden="true" />{pricingLabel}</h3>
             <dl className="usage-token-context-metrics">
               <div><dt>{t('usage.token.priced')}</dt><dd>{compactNumber(overview.pricedRequests)}</dd></div>

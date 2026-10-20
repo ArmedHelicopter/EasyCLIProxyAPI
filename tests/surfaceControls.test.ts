@@ -58,6 +58,29 @@ const migrated: Record<string, string[]> = {
   'usage-data-management-action': ['surface-card'],
   'usage-price-editor': ['surface-section'],
   'usage-data-management-result-item': ['surface-card'],
+  'credential-settings-catalog': ['surface-frame'],
+  'provider-template-rule': ['surface-frame'],
+  'provider-template-section': ['surface-frame'],
+  'codex-catalog-choice-group': ['surface-frame'],
+  'plugin-oauth-code': ['surface-frame', 'surface-muted'],
+  'plugin-source-errors': ['surface-frame'],
+  'version-source-row': ['surface-panel'],
+  'version-list-item': ['surface-panel'],
+  'app-release-notes': ['surface-panel'],
+  'auth-file-card': ['surface-card'],
+  'real-quota-card': ['surface-card'],
+  'quota-reset-credit-summary': ['surface-section', 'surface-muted'],
+  'model-config-summary': ['surface-dashed'],
+  'provider-cloak-settings': ['surface-dashed'],
+  'provider-advanced-settings': ['surface-sunken'],
+  'thinking-level-config': ['surface-sunken'],
+  'provider-group-key': ['surface-sunken'],
+  'oauth-auth-url-box': ['surface-sunken'],
+  'vertex-login-result': ['surface-sunken'],
+  'usage-token-context-group': ['surface-sunken'],
+  'credential-alias-details': ['surface-sunken'],
+  'agent-core-setting-section': ['surface-section'],
+  'deepseek-harness-launch-options': ['surface-section', 'surface-muted'],
 };
 const ids = new Set(['config-native-aliases', 'config-native-sensitive-words']);
 const stateSelectors: Record<string, Record<string, RegExp>> = {
@@ -146,6 +169,7 @@ const cssViolations = (text: string, file: string) => {
       '.panel, .surface-panel', '.panel:hover, .surface-panel:hover',
       ':where(.surface-card), .panel.surface-card', ':where(.surface-section)',
       ':where(.surface-muted)', ':where(.surface-bare), .panel.surface-bare',
+      ':where(.surface-frame)', ':where(.surface-dashed)', ':where(.surface-sunken)',
     ].includes(normalize(rule.selector))) return;
     const allowed = stateSelectors[file]?.[normalize(rule.selector)];
     for (const declaration of rule.nodes) {

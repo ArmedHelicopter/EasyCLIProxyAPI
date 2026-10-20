@@ -9,7 +9,7 @@
   border-radius: 16px;
   background: var(--bg-card);
   color: var(--text-primary);
-  box-shadow: 0 24px 80px #0004;
+  box-shadow: var(--shadow-dialog);
 }
 .credential-settings-dialog form { display: flex; flex: 1 1 auto; flex-direction: column; width: 100%; min-height: 0; }
 .credential-settings-heading, .credential-settings-footer { flex-shrink: 0; }
@@ -34,7 +34,7 @@
 .credential-settings-dialog textarea { resize: vertical; }
 .credential-settings-dialog textarea.credential-settings-json { font-family: var(--font-family-mono); font-size: var(--font-size-meta); line-height: var(--line-height-relaxed); }
 .credential-settings-dialog :is(input, textarea, select, summary):focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
-.credential-settings-catalog { margin-top: 12px; padding: 11px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: var(--font-size-meta); }
+.credential-settings-catalog { margin-top: 12px; padding: 11px 12px; font-size: var(--font-size-meta); }
 .credential-settings-catalog summary { cursor: pointer; color: var(--text-secondary); }
 .credential-settings-catalog[open] summary { margin-bottom: 12px; }
 .credential-settings-models { display: grid; gap: 8px; max-height: 210px; overflow-y: auto; margin-top: 12px; }
@@ -63,7 +63,7 @@
 .credential-alias-row .agent-model-picker { min-width: 0; }
 .credential-alias-row-actions { display: flex; align-items: center; gap: 4px; }
 .credential-alias-row-actions .is-expanded { transform: rotate(180deg); }
-.credential-alias-details { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-secondary); }
+.credential-alias-details { display: grid; gap: 10px; padding: 12px; }
 .credential-alias-details .credential-settings-field { margin: 0; }
 .credential-alias-checks { display: flex; flex-wrap: wrap; gap: 8px 16px; }
 .credential-alias-checks label { display: flex; align-items: center; gap: 8px; font-size: var(--font-size-meta); }
