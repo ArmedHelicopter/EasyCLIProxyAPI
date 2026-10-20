@@ -1,0 +1,63 @@
+:root {
+  --switch-track-bg: var(--color-border-strong);
+  --switch-track-active: var(--theme-control-active-background, var(--color-accent));
+  --switch-thumb-bg: var(--theme-control-thumb, var(--color-surface));
+  --switch-thumb-active: var(--theme-control-active-thumb, var(--color-surface));
+  --switch-focus-ring: var(--color-focus-ring);
+
+  --button-radius: var(--radius-md);
+  --button-primary-bg: var(--theme-primary-button-background, var(--color-accent));
+  --button-primary-hover: var(--theme-primary-button-hover-background, var(--color-accent-strong));
+  --button-primary-text: var(--theme-primary-button-text, var(--color-accent-contrast));
+  --button-primary-border: var(--theme-primary-button-border, transparent);
+  --button-secondary-bg: var(--color-surface);
+  --button-secondary-hover: var(--color-surface-hover);
+  --button-secondary-text: var(--color-text-secondary);
+  --button-secondary-border: var(--color-border-default);
+  --button-danger-bg: var(--color-danger);
+  --button-danger-text: var(--palette-neutral-0);
+
+  --card-bg: var(--color-surface);
+  --card-border: var(--color-border-default);
+  --card-border-width: var(--border-width);
+  --card-radius: var(--radius-lg);
+  --card-shadow: var(--shadow-none);
+
+  --panel-bg: var(--color-surface);
+  --panel-border: var(--color-border-default);
+  --panel-border-hover: var(--color-border-strong);
+  --panel-radius: var(--radius-lg);
+  --panel-shadow: var(--ui-panel-shadow, var(--shadow-sm));
+
+  --input-bg: var(--color-surface);
+  --input-border: var(--color-border-default);
+  --input-border-hover: var(--color-border-hover);
+  --input-border-focus: var(--color-border-focus);
+  --input-text: var(--color-text-primary);
+  --input-placeholder: var(--color-text-quaternary);
+  --input-radius: var(--radius-md);
+
+  --dialog-bg: var(--color-surface);
+  --dialog-border: var(--color-border-default);
+  --dialog-radius: var(--radius-lg);
+  --dialog-shadow: var(--shadow-dialog);
+  --dialog-backdrop: var(--theme-scrim, rgba(0, 0, 0, 0.45));
+
+  --tab-text: var(--color-text-secondary);
+  --tab-text-active: var(--color-accent);
+  --tab-text-hover: var(--color-text-primary);
+  --tab-border-active: var(--color-accent);
+  --tab-bg-hover: var(--color-surface-hover);
+
+  --badge-radius: var(--radius-sm);
+  --badge-bg: var(--color-surface-subtle);
+  --badge-text: var(--color-text-tertiary);
+
+  --sidebar-bg-token: var(--sidebar-bg);
+  --sidebar-text-token: var(--sidebar-text);
+  --sidebar-text-strong-token: var(--sidebar-text-strong);
+  --sidebar-text-muted-token: var(--sidebar-text-subtle);
+  --sidebar-border-token: var(--sidebar-edge);
+  --sidebar-hover-token: var(--sidebar-hover-bg);
+  --sidebar-selected-token: var(--sidebar-selected-bg);
+}
