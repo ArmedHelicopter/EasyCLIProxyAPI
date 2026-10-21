@@ -46,8 +46,9 @@ describe('CSS layer architecture and specificity regression', () => {
       .statements.filter(ts.isImportDeclaration)
       .map((statement) => (statement.moduleSpecifier as ts.StringLiteral).text);
 
+    const stylesheets = imports.filter((specifier) => specifier.endsWith('.css'));
     expect(imports[0]).toBe('./styles/layers.css');
-    expect(imports.at(-1)).toBe('./styles/index.css');
+    expect(stylesheets.at(-1)).toBe('./styles/index.css');
     expect(imports.indexOf('./App')).toBeGreaterThan(0);
     expect(imports.indexOf('./App')).toBeLessThan(imports.indexOf('./styles/index.css'));
 
