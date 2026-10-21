@@ -1,7 +1,7 @@
 .usage-analysis-grid.usage-analysis-view {
-  --analysis-success: var(--color-border-default);
-  --analysis-failed: var(--color-border-default);
-  --analysis-canceled: var(--color-border-default);
+  --analysis-success: var(--usage-analysis-success);
+  --analysis-failed: var(--usage-analysis-failed);
+  --analysis-canceled: var(--usage-analysis-canceled);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -152,12 +152,6 @@
 .usage-analysis-muted {
   font-size: 13px;
   color: var(--text-tertiary); }
-
-:root[data-theme='dark'] .usage-analysis-view {
-  --analysis-success: #49b7a1;
-  --analysis-failed: #eb8c80;
-  --analysis-canceled: #8896a9;
-}
 
 @container workspace (max-width: 760px) {
   .usage-analysis-primary { grid-template-columns: minmax(0, 1fr); }

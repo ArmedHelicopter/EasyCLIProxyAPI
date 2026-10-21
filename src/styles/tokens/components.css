@@ -1,4 +1,45 @@
 :root {
+  --usage-result-failed-text: var(--color-text-secondary);
+  --button-danger-soft-text: var(--color-text-secondary);
+  --usage-request-color: var(--theme-text-primary, var(--color-border-default));
+  --shadow-panel: 0 1px 3px 0 var(--theme-panel-shadow-color, rgba(15, 23, 42, 0.05)), 0 1px 2px -1px var(--theme-panel-shadow-color, rgba(15, 23, 42, 0.03));
+
+  --auth-file-muted: var(--color-border-default);
+  --auth-file-text: var(--color-border-default);
+  --auth-file-accent: var(--color-info);
+  --auth-file-border: var(--color-border-default);
+  --auth-file-control: var(--color-border-default);
+  --auth-file-success-color: var(--color-border-default);
+  --request-log-text: var(--color-border-default);
+  --request-log-muted: var(--color-border-default);
+  --request-log-line: var(--color-border-default);
+  --request-log-input: var(--color-border-default);
+  --request-log-output: var(--color-border-default);
+  --request-log-reasoning: var(--color-border-default);
+  --request-log-cache-read: var(--color-border-default);
+  --request-log-cache-write: var(--color-border-default);
+  --request-log-response-model: var(--color-border-default);
+  --request-log-duration-good: var(--color-border-default);
+  --request-log-duration-warn: var(--color-border-default);
+  --request-log-duration-bad: var(--color-border-default);
+  --usage-analysis-success: var(--color-border-default);
+  --usage-analysis-failed: var(--color-border-default);
+  --usage-analysis-canceled: var(--color-border-default);
+  --usage-subpage-text: var(--theme-text-primary, var(--color-border-default));
+  --usage-subpage-muted: var(--theme-text-muted, var(--color-border-default));
+  --usage-subpage-border: var(--theme-border, var(--color-border-default));
+
+  --workspace-text-secondary: var(--theme-text-secondary, #253449);
+  --workspace-text-tertiary: var(--theme-text-tertiary, #475569);
+  --workspace-text-muted: var(--theme-text-muted, #526174);
+  --workspace-border: var(--theme-border, #dce3eb);
+  --workspace-border-subtle: var(--theme-border-subtle, #e5eaf0);
+  --workspace-soft-surface: var(--theme-soft-surface, #ffffff);
+  --workspace-hover: var(--theme-hover-background, #ffffff);
+  --badge-count-bg: #eff3f0;
+  --control-thumb: #ffffff;
+  --scrim: rgba(45, 42, 38, 0.4196078431);
+
   --switch-track-bg: var(--color-border-strong);
   --switch-track-active: var(--theme-control-active-background, var(--color-accent));
   --switch-thumb-bg: var(--theme-control-thumb, var(--color-surface));
@@ -36,6 +77,7 @@
   --input-text: var(--color-text-primary);
   --input-placeholder: var(--color-text-quaternary);
   --input-radius: var(--radius-md);
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%232d2a26' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 
   --dialog-bg: var(--color-surface);
   --dialog-border: var(--color-border-default);
@@ -53,11 +95,96 @@
   --badge-bg: var(--color-surface-subtle);
   --badge-text: var(--color-text-tertiary);
 
-  --sidebar-bg-token: var(--sidebar-bg);
-  --sidebar-text-token: var(--sidebar-text);
-  --sidebar-text-strong-token: var(--sidebar-text-strong);
-  --sidebar-text-muted-token: var(--sidebar-text-subtle);
-  --sidebar-border-token: var(--sidebar-edge);
-  --sidebar-hover-token: var(--sidebar-hover-bg);
-  --sidebar-selected-token: var(--sidebar-selected-bg);
+  --sidebar-bg: #f7f8fa;
+  --sidebar-edge: rgba(15, 23, 42, 0.07);
+  --sidebar-text: #334155;
+  --sidebar-text-strong: #0f172a;
+  --sidebar-text-subtle: #55657a;
+  --sidebar-icon: #64748b;
+  --sidebar-hover-bg: rgba(15, 23, 42, 0.045);
+  --sidebar-press-bg: rgba(15, 23, 42, 0.075);
+  --sidebar-selected-bg: #ffffff;
+  --sidebar-selected-shadow: 0 0 0 1px var(--sidebar-selected-border-color, rgba(15, 23, 42, 0.06)),
+    0 1px 2px var(--sidebar-selected-shadow-color, rgba(15, 23, 42, 0.06)),
+    0 2px 6px -2px var(--sidebar-selected-shadow-color, rgba(15, 23, 42, 0.06));
+  --sidebar-track-bg: rgba(15, 23, 42, 0.05);
+  --sidebar-thumb-bg: #ffffff;
+  --sidebar-logo-ring: 0 0 0 1px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.08);
+  --sidebar-popover-bg: #ffffff;
+  --sidebar-popover-edge: rgba(15, 23, 42, 0.08);
+  --sidebar-popover-shadow: 0 12px 32px -8px rgba(15, 23, 42, 0.2), 0 2px 6px rgba(15, 23, 42, 0.06);
+  --sidebar-focus: color-mix(in srgb, var(--ui-accent) 70%, transparent);
+}
+
+:root[data-theme='dark'] {
+  --usage-result-failed-text: var(--color-danger-text);
+  --button-danger-soft-text: var(--color-danger-text);
+  --usage-request-color: var(--theme-text-primary, #f5f5f7);
+  --shadow-panel: 0 1px 2px rgba(0, 0, 0, 0.28), 0 12px 32px -10px rgba(0, 0, 0, 0.45);
+
+  --auth-file-muted: #cbd5e1;
+  --auth-file-text: #f1f5f9;
+  --auth-file-accent: #70a7ff;
+  --auth-file-border: #293241;
+  --auth-file-control: #3d4c60;
+  --auth-file-success-color: #34d399;
+  --request-log-text: #edece9;
+  --request-log-muted: #aaa8a4;
+  --request-log-line: #34363b;
+  --request-log-input: #93c5fd;
+  --request-log-output: #5eead4;
+  --request-log-reasoning: #fbbf24;
+  --request-log-cache-read: #5eead4;
+  --request-log-cache-write: #fbbf24;
+  --request-log-response-model: #f0bc73;
+  --request-log-duration-good: #4ade80;
+  --request-log-duration-warn: #fbbf24;
+  --request-log-duration-bad: #f87171;
+  --usage-analysis-success: #49b7a1;
+  --usage-analysis-failed: #eb8c80;
+  --usage-analysis-canceled: #8896a9;
+  --usage-subpage-text: var(--theme-text-primary, #f4f7fb);
+  --usage-subpage-muted: var(--theme-text-muted, #c0cbda);
+  --usage-subpage-border: var(--theme-border, #414d60);
+
+  color-scheme: dark;
+  --workspace-text-secondary: var(--color-text-secondary);
+  --workspace-text-tertiary: var(--color-text-tertiary);
+  --workspace-text-muted: var(--color-text-muted);
+  --workspace-border: var(--color-border-default);
+  --workspace-border-subtle: var(--color-border-subtle);
+  --workspace-soft-surface: var(--color-surface-subtle);
+  --workspace-hover: var(--color-surface-hover);
+  --badge-count-bg: rgba(248, 250, 252, 0.12);
+  --control-thumb: #f8fafc;
+  --scrim: rgba(3, 8, 20, 0.6509803922);
+
+  --sidebar-bg: #0f1218;
+  --sidebar-edge: rgba(255, 255, 255, 0.06);
+  --sidebar-text: #b7c2d3;
+  --sidebar-text-strong: #f8fafc;
+  --sidebar-text-subtle: #8593a8;
+  --sidebar-icon: #8593a8;
+  --sidebar-hover-bg: rgba(255, 255, 255, 0.045);
+  --sidebar-press-bg: rgba(255, 255, 255, 0.08);
+  --sidebar-selected-bg: rgba(255, 255, 255, 0.075);
+  --sidebar-selected-shadow: inset 0 0 0 1px var(--sidebar-selected-border-color, rgba(255, 255, 255, 0.05)),
+    0 1px 2px var(--sidebar-selected-shadow-color, rgba(0, 0, 0, 0.3));
+  --sidebar-track-bg: rgba(255, 255, 255, 0.05);
+  --sidebar-thumb-bg: rgba(255, 255, 255, 0.13);
+  --sidebar-logo-ring: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  --sidebar-popover-bg: #1a1e27;
+  --sidebar-popover-edge: rgba(255, 255, 255, 0.08);
+  --sidebar-popover-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.3);
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23f8fafc' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --sidebar-edge: rgba(15, 23, 42, 0.24);
+  }
+
+  :root[data-theme='dark'] {
+    --sidebar-edge: rgba(255, 255, 255, 0.24);
+  }
 }

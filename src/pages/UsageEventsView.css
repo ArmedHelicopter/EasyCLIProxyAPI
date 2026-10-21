@@ -1,17 +1,17 @@
 /* The request log is deliberately scoped away from the other usage tabs. */
 .usage-records-page .usage-request-log {
-  --usage-log-text: var(--color-border-default);
-  --usage-log-muted: var(--color-border-default);
-  --usage-log-line: var(--color-border-default);
-  --usage-log-input: var(--color-border-default);
-  --usage-log-output: var(--color-border-default);
-  --usage-log-reasoning: var(--color-border-default);
-  --usage-log-cache-read: var(--color-border-default);
-  --usage-log-cache-write: var(--color-border-default);
-  --usage-log-response-model: var(--color-border-default);
-  --usage-log-duration-good: var(--color-border-default);
-  --usage-log-duration-warn: var(--color-border-default);
-  --usage-log-duration-bad: var(--color-border-default);
+    --usage-log-text: var(--request-log-text);
+  --usage-log-muted: var(--request-log-muted);
+  --usage-log-line: var(--request-log-line);
+  --usage-log-input: var(--request-log-input);
+  --usage-log-output: var(--request-log-output);
+  --usage-log-reasoning: var(--request-log-reasoning);
+  --usage-log-cache-read: var(--request-log-cache-read);
+  --usage-log-cache-write: var(--request-log-cache-write);
+  --usage-log-response-model: var(--request-log-response-model);
+  --usage-log-duration-good: var(--request-log-duration-good);
+  --usage-log-duration-warn: var(--request-log-duration-warn);
+  --usage-log-duration-bad: var(--request-log-duration-bad);
   display: flex;
   min-width: 0;
   min-height: 0;
@@ -448,30 +448,6 @@
 
 .usage-request-log > .usage-empty {
   min-height: 220px;
-}
-
-:root[data-theme='dark'] .usage-records-page .usage-request-log {
-  --usage-log-text: #edece9;
-  --usage-log-muted: #aaa8a4;
-  --usage-log-line: #34363b;
-  --usage-log-input: #93c5fd;
-  --usage-log-output: #5eead4;
-  --usage-log-reasoning: #fbbf24;
-  --usage-log-cache-read: #5eead4;
-  --usage-log-cache-write: #fbbf24;
-  --usage-log-response-model: #f0bc73;
-  --usage-log-duration-good: #4ade80;
-  --usage-log-duration-warn: #fbbf24;
-  --usage-log-duration-bad: #f87171;
-  border-color: var(--usage-log-line);
-  background: var(--bg-card);
-  box-shadow: none;
-}
-
-:root[data-theme='dark'] .usage-request-log .usage-result.success {
-  border-color: #17664e;
-  background: transparent;
-  color: #6ee7b7;
 }
 
 @container workspace (max-width: 760px) {

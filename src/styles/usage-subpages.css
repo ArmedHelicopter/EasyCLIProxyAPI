@@ -2,9 +2,9 @@
 .usage-records-page .usage-tab-panel:not([aria-labelledby='usage-tab-overview']),
 .usage-price-sync-dialog,
 .usage-column-dialog {
-  --usage-page-text: var(--theme-text-primary, var(--color-border-default));
-  --usage-page-muted: var(--theme-text-muted, var(--color-border-default));
-  --usage-page-border: var(--theme-border, var(--color-border-default));
+  --usage-page-text: var(--usage-subpage-text);
+  --usage-page-muted: var(--usage-subpage-muted);
+  --usage-page-border: var(--usage-subpage-border);
   --text-primary: var(--usage-page-text);
   --text-secondary: var(--usage-page-text);
   --text-tertiary: var(--usage-page-muted);
@@ -20,14 +20,6 @@
   --theme-7a746c: var(--usage-page-muted);
   --theme-8a847c: var(--usage-page-muted);
   color: var(--usage-page-text);
-}
-
-:root[data-theme='dark'] .usage-records-page .usage-tab-panel:not([aria-labelledby='usage-tab-overview']),
-:root[data-theme='dark'] .usage-price-sync-dialog,
-:root[data-theme='dark'] .usage-column-dialog {
-  --usage-page-text: var(--theme-text-primary, #f4f7fb);
-  --usage-page-muted: var(--theme-text-muted, #c0cbda);
-  --usage-page-border: var(--theme-border, #414d60);
 }
 
 .usage-price-sync-dialog {
@@ -136,14 +128,6 @@
 .usage-records-page .usage-filter-item select optgroup {
   background-color: var(--theme-overlay-surface, var(--bg-primary));
   color: var(--text-primary);
-}
-
-:root[data-theme='dark'] .usage-records-page .usage-filter-item select,
-:root[data-theme='dark'] .usage-records-page .usage-filter-item select option,
-:root[data-theme='dark'] .usage-records-page .usage-filter-item select optgroup {
-  background-color: var(--theme-overlay-surface, var(--bg-card));
-  color: var(--text-primary);
-  color-scheme: dark;
 }
 
 /* Request log reads as separate rounded cards, matching the reference layout. */
@@ -331,10 +315,6 @@ body.table-col-resizing .usage-records-page .usage-request-log .usage-events-tab
 .usage-records-page .usage-request-log .usage-event-metrics {
   justify-content: center;
   font-weight: 650;
-}
-
-:root[data-theme='dark'] .usage-records-page .usage-request-log .usage-events-table th {
-  color: #d5deea;
 }
 
 .usage-records-page .usage-request-log .usage-event-metrics {

@@ -3,6 +3,9 @@ import { readFileSync } from 'node:fs';
 import postcss from 'postcss';
 
 const stylesheet = postcss.parse([
+  '../src/styles/tokens/base.css',
+  '../src/styles/tokens/semantic.css',
+  '../src/styles/tokens/components.css',
   '../src/styles.css',
   '../src/styles/feature-pages.css',
   '../src/styles/ui-refinements.css',
@@ -112,10 +115,10 @@ for (const theme of ['light', 'dark'] as const) {
     it('preserves background layers and reserves lower contrast for disabled text', () => {
       expect(value('--bg-primary')).toBe(theme === 'light' ? '#ffffff' : '#141720');
       expect(value('--bg-card')).toBe(theme === 'light' ? '#ffffff' : '#141720');
-      expect(value('--bg-secondary')).toBe(theme === 'light' ? '#f6f7f5' : '#0b0d11');
+      expect(value('--bg-secondary')).toBe(theme === 'light' ? '#ffffff' : '#0b0d11');
       expect(value('--bg-tertiary')).toBe(theme === 'light' ? '#eff3f0' : '#1c212c');
       expect(value('--bg-hover')).toBe(theme === 'light' ? '#f6f8f6' : '#252b38');
-      expect(value('--theme-faf9f5')).toBe(theme === 'light' ? '#f6f7f5' : '#0b0d11');
+      expect(value('--theme-faf9f5')).toBe(theme === 'light' ? '#ffffff' : '#0b0d11');
       const background = color(value('--bg-card'));
       const hierarchy = ['primary', 'secondary', 'tertiary', 'quaternary', 'disabled']
         .map((role) => contrast(color(value(`--text-${role}`)), background));
@@ -142,4 +145,28 @@ it('does not fade interactive hidden-series labels or ordinary table hints', () 
   }
   expect(declarations('.usage-trend-legend-item.is-hidden')['text-decoration']).toBe('line-through');
   expect(declarations('.usage-trend-legend-item.is-hidden .usage-trend-swatch').opacity).toBe('0.38');
+});
+
+it('preserves the light semantic palette independently of workspace aliases', () => {
+  const tokens = declarations(':root');
+  for (const [name, expected] of Object.entries({
+    '--color-text-secondary': '#1e293b',
+    '--color-text-tertiary': '#334155',
+    '--color-text-muted': '#475569',
+    '--color-border-default': '#e2e8f0',
+    '--color-surface-subtle': '#eff3f0',
+    '--count-badge-bg': '#eff3f0',
+    '--info-color': '#0f766e',
+  })) expect(resolve(tokens[name], tokens)).toBe(expected);
+});
+
+it('preserves dark failure semantics without changing light text', () => {
+  expect(declarations('.usage-token-context-metrics .tone-failed dd').color).toBe('var(--usage-result-failed-text)');
+  expect(declarations('.danger-button').color).toBe('var(--button-danger-soft-text)');
+  for (const theme of ['light', 'dark']) {
+    const tokens = { ...declarations(':root'), ...(theme === 'dark' ? declarations(":root[data-theme='dark']") : {}) };
+    for (const name of ['--usage-result-failed-text', '--button-danger-soft-text']) {
+      expect(resolve(tokens[name], tokens)).toBe(theme === 'dark' ? '#fca5a5' : '#1e293b');
+    }
+  }
 });
