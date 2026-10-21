@@ -261,11 +261,11 @@ describe('shared container surfaces', () => {
   it('keeps usage stat cards flat and preserves their own hover after shared panel defaults', () => {
     const normal = usageStatAppearance(false);
     expect(normal.border).toBe('0');
-    expect(normal['border-radius']).toBe('0');
+    expect(normal['border-radius']).toBe('var(--radius-none)');
     expect(normal['box-shadow']).toBe('none');
     const hover = usageStatAppearance(true);
     expect(hover.border).toBe('0');
-    expect(hover['border-radius']).toBe('0');
+    expect(hover['border-radius']).toBe('var(--radius-none)');
     expect(hover['border-color']).toBe('transparent');
     expect(hover['box-shadow']).toBe('var(--usage-stat-hover-shadow)');
   });

@@ -132,7 +132,7 @@
   gap: 10px;
   padding: 0;
   border: 0;
-  border-radius: 0;
+  border-radius: var(--radius-none);
   background: transparent;
   box-shadow: none;
 }
@@ -177,11 +177,11 @@
 }
 
 .usage-records-page .usage-request-log .usage-events-table thead th:first-child {
-  border-radius: 14px 0 0 14px;
+  border-radius: var(--radius-lg) var(--radius-none) var(--radius-none) var(--radius-lg);
 }
 
 .usage-records-page .usage-request-log .usage-events-table thead th:last-child {
-  border-radius: 0 14px 14px 0;
+  border-radius: var(--radius-none) var(--radius-lg) var(--radius-lg) var(--radius-none);
 }
 
 .usage-records-page .usage-request-log.usage-events-errors-expanded .usage-events-table td {
@@ -215,11 +215,11 @@ body.table-col-resizing .usage-records-page .usage-request-log .usage-events-tab
 }
 
 .usage-records-page .usage-request-log .usage-events-table tbody td:first-child {
-  border-radius: 16px 0 0 16px;
+  border-radius: var(--radius-lg) var(--radius-none) var(--radius-none) var(--radius-lg);
 }
 
 .usage-records-page .usage-request-log .usage-events-table tbody td:last-child {
-  border-radius: 0 16px 16px 0;
+  border-radius: var(--radius-none) var(--radius-lg) var(--radius-lg) var(--radius-none);
 }
 
 .usage-records-page .usage-request-log .usage-events-table tbody tr:hover td {
@@ -236,7 +236,7 @@ body.table-col-resizing .usage-records-page .usage-request-log .usage-events-tab
   margin-top: 2px;
   padding: 8px 4px 2px;
   border: 0;
-  border-radius: 0;
+  border-radius: var(--radius-none);
   background: transparent;
 }
 
@@ -257,7 +257,7 @@ body.table-col-resizing .usage-records-page .usage-request-log .usage-events-tab
   margin: 5px auto 0;
   padding: 1px 7px;
   border: 1px solid color-mix(in srgb, var(--ui-accent) 24%, transparent);
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: var(--ui-accent-soft);
   color: var(--ui-accent-strong);
   font-size: 11px;
@@ -282,7 +282,7 @@ body.table-col-resizing .usage-records-page .usage-request-log .usage-events-tab
   width: fit-content;
   margin-inline: auto;
   padding: 2px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   font-size: 12px;
   font-weight: 650;
 }
@@ -290,7 +290,7 @@ body.table-col-resizing .usage-records-page .usage-request-log .usage-events-tab
 .usage-records-page .usage-request-log .usage-result-dot {
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
 }
 
 .usage-records-page .usage-request-log .usage-result.success {

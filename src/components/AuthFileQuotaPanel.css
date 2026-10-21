@@ -5,7 +5,7 @@
   gap: 6px;
   padding: 0;
   border: 0;
-  border-radius: 0;
+  border-radius: var(--radius-none);
   background: transparent;
 }
 
@@ -97,7 +97,7 @@
   overflow: hidden;
   padding: 2px 7px;
   border: 0;
-  border-radius: 0;
+  border-radius: var(--radius-none);
   background: transparent;
   font-size: 12px;
   font-weight: 600;
@@ -108,14 +108,14 @@
 /* Dense quota cells follow the compact overview treatment: quiet labels and a
    single visual weight for the remaining amount. */
 .credential-quota-dense .credential-quota-label span {
-  border-radius: 5px;
+  border-radius: var(--radius-md);
   background: color-mix(in srgb, var(--text-tertiary) 8%, var(--bg-card));
   color: var(--text-secondary);
   font-weight: 600;
 }
 .credential-quota-dense .credential-quota-track {
   height: 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: color-mix(in srgb, var(--text-tertiary) 10%, var(--bg-card));
 }
 .credential-quota-dense .credential-quota-track i {

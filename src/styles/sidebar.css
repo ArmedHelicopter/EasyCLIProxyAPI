@@ -60,7 +60,7 @@
   width: 32px;
   height: 32px;
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   box-shadow: var(--sidebar-logo-ring);
 }
 
@@ -116,7 +116,7 @@
   height: 34px;
   padding: 0 10px;
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: transparent;
   color: var(--sidebar-text);
   font-size: var(--font-size-label);
@@ -189,7 +189,7 @@
   width: 6px;
   height: 6px;
   margin-right: 2px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--amber-color);
 }
 
@@ -257,7 +257,7 @@
   height: 28px;
   padding: 0 6px 0 10px;
   border: 0;
-  border-radius: 7px;
+  border-radius: var(--radius-md);
   background: transparent;
   color: var(--sidebar-text);
   font-size: var(--font-size-meta);
@@ -309,7 +309,7 @@
   gap: 1px;
   padding: 4px;
   border: 1px solid var(--sidebar-popover-edge);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--sidebar-popover-bg);
   box-shadow: var(--sidebar-popover-shadow);
   transform-origin: bottom left;
@@ -324,7 +324,7 @@
   height: 30px;
   padding: 0 8px 0 10px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background: transparent;
   color: var(--sidebar-text);
   font-size: var(--font-size-meta);
@@ -366,7 +366,7 @@
   height: 28px;
   justify-content: center;
   padding: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
 }
 
 .nav-plugin-toggle > svg {
@@ -430,7 +430,7 @@
   padding: 0;
   place-items: center;
   border: 0;
-  border-radius: 7px;
+  border-radius: var(--radius-md);
   background: transparent;
   color: var(--sidebar-icon);
   transition: background-color 150ms ease, color 150ms ease, transform 120ms var(--sidebar-ease-out);
@@ -596,7 +596,7 @@
 }
 
 .nav-plugin-row { position: relative; min-width: 0; }
-.nav-plugin-row.dragging { z-index: 5; background: var(--bg-card); border-radius: 8px; box-shadow: var(--shadow-lg); }
+.nav-plugin-row.dragging { z-index: 5; background: var(--bg-card); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); }
 .nav-section .nav-plugin-row .nav-plugin-entry { width: 100%; padding-right: 28px; }
 .nav-section .nav-plugin-row .nav-plugin-drag { position: absolute; top: 50%; right: 3px; transform: translateY(-50%); width: 22px; height: 26px; min-height: 0; padding: 0; display: flex; align-items: center; justify-content: center; opacity: .35; color: var(--text-tertiary); touch-action: none; cursor: grab; border: 0; background: transparent; }
 .nav-plugin-row:hover .nav-plugin-drag, .nav-plugin-row:focus-within .nav-plugin-drag { opacity: 1; }

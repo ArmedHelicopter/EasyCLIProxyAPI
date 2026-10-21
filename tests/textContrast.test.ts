@@ -19,8 +19,8 @@ const aliases: Record<string, string> = {
 };
 const surfaces = [
   '--bg-primary', '--bg-secondary', '--bg-tertiary', '--bg-hover', '--bg-card',
-  '--color-surface', '--color-surface-raised', '--color-surface-subtle',
-  '--color-surface-muted', '--color-surface-hover', '--color-surface-active',
+  '--color-surface', '--color-surface-subtle',
+  '--color-surface-hover', '--color-surface-active',
   '--color-workspace', '--ui-accent-soft',
 ];
 const textTokens = [

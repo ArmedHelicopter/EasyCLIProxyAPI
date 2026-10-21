@@ -49,7 +49,7 @@
   height: 14px;
   padding: 0;
   border: 0;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   background: var(--border-primary);
   cursor: pointer;
 }
@@ -89,7 +89,7 @@
   max-width: 100%;
   padding: 9px 12px;
   border: 1px solid var(--border-color);
-  border-radius: 7px;
+  border-radius: var(--radius-md);
   background: var(--bg-card);
   color: var(--text-secondary);
   box-shadow: var(--shadow-md);

@@ -26,7 +26,6 @@ describe('request log semantic tokens regression', () => {
 
     expect(baseDecls['--palette-blue-600']).toBe('#2563eb');
     expect(baseDecls['--palette-teal-600']).toBe('#0f766e');
-    expect(baseDecls['--palette-amber-700']).toBe('#8b5b21');
 
     expect(compDecls['--request-log-input']).toBe('var(--palette-blue-600)');
     expect(compDecls['--request-log-output']).toBe('var(--palette-teal-600)');

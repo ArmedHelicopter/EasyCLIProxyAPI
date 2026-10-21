@@ -70,7 +70,7 @@ body,
 .workspace .agent-list-items button.active {
   border: 1px solid transparent;
   border-left: 3px solid var(--color-accent);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: color-mix(in srgb, var(--color-accent) 8%, var(--color-surface));
   color: var(--color-accent-strong);
   box-shadow: none;

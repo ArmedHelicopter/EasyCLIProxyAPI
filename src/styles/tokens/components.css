@@ -100,55 +100,9 @@
   --scrim: rgba(45, 42, 38, 0.4196078431);
 
   --switch-track-bg: var(--color-border-subtle);
-  --switch-track-active: var(--theme-control-active-background, var(--color-accent));
-  --switch-thumb-bg: var(--theme-control-thumb, var(--color-surface));
-  --switch-thumb-active: var(--theme-control-active-thumb, var(--color-surface));
-  --switch-focus-ring: var(--color-focus-ring);
-
-  --button-radius: var(--radius-md);
-  --button-primary-bg: var(--theme-primary-button-background, var(--color-accent));
-  --button-primary-hover: var(--theme-primary-button-hover-background, var(--color-accent-strong));
-  --button-primary-text: var(--theme-primary-button-text, var(--color-accent-contrast));
-  --button-primary-border: var(--theme-primary-button-border, transparent);
-  --button-secondary-bg: var(--color-surface);
-  --button-secondary-hover: var(--color-surface-hover);
-  --button-secondary-text: var(--color-text-secondary);
-  --button-secondary-border: var(--color-border-default);
-  --button-danger-bg: var(--color-danger);
-  --button-danger-text: var(--palette-neutral-0);
-
-  --card-bg: var(--color-surface);
-  --card-border: var(--color-border-default);
-  --card-border-width: var(--border-width);
-  --card-radius: var(--radius-lg);
-  --card-shadow: var(--shadow-none);
 
   --panel-bg: var(--color-surface);
-  --panel-border: var(--color-border-default);
-  --panel-border-hover: var(--color-border-strong);
-  --panel-radius: var(--radius-lg);
-  --panel-shadow: var(--ui-panel-shadow, var(--shadow-sm));
-
-  --input-bg: var(--color-surface);
-  --input-border: var(--color-border-default);
-  --input-border-hover: var(--color-border-hover);
-  --input-border-focus: var(--color-border-focus);
-  --input-text: var(--color-text-primary);
-  --input-placeholder: var(--color-text-quaternary);
-  --input-radius: var(--radius-md);
   --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%232d2a26' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-
-  --dialog-bg: var(--color-surface);
-  --dialog-border: var(--color-border-default);
-  --dialog-radius: var(--radius-lg);
-  --dialog-shadow: var(--shadow-dialog);
-  --dialog-backdrop: var(--theme-scrim, rgba(0, 0, 0, 0.45));
-
-  --tab-text: var(--color-text-secondary);
-  --tab-text-active: var(--color-accent);
-  --tab-text-hover: var(--color-text-primary);
-  --tab-border-active: var(--color-accent);
-  --tab-bg-hover: var(--color-surface-hover);
   --tab-shadow-active: 0 1px 3px rgba(0, 0, 0, 0.06);
   --topbar-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   --guide-card-shadow: 0 20px 48px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.15);
@@ -187,11 +141,6 @@
   --usage-stat-hover-shadow: 0 2px 6px rgba(0, 0, 0, 0.05), 0 14px 32px rgba(0, 0, 0, 0.06);
   --metric-card-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
   --usage-price-sync-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-  --home-overview-shadow: 0 2px 4px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.03);
-
-  --badge-radius: var(--radius-sm);
-  --badge-bg: var(--color-surface-subtle);
-  --badge-text: var(--color-text-tertiary);
 
   --sidebar-bg: #f7f8fa;
   --sidebar-edge: rgba(15, 23, 42, 0.07);
@@ -205,7 +154,6 @@
   --sidebar-selected-shadow: 0 0 0 1px var(--sidebar-selected-border-color, rgba(15, 23, 42, 0.06)),
     0 1px 2px var(--sidebar-selected-shadow-color, rgba(15, 23, 42, 0.06)),
     0 2px 6px -2px var(--sidebar-selected-shadow-color, rgba(15, 23, 42, 0.06));
-  --sidebar-track-bg: rgba(15, 23, 42, 0.05);
   --sidebar-thumb-bg: #ffffff;
   --sidebar-logo-ring: 0 0 0 1px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.08);
   --sidebar-popover-bg: #ffffff;
@@ -313,7 +261,6 @@
   --sidebar-selected-bg: rgba(255, 255, 255, 0.075);
   --sidebar-selected-shadow: inset 0 0 0 1px var(--sidebar-selected-border-color, rgba(255, 255, 255, 0.05)),
     0 1px 2px var(--sidebar-selected-shadow-color, rgba(0, 0, 0, 0.3));
-  --sidebar-track-bg: rgba(255, 255, 255, 0.05);
   --sidebar-thumb-bg: rgba(255, 255, 255, 0.13);
   --sidebar-logo-ring: 0 0 0 1px rgba(255, 255, 255, 0.08);
   --sidebar-popover-bg: #1a1e27;

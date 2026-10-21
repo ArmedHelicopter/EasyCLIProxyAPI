@@ -21,7 +21,7 @@ body.table-col-resizing * {
   z-index: 8995;
   background: var(--color-surface);
   box-shadow: 0 0 0 4px var(--ui-accent), 0 0 35px color-mix(in srgb, var(--ui-accent) 68%, transparent), var(--guide-highlight-shadow);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   pointer-events: auto;
   animation: targetPulse 2.5s infinite alternate ease-in-out;
 }

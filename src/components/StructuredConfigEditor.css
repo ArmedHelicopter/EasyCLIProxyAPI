@@ -25,7 +25,7 @@
 .structured-object .text-input, .structured-object .select-input,
 .structured-any > .text-input, .structured-any > .select-input {
   box-sizing: border-box; min-width: 0; width: 100%; padding: 9px 11px;
-  border: 1px solid var(--border-color); border-radius: 8px;
+  border: 1px solid var(--border-color); border-radius: var(--radius-md);
   background: var(--bg-primary); color: var(--text-primary); font: inherit; font-size: 13px; line-height: 1.5;
 }
 .structured-list :is(input, select):focus-visible, .structured-map :is(input, select):focus-visible,
