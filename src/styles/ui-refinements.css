@@ -17,36 +17,12 @@
   --text-primary: var(--color-text-primary);
   --text-secondary: var(--color-text-secondary);
   --text-tertiary: var(--color-text-tertiary);
-  --theme-faf9f5: var(--color-surface-sunken);
-  --theme-faf8f4: var(--color-surface);
-  --theme-faf8f2: var(--color-surface);
-  --theme-fffdf8: var(--color-surface);
-  --theme-f8f5ee: var(--color-surface-subtle);
-  --theme-f6f2ec: var(--color-surface-subtle);
-  --theme-f4f1ea: var(--color-surface-subtle);
-  --theme-eeeae2: var(--color-border-subtle);
-  --theme-e8e5dc: var(--color-border-subtle);
-  --theme-e3e1db: var(--color-border-default);
-  --theme-d5d2cb: var(--color-border-strong);
-  --theme-2d2a26: var(--color-text-primary);
-  --theme-2f6b3f: var(--color-success);
-  --theme-2f6b3a: var(--color-success);
-  --theme-eef7f0: var(--color-success-subtle);
-  --theme-b6d3bd: var(--color-success-border);
-  --theme-c77b30: var(--color-warning);
-  --theme-fff7e9: var(--color-warning-subtle);
-  --theme-dfbf91: var(--color-warning-border);
-  --theme-9f2d20: var(--color-danger);
-  --theme-fff1ee: var(--color-danger-subtle);
-  --theme-dfb7b0: var(--color-danger-border);
-  --theme-a83f32: var(--color-danger-border);
   --primary-color: var(--color-accent);
   --ui-accent: var(--color-accent);
   --ui-accent-strong: var(--color-accent-strong);
   --ui-accent-soft: var(--color-accent-soft);
   --ui-focus-ring: var(--color-focus-ring);
   --ui-panel-shadow: var(--shadow-panel);
-  --ui-card-hover-shadow: 0 4px 14px -2px var(--theme-panel-shadow-color, rgba(15, 23, 42, 0.08)), 0 2px 6px -2px var(--theme-panel-shadow-color, rgba(15, 23, 42, 0.04));
 }
 
 /* 2. Pure White Surface Application */
@@ -574,7 +550,7 @@ button.oauth-account-count:focus-visible {
   height: 34px;
   border: 0;
   border-radius: 999px;
-  background: var(--theme-soft-surface, rgba(118, 118, 128, 0.12));
+  background: var(--usage-collector-state-bg);
   box-shadow: none;
   color: var(--theme-text-primary, var(--color-text-secondary));
 }
@@ -717,7 +693,7 @@ button.oauth-account-count:focus-visible {
 
 .usage-stat-card:hover {
   border-color: transparent;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05), 0 14px 32px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--usage-stat-hover-shadow);
   transform: none;
 }
 
@@ -746,7 +722,7 @@ button.oauth-account-count:focus-visible {
   border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 16px;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+  box-shadow: var(--metric-card-shadow);
 }
 
 .metric-card strong {

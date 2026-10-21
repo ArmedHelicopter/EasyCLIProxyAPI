@@ -267,7 +267,7 @@ describe('shared container surfaces', () => {
     expect(hover.border).toBe('0');
     expect(hover['border-radius']).toBe('0');
     expect(hover['border-color']).toBe('transparent');
-    expect(hover['box-shadow']).toContain('0 2px 6px');
+    expect(hover['box-shadow']).toBe('var(--usage-stat-hover-shadow)');
   });
   it('rejects appearance mutations including logical properties and pseudo-elements', () => {
     for (const prop of ['border', 'background', 'border-radius', 'box-shadow', 'outline', 'outline-color', 'outline-offset', 'border-inline-start-color', 'border-start-start-radius', 'background-image']) {

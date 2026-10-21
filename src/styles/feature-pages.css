@@ -1056,7 +1056,7 @@
 
 .simple-mode-choice:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(45, 42, 38, 0.08);
+  box-shadow: var(--simple-choice-hover-shadow);
 }
 
 .simple-mode-choice-heading {
@@ -1141,7 +1141,7 @@
 .simple-mode-provider-card:hover {
   transform: translateY(-1px);
   border-color: color-mix(in srgb, var(--ui-accent) 30%, var(--color-border-default));
-  box-shadow: 0 8px 20px rgba(45, 42, 38, 0.07);
+  box-shadow: var(--simple-provider-hover-shadow);
 }
 
 .simple-mode-provider-card.connected {
@@ -1378,7 +1378,7 @@
   border-color: var(--ui-accent);
   background: var(--color-surface);
   color: var(--color-text-primary);
-  box-shadow: 0 2px 6px rgba(45, 42, 38, 0.08);
+  box-shadow: var(--simple-api-platform-active-shadow);
 }
 
 .simple-mode-api-platform-icon {
@@ -1417,7 +1417,7 @@
   background: var(--color-workspace);
   color: var(--color-text-primary);
   font-size: var(--font-size-body);
-  box-shadow: inset 0 1px 2px rgba(45, 42, 38, 0.04);
+  box-shadow: var(--simple-input-inset-shadow);
   transition: border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
 }
 
@@ -2312,7 +2312,7 @@
   border: 1px solid var(--color-border-default);
   border-radius: 12px;
   background: var(--color-surface);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  box-shadow: var(--topbar-shadow);
 }
 
 .simple-mode-topbar-left {
@@ -2418,7 +2418,7 @@
   border: 1px solid var(--color-border-strong);
   border-radius: 8px;
   background: var(--color-surface);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--lang-menu-shadow);
   z-index: 100;
   padding: 4px;
   display: grid;
@@ -2615,7 +2615,7 @@
   border-radius: 14px;
   background: var(--color-surface);
   border: 1px solid var(--color-border-strong);
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.15);
+  box-shadow: var(--guide-card-shadow);
   z-index: 9005;
   pointer-events: auto;
   max-height: calc(100vh - 32px);
@@ -3120,7 +3120,7 @@
 .app-notice-entry .action-feedback.inline-notice {
   margin: 0;
   background: linear-gradient(var(--notice-background), var(--notice-background)), var(--theme-overlay-surface);
-  box-shadow: 0 4px 16px rgba(45, 42, 38, 0.18);
+  box-shadow: var(--notice-floating-shadow);
 }
 
 :root[data-window-material] .app-notice-entry .action-feedback.inline-notice {
