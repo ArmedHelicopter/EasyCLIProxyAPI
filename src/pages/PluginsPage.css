@@ -1,3 +1,4 @@
+@layer components {
 .plugin-tab-panel { display: flex; flex-direction: column; gap: 20px; }
 .plugins-page { display: flex; flex-direction: column; gap: 20px; min-width: 0; max-width: 1500px; margin: 0 auto; padding: 0 0 24px; }
 .plugin-global-toggle { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
@@ -122,3 +123,5 @@
 }
 .plugin-banner { gap: 16px; padding: 14px 18px; }
 .plugin-warning { padding: 14px 16px; }
+
+}

@@ -1,3 +1,4 @@
+@layer components {
 .config-dialog.plugin-config-dialog {
   display: flex;
   flex-direction: column;
@@ -58,4 +59,6 @@
 @media (max-width: 560px) {
   .plugin-config-dialog .config-dialog-heading, .plugin-config-body, .plugin-config-footer { padding: 16px; }
   .plugin-config-actions button { flex: 1; }
+}
+
 }

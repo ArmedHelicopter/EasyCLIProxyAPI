@@ -177,7 +177,7 @@ describe('theme registry and application', () => {
       expect(styles.size).toBe(1);
       apply(theme);
       expect(styles.size).toBe(1);
-      expect(body.style.backgroundColor).toBe(theme.windowBackground);
+      expect(body.style.backgroundColor).toBe(theme.backdrop ? '' : theme.windowBackground);
       apply(themeRegistry.resolve(defaultId));
       expect(styles.size).toBe(0);
       expect([...properties]).toEqual([['--unrelated', 'keep']]);

@@ -51,7 +51,7 @@
 
 /* 2. Pure White Surface Application */
 body, html, #root {
-  background: var(--bg-secondary) !important;
+  background: var(--bg-secondary);
 }
 
 .app-shell,
@@ -779,23 +779,23 @@ button.oauth-account-count:focus-visible {
 
 /* 10. Status Badges & Pills */
 .state-pill.success {
-  background: var(--color-surface-subtle) !important;
-  color: var(--color-success-text) !important;
-  border: 1px solid var(--color-success-border) !important;
+  background: var(--color-surface-subtle);
+  color: var(--color-success-text);
+  border: 1px solid var(--color-success-border);
   font-weight: 500;
 }
 
 .state-pill.error {
-  background: var(--color-danger-subtle) !important;
-  color: var(--color-danger-text) !important;
-  border: 1px solid var(--color-danger-border) !important;
+  background: var(--color-danger-subtle);
+  color: var(--color-danger-text);
+  border: 1px solid var(--color-danger-border);
   font-weight: 500;
 }
 
 .state-pill.warn {
-  background: var(--color-surface-subtle) !important;
-  color: var(--color-text-secondary) !important;
-  border: 1px solid var(--color-border-default) !important;
+  background: var(--color-surface-subtle);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-default);
   font-weight: 500;
 }
 

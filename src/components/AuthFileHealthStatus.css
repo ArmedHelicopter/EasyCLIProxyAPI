@@ -1,3 +1,4 @@
+@layer components {
 .auth-file-health {
   --health-accent: var(--text-tertiary);
   grid-column: 2 / -1;
@@ -158,4 +159,6 @@
   .auth-file-health-compact .auth-health-disclosure { position: absolute; top: 11px; right: 0; }
   .auth-file-health-compact > details[open] .auth-health-summary-content { flex-basis: auto; }
   .auth-file-health-compact > details[open] .auth-health-countdown { margin-left: auto; }
+}
+
 }

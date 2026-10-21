@@ -1,3 +1,4 @@
+@layer components {
 .credential-settings-dialog {
   width: min(820px, calc(100vw - 32px));
   max-height: min(900px, calc(100dvh - 40px));
@@ -78,3 +79,5 @@
   .credential-alias-row > :first-child { grid-column: 1 / -1; }
 }
 
+
+}

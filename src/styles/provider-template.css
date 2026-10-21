@@ -1,3 +1,4 @@
+@layer components {
 .provider-template-fields, .provider-template-rules { display: grid; min-width: 0; gap: 12px; }
 .provider-template-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); gap: 12px; min-width: 0; }
 .provider-template-field { display: grid; align-content: start; min-width: 0; gap: 6px; }
@@ -19,3 +20,5 @@
 /* GTK/WebKit adds native select insets; vertical CSS padding can clip the text. */
 .provider-template-section select, .provider-template-field select { min-height: max(36px, calc(1.6em + 2px)); height: auto; border: 1px solid var(--color-border-subtle); border-radius: 7px; background: var(--bg-primary); color: var(--text-primary); padding: 0 8px; font: inherit; }
 .api-provider-dialog .provider-template-fields { grid-column: 1 / -1; }
+
+}

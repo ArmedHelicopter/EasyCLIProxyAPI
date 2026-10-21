@@ -79,7 +79,7 @@
 }
 
 .usage-request-log .usage-events-table tbody tr:hover td {
-  background: var(--bg-hover) !important;
+  background: var(--bg-hover);
 }
 
 .usage-request-log .usage-th-total,
@@ -375,6 +375,11 @@
 .usage-request-log .usage-col-resizer:focus-visible::after {
   opacity: 1;
   background: var(--usage-log-muted);
+}
+
+.usage-request-log .usage-events-table th .usage-col-resizer:hover::after,
+.usage-request-log .usage-events-table th .usage-col-resizer.active::after {
+  background: var(--ui-accent);
 }
 
 .usage-request-log .usage-table-top-scrollbar {

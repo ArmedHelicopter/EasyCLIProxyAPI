@@ -1,3 +1,4 @@
+@layer components {
 .config-dialog.vertex-import-dialog {
   width: min(540px, 100%);
   height: auto;
@@ -27,3 +28,5 @@
 .vertex-login-result dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 12px; }
 .vertex-login-result dt { color: var(--text-secondary); }
 .vertex-login-result dd { margin: 0; }
+
+}

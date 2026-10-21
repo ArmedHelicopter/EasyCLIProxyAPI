@@ -2606,15 +2606,6 @@
   transition: opacity 0.3s ease;
 }
 
-.guide-focus-highlight {
-  position: relative !important;
-  z-index: 8995 !important;
-  background: var(--color-surface) !important;
-  box-shadow: 0 0 0 4px var(--ui-accent), 0 0 35px color-mix(in srgb, var(--ui-accent) 68%, transparent), 0 12px 36px rgba(0, 0, 0, 0.25) !important;
-  border-radius: 12px;
-  pointer-events: auto !important;
-  animation: targetPulse 2.5s infinite alternate ease-in-out;
-}
 
 .guide-interactive-card {
   position: fixed;
@@ -2673,7 +2664,7 @@
 
 .guide-btn-sm.disabled {
   opacity: 0.55;
-  cursor: not-allowed !important;
+  cursor: not-allowed;
   pointer-events: none;
 }
 

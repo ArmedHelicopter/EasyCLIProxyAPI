@@ -1,3 +1,4 @@
+@layer components {
 .immersive-window {
   --window-titlebar-height: 34px;
   position: relative;
@@ -80,4 +81,6 @@
 }
 @media (max-width: 900px) {
   .immersive-window:has(.sidebar) .window-titlebar { background: var(--sidebar-bg); }
+}
+
 }

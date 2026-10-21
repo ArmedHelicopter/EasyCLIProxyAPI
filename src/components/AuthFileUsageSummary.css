@@ -1,3 +1,4 @@
+@layer components {
 .auth-file-usage {
   container: auth-file-usage / inline-size;
   min-width: 0;
@@ -59,4 +60,6 @@
 
 @container auth-file-usage (max-width: 130px) {
   .auth-file-usage-metrics { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+}
+
 }

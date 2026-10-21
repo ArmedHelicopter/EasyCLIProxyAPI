@@ -971,17 +971,17 @@ textarea:focus-visible {
 .client-api-key-copy {
   width: 26px;
   height: 26px;
-  border-color: transparent !important;
-  background: transparent !important;
+  border-color: transparent;
+  background: transparent;
 }
 
 .client-api-key-copy:hover:not(:disabled) {
-  border-color: var(--color-border-strong) !important;
-  background: var(--color-surface-hover) !important;
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-hover);
 }
 
 .client-api-no-key {
-  color: var(--color-danger-text) !important;
+  color: var(--color-danger-text);
 }
 
 .client-api-grid {
@@ -1185,7 +1185,7 @@ textarea:focus-visible {
   align-items: center;
   justify-content: flex-end;
   height: 40px;
-  overflow: visible !important;
+  overflow: visible;
 }
 
 .compact-text-input {
@@ -2073,7 +2073,7 @@ textarea:focus-visible {
   color: var(--color-text-secondary);
 }
 
-.icon-button:hover:not(:disabled) {
+.icon-button:hover:not(:disabled, .copied) {
   background: var(--color-surface-hover);
 }
 
@@ -2083,7 +2083,7 @@ textarea:focus-visible {
   color: var(--color-text-primary);
 }
 
-.icon-button.quiet:hover:not(:disabled) {
+.icon-button.quiet:hover:not(:disabled, .copied) {
   background: var(--color-surface-hover);
 }
 
@@ -2093,7 +2093,7 @@ textarea:focus-visible {
   color: var(--color-danger-text);
 }
 
-.icon-button.danger:hover:not(:disabled) {
+.icon-button.danger:hover:not(:disabled, .copied) {
   background: var(--color-danger-subtle);
 }
 
@@ -2104,9 +2104,9 @@ textarea:focus-visible {
 
 .icon-button.copied,
 .icon-button.quiet.copied {
-  border-color: var(--success-badge-border) !important;
-  background: var(--success-badge-bg) !important;
-  color: var(--success-color) !important;
+  border-color: var(--success-badge-border);
+  background: var(--success-badge-bg);
+  color: var(--success-color);
 }
 
 .config-key-list {
@@ -6489,11 +6489,11 @@ textarea:focus-visible {
 }
 
 .agent-section-heading-actions {
-  display: flex !important;
+  display: flex;
   flex: none;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px !important;
+  gap: 8px;
 }
 
 .agent-claude-desktop-mapping-filter {
@@ -7071,7 +7071,7 @@ textarea:focus-visible {
 }
 
 .codex-catalog-option {
-  grid-template-columns: auto minmax(0, 1fr) !important;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   min-height: 42px;
   padding: 9px 11px;
@@ -7081,8 +7081,8 @@ textarea:focus-visible {
 }
 
 .codex-catalog-option > input {
-  width: 16px !important;
-  height: 16px !important;
+  width: 16px;
+  height: 16px;
 }
 
 .codex-catalog-hint {
@@ -7777,12 +7777,12 @@ textarea:focus-visible {
 }
 
 .usage-trend-x-axis span.is-start {
-  left: 0 !important;
+  left: 0;
   transform: none;
 }
 
 .usage-trend-x-axis span.is-end {
-  left: 100% !important;
+  left: 100%;
   transform: translateX(-100%);
 }
 
@@ -8618,7 +8618,7 @@ textarea:focus-visible {
 }
 
 .usage-events-table tbody tr:hover td {
-  background-color: var(--color-surface-hover) !important;
+  background-color: var(--color-surface-hover);
 }
 
 .usage-events-table th {
@@ -8701,17 +8701,12 @@ textarea:focus-visible {
 
 .usage-col-resizer:hover::after,
 .usage-col-resizer.active::after {
-  background-color: var(--ui-accent) !important;
+  background-color: var(--ui-accent);
   width: 2px;
   height: 100%;
   opacity: 1;
 }
 
-body.table-col-resizing,
-body.table-col-resizing * {
-  cursor: col-resize !important;
-  user-select: none !important;
-}
 
 .usage-events-table td.usage-td-time {
   font-variant-numeric: tabular-nums;

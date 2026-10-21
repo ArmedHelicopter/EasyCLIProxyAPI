@@ -29,7 +29,7 @@ body,
 }
 
 :is(.workspace, .app-dialog) :is(
-  .secondary-button:not(.danger, .ghost), .icon-button:not(.danger, .ghost), .agent-auth-segmented-button,
+  .secondary-button:not(.danger, .ghost, .copied), .icon-button:not(.danger, .ghost, .copied), .agent-auth-segmented-button,
   .routing-segmented button,
   .usage-price-row-actions button
 ) {
@@ -59,10 +59,10 @@ body,
 }
 
 :is(.workspace, .app-dialog) :is(
-  .secondary-button:not(.danger, .ghost), .icon-button:not(.danger, .ghost), .agent-auth-segmented-button,
+  .secondary-button:not(.danger, .ghost, .copied), .icon-button:not(.danger, .ghost, .copied), .agent-auth-segmented-button,
   .routing-segmented button,
   .agent-list-items button, .usage-price-row-actions button
-):hover:not(:disabled) {
+):hover:not(:disabled, .copied) {
   background: var(--workspace-hover);
   border-color: var(--color-accent);
   color: var(--color-accent-strong);

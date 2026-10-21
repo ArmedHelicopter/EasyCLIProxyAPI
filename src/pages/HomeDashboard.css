@@ -1,3 +1,4 @@
+@layer components {
 .home-page.home-dashboard {
   --home-line: color-mix(in srgb, var(--border-color) 65%, transparent);
   --home-surface: color-mix(in srgb, var(--bg-card) 94%, var(--bg-secondary));
@@ -132,4 +133,5 @@
 }
 @media (prefers-contrast: more) {
   .home-page.home-dashboard { --home-line: var(--text-secondary); }
+}
 }

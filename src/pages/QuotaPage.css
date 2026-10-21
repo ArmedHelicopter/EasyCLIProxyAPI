@@ -1,3 +1,4 @@
+@layer components {
 .quota-page .quota-category-filter {
   display: flex;
   flex-wrap: nowrap;
@@ -126,3 +127,5 @@
 .quota-page .quota-window-status small { color: var(--text-tertiary); font-size: 11px; font-variant-numeric: tabular-nums; }
 .quota-page .real-quota-track span { background: var(--color-success); }
 .quota-page .quota-card-actions { display: flex; order: 4; justify-content: flex-end; margin-top: 0; }
+
+}

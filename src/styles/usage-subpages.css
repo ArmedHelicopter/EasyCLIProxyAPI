@@ -227,7 +227,7 @@ body.table-col-resizing .usage-records-page .usage-request-log .usage-events-tab
 }
 
 .usage-records-page .usage-request-log .usage-events-table tbody tr:hover td {
-  background: var(--bg-hover) !important;
+  background: var(--bg-hover);
 }
 
 .usage-records-page .usage-request-log .usage-th-total,

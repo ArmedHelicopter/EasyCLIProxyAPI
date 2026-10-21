@@ -1,3 +1,4 @@
+@layer components {
 .usage-analysis-grid.usage-analysis-view {
   --analysis-success: var(--usage-analysis-success);
   --analysis-failed: var(--usage-analysis-failed);
@@ -171,4 +172,6 @@
   .usage-model-bar-detail { grid-template-columns: 78px minmax(0, 1fr) 42px; gap: 6px; }
   .usage-results-chart { grid-template-columns: 125px minmax(80px, 1fr); gap: 12px; }
   .usage-results-center strong { font-size: 24px; }
+}
+
 }

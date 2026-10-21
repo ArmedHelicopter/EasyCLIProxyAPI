@@ -1,3 +1,4 @@
+@layer components {
 .auth-files-page {
   --auth-muted: var(--auth-file-muted);
   --auth-text: var(--auth-file-text);
@@ -164,18 +165,18 @@
 .auth-files-page .auth-list-quota {
   min-width: 0;
   padding: 2px 0 0;
-  border: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 .auth-files-page .auth-list-quota .credential-quota,
 .auth-files-page .auth-list-quota .credential-quota.credential-quota-compact,
 .auth-files-page .auth-list-quota .credential-quota.credential-quota-dense {
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  padding: 0 !important;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
 }
 .auth-files-page .credential-quota-dense {
   width: 100%;
@@ -212,4 +213,6 @@
 .auth-files-page .auth-list-icon-actions,
 .auth-files-page .auth-list-main-actions {
   max-width: 100%;
+}
+
 }

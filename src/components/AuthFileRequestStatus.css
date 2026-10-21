@@ -1,3 +1,4 @@
+@layer components {
 .auth-file-requests {
   grid-column: 2 / -1;
   display: grid;
@@ -208,4 +209,6 @@
   padding: 8px 10px;
   font-size: 11px;
   line-height: 1.5;
+}
+
 }

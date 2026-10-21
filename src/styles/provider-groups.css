@@ -1,3 +1,4 @@
+@layer components {
 .provider-group-hint,
 .provider-group-heading p {
   margin: 0;
@@ -61,4 +62,6 @@
   .provider-group-key { padding: 8px; }
   .provider-group-key-main { flex-wrap: wrap; }
   .provider-group-key-main > label { flex-basis: 100%; }
+}
+
 }

@@ -1,3 +1,4 @@
+@layer components {
 .claude-code-model-inputs,
 .claude-role-table {
   display: grid;
@@ -102,3 +103,5 @@
   .claude-role-row > strong { grid-column: 1 / -1; }
 }
 .claude-code-model-error { gap: 12px; padding: 12px; }
+
+}

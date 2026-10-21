@@ -1,3 +1,4 @@
+@layer components {
 .core-health-panel { min-width: 0; overflow: hidden; border: 1px solid var(--border-color); border-radius: 14px; background: var(--bg-card); }
 .core-health-entry { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; min-width: 0; }
 .core-health-entry .core-health-open { gap: 8px; }
@@ -68,4 +69,6 @@
   .core-health-table th:first-child, .core-health-table td:first-child { padding-left: 16px; }
   .core-health-table td:last-child { padding-right: 16px; }
   .core-health-footer { padding: 12px 16px; }
+}
+
 }

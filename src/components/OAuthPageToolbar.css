@@ -1,3 +1,4 @@
+@layer components {
 .oauth-page-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -59,4 +60,6 @@
     padding-top: 12px;
     border-top: 1px solid var(--border-color);
   }
+}
+
 }

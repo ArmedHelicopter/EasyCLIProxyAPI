@@ -1,3 +1,4 @@
+@layer components {
 .config-dialog.plugin-oauth-dialog { display: flex; flex-direction: column; gap: 0; width: min(620px, 100%); height: auto; max-height: calc(100dvh - 40px); padding: 0; overflow: hidden; color: var(--color-text-primary); }
 .plugin-oauth-dialog .config-dialog-heading { flex-shrink: 0; padding: 20px 22px; border-bottom: 1px solid var(--color-border-default); }
 .plugin-oauth-dialog .config-dialog-heading > div { display: block; }
@@ -28,3 +29,5 @@
 .plugin-oauth-body form { padding-top: 16px; border-top: 1px solid var(--border-color); }
 @media (max-width: 560px) { .plugin-oauth-dialog .config-dialog-heading, .plugin-oauth-body, .plugin-oauth-footer { padding: 16px; } .plugin-oauth-link-actions button { flex: 1; } }
 .plugin-oauth-status { gap: 9px; padding: 12px 14px; }
+
+}

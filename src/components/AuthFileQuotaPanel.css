@@ -1,3 +1,4 @@
+@layer components {
 .credential-quota.credential-quota-compact {
   container: credential-quota / inline-size;
   min-width: 0;
@@ -206,4 +207,6 @@
   .credential-quota-dense .credential-quota-rows {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
 }

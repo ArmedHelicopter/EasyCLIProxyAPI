@@ -1,3 +1,4 @@
+@layer components {
 .theme-selector {
   position: relative;
   display: inline-flex;
@@ -83,3 +84,5 @@
 .theme-thumbnail-content { display: grid; flex: 1; align-content: start; gap: 3px; padding: 5px 3px; }
 .theme-thumbnail-content i { height: 4px; border-radius: 1px; background: color-mix(in srgb, var(--preview-accent) 15%, var(--preview-surface)); }
 .theme-thumbnail-content i:first-child { height: 2px; width: 60%; background: var(--preview-accent); opacity: 0.7; }
+
+}

@@ -1236,7 +1236,7 @@ function UsageTrend({
               <span
                 key={date.getTime()}
                 className={posClass}
-                style={{ left: `${left}%` }}
+                style={posClass === 'is-mid' ? { left: `${left}%` } : undefined}
                 title={date.toLocaleString(locale)}
               >
                 {formatTrendAxisLabel({ start: date }, series.bucket, locale, {
