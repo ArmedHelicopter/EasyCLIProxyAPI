@@ -18,7 +18,7 @@
 .api-provider-dialog .provider-template-field > label,
 .api-provider-dialog .provider-template-rule > .provider-template-grid > label { grid-template-rows: auto auto; }
 /* GTK/WebKit adds native select insets; vertical CSS padding can clip the text. */
-.provider-template-section select, .provider-template-field select { min-height: max(36px, calc(1.6em + 2px)); height: auto; border: 1px solid var(--color-border-subtle); border-radius: 7px; background: var(--bg-primary); color: var(--text-primary); padding: 0 8px; font: inherit; }
+.provider-template-section select, .provider-template-field select { min-height: max(36px, calc(1.6em + 2px)); height: auto; border: 1px solid var(--dialog-divider-border, var(--color-border-subtle)); border-radius: 7px; background: var(--bg-primary); color: var(--text-primary); padding: 0 8px; font: inherit; }
 .api-provider-dialog .provider-template-fields { grid-column: 1 / -1; }
 
 }

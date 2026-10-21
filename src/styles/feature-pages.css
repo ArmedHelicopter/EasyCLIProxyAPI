@@ -468,7 +468,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-meta);
 }
 
@@ -493,7 +493,7 @@
   padding: 9px 10px;
   border: 1px solid transparent;
   border-radius: 8px;
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
 }
 
 .simple-mode-step-status-item.active {
@@ -513,7 +513,7 @@
   border: 1px solid var(--color-border-strong);
   border-radius: 999px;
   background: var(--color-workspace);
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-meta);
   font-weight: var(--font-weight-semibold);
 }
@@ -549,17 +549,17 @@
 }
 
 .simple-mode-step-status-copy small {
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-caption);
 }
 
 .simple-mode-step-status-connector {
   height: 1px;
-  background: var(--color-surface-subtle);
+  background: var(--color-border-strong);
 }
 
 .simple-mode-step-status-connector.complete {
-  background: var(--color-surface-subtle);
+  background: var(--color-success-border);
 }
 
 .simple-mode-progress {
@@ -723,7 +723,7 @@
 }
 
 .simple-mode-choice small {
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-caption);
   line-height: var(--line-height-body);
 }
@@ -1145,7 +1145,7 @@
 }
 
 .simple-mode-provider-card.connected {
-  border-color: var(--color-success-border);
+  border-color: var(--simple-mode-connected-border, var(--color-success-border));
   background: var(--ui-accent-soft);
 }
 
@@ -2367,7 +2367,7 @@
 
 .simple-mode-brand-sub {
   font-size: var(--font-size-caption);
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
 }
 
 .simple-mode-topbar-right {
@@ -2548,7 +2548,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--color-surface-subtle);
+  background: var(--color-border-strong);
   cursor: default;
   transition: all 140ms ease;
 }

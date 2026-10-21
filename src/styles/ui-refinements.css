@@ -539,7 +539,7 @@ button.oauth-account-count:focus-visible {
 
 .usage-records-page {
   gap: clamp(8px, 1.5vh, 16px);
-  color: var(--theme-text-primary, var(--color-text-secondary));
+  color: var(--usage-records-page-color);
 }
 
 .usage-records-page .usage-topbar {
@@ -552,11 +552,11 @@ button.oauth-account-count:focus-visible {
   border-radius: 999px;
   background: var(--usage-collector-state-bg);
   box-shadow: none;
-  color: var(--theme-text-primary, var(--color-text-secondary));
+  color: var(--usage-collector-color);
 }
 
 .usage-records-page .usage-collector-state strong {
-  color: var(--theme-text-primary, var(--color-text-secondary));
+  color: var(--usage-collector-color);
   font-weight: 600;
 }
 
@@ -655,7 +655,7 @@ button.oauth-account-count:focus-visible {
 }
 
 .usage-records-page .usage-section-heading strong {
-  color: var(--theme-text-primary, var(--color-text-secondary));
+  color: var(--usage-records-page-color);
   font-weight: 650;
   letter-spacing: -0.02em;
 }
@@ -675,6 +675,7 @@ button.oauth-account-count:focus-visible {
   overflow: hidden;
   padding: 16px 16px 14px;
   border: 0;
+  border-color: var(--usage-stat-card-border);
   border-radius: 0;
   background: var(--theme-surface, var(--color-surface));
   box-shadow: none;
@@ -685,11 +686,11 @@ button.oauth-account-count:focus-visible {
 }
 
 .usage-stat-card.tone-requests { --usage-tone: var(--usage-request-color); }
-.usage-stat-card.tone-speed { --usage-tone: var(--color-border-default); }
-.usage-stat-card.tone-tokens { --usage-tone: var(--color-border-default); }
-.usage-stat-card.tone-success { --usage-tone: var(--color-success-border); }
-.usage-stat-card.tone-cache { --usage-tone: var(--color-border-default); }
-.usage-stat-card.tone-cost { --usage-tone: var(--color-border-default); }
+.usage-stat-card.tone-speed { --usage-tone: var(--usage-tone-speed); }
+.usage-stat-card.tone-tokens { --usage-tone: var(--usage-tone-tokens); }
+.usage-stat-card.tone-success { --usage-tone: var(--usage-tone-success); }
+.usage-stat-card.tone-cache { --usage-tone: var(--usage-tone-cache); }
+.usage-stat-card.tone-cost { --usage-tone: var(--usage-tone-cost); }
 
 .usage-stat-card:hover {
   border-color: transparent;
@@ -755,9 +756,9 @@ button.oauth-account-count:focus-visible {
 
 /* 10. Status Badges & Pills */
 .state-pill.success {
-  background: var(--color-surface-subtle);
-  color: var(--color-success-text);
-  border: 1px solid var(--color-success-border);
+  background: var(--state-pill-success-bg);
+  color: var(--state-pill-success-text);
+  border: 1px solid var(--state-pill-success-border);
   font-weight: 500;
 }
 
@@ -798,8 +799,8 @@ button.oauth-account-count:focus-visible {
 }
 
 .danger-button {
-  background: var(--color-danger-subtle);
-  border: 1px solid var(--color-danger-border);
+  background: var(--button-danger-soft-bg, var(--color-danger-subtle));
+  border: 1px solid var(--button-danger-soft-border, var(--color-danger-border));
   color: var(--button-danger-soft-text);
   border-radius: 8px;
   font-weight: 500;
@@ -807,11 +808,10 @@ button.oauth-account-count:focus-visible {
 }
 
 .danger-button:hover:not(:disabled) {
-  background: var(--color-danger);
-  border-color: var(--color-border-hover);
-  color: var(--color-text-on-accent);
+  background: var(--button-danger-hover-bg, var(--color-danger));
+  border-color: var(--button-danger-hover-border, var(--color-danger));
+  color: var(--button-danger-hover-text, var(--color-text-on-accent));
 }
-
 :root :is(.secondary-button, .danger-button, .icon-button).ghost {
   border-color: transparent;
   background: transparent;

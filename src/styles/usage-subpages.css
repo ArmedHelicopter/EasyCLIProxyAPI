@@ -11,6 +11,10 @@
   --text-quaternary: var(--usage-page-muted);
   --border-secondary: var(--usage-page-border);
   --border-color: var(--usage-page-border);
+  --workspace-button-secondary-text: var(--usage-page-text);
+  --workspace-button-secondary-border: var(--usage-error-copy-border);
+  --workspace-icon-button-quiet-color: var(--usage-page-text);
+  --icon-button-quiet-border: var(--usage-error-copy-border);
   color: var(--usage-page-text);
 }
 
@@ -154,7 +158,7 @@
   top: 0;
   border: 0;
   background: var(--theme-sticky-background, var(--bg-card));
-  color: var(--color-text-secondary);
+  color: var(--usage-th-color);
   font-size: 13px;
   font-weight: 650;
   letter-spacing: .01em;
@@ -290,7 +294,8 @@ body.table-col-resizing .usage-records-page .usage-request-log .usage-events-tab
 }
 
 .usage-records-page .usage-request-log .usage-result.success {
-  background: var(--success-badge-bg);
+  border-color: var(--usage-log-result-success-border);
+  background: var(--usage-log-result-success-bg);
   color: var(--success-badge-text);
 }
 

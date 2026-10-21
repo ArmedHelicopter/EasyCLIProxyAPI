@@ -499,7 +499,7 @@ textarea:focus-visible {
 }
 
 .version-source-copy > span {
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-meta);
   line-height: var(--line-height-body);
 }
@@ -741,7 +741,7 @@ textarea:focus-visible {
 
 .app-release-notes-heading svg {
   flex: none;
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
 }
 
 .app-release-notes-toggle {
@@ -766,7 +766,7 @@ textarea:focus-visible {
   flex-wrap: wrap;
   gap: 9px;
   padding-bottom: 20px;
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--app-release-notes-border, var(--color-border-subtle));
 }
 
 .app-release-notes-meta strong {
@@ -778,14 +778,14 @@ textarea:focus-visible {
 .app-release-notes-latest {
   padding: 2px 7px;
   border-radius: 5px;
-  background: var(--color-surface-subtle);
-  color: var(--color-success-text);
+  background: var(--badge-latest-bg);
+  color: var(--badge-latest-text, var(--color-success-text));
   font-size: var(--font-size-meta);
 }
 
 .app-release-notes-meta time {
   margin-left: auto;
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-meta);
 }
 
@@ -813,7 +813,7 @@ textarea:focus-visible {
   padding: 3px 9px;
   border-radius: 5px;
   background: var(--color-workspace);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   font-size: var(--font-size-meta);
   font-weight: var(--font-weight-semibold);
   text-align: center;
@@ -864,7 +864,7 @@ textarea:focus-visible {
   display: flex;
   justify-content: flex-end;
   padding: 10px 24px;
-  border-top: 1px solid var(--color-border-subtle);
+  border-top: 1px solid var(--app-release-notes-border, var(--color-border-subtle));
   background: var(--color-workspace);
 }
 
@@ -1514,7 +1514,7 @@ textarea:focus-visible {
   height: 100%;
   border: 1px solid var(--color-border-strong);
   border-radius: 999px;
-  background: var(--color-surface-hover);
+  background: var(--switch-track-bg);
   transition:
     background 140ms ease,
     border-color 140ms ease;
@@ -1527,7 +1527,7 @@ textarea:focus-visible {
   margin: 2px;
   border-radius: 999px;
   background: var(--theme-control-thumb);
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--switch-thumb-shadow);
   transition: transform 140ms ease;
   content: '';
 }
@@ -1837,12 +1837,12 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--color-text-secondary);
+  color: var(--config-network-section-color);
 }
 
 .config-network-section-heading svg {
   flex: none;
-  color: var(--color-text-secondary);
+  color: var(--color-text-tertiary);
 }
 
 .config-network-section-heading h3 {
@@ -1869,13 +1869,13 @@ textarea:focus-visible {
 
 .config-network-field > span,
 .config-network-toggle > div > span {
-  color: var(--color-text-secondary);
+  color: var(--config-network-section-color);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
 }
 
 .config-network-field small {
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-meta);
   line-height: var(--line-height-body);
 }
@@ -1888,7 +1888,7 @@ textarea:focus-visible {
 
 .config-network-label svg {
   flex: none;
-  color: var(--color-text-secondary);
+  color: var(--color-text-tertiary);
 }
 
 .config-proxy-heading {
@@ -1901,7 +1901,7 @@ textarea:focus-visible {
 
 .config-proxy-heading > .config-network-label {
   min-width: 0;
-  color: var(--color-text-secondary);
+  color: var(--config-network-section-color);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
 }
@@ -1911,7 +1911,7 @@ textarea:focus-visible {
   flex: none;
   align-items: center;
   gap: 7px;
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-meta);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
@@ -1989,7 +1989,7 @@ textarea:focus-visible {
 .config-heading-title svg,
 .config-dialog-heading svg {
   flex: none;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
 }
 
 .config-heading-title h2 {
@@ -2023,7 +2023,7 @@ textarea:focus-visible {
   justify-content: center;
   border: 1px solid var(--color-border-strong);
   border-radius: 6px;
-  background: var(--color-surface-hover);
+  background: var(--config-count-bg);
   color: var(--color-text-secondary);
   font-size: var(--font-size-label);
   font-variant-numeric: tabular-nums;
@@ -2038,10 +2038,10 @@ textarea:focus-visible {
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1px solid var(--color-border-focus);
+  border: 1px solid var(--icon-button-primary-bg);
   border-radius: 6px;
-  background: var(--color-text-primary);
-  color: var(--color-text-secondary);
+  background: var(--icon-button-primary-bg);
+  color: var(--icon-button-primary-text);
 }
 
 .icon-button:hover:not(:disabled, .copied) {
@@ -2049,7 +2049,7 @@ textarea:focus-visible {
 }
 
 .icon-button.quiet {
-  border-color: var(--color-border-strong);
+  border-color: var(--icon-button-quiet-border, var(--color-border-strong));
   background: var(--color-surface);
   color: var(--color-text-primary);
 }
@@ -2059,9 +2059,9 @@ textarea:focus-visible {
 }
 
 .icon-button.danger {
-  border-color: var(--color-danger-border);
+  border-color: var(--icon-button-danger-border, var(--color-danger-border));
   background: var(--color-surface);
-  color: var(--color-danger-text);
+  color: var(--icon-button-danger-color, var(--color-danger-text));
 }
 
 .icon-button.danger:hover:not(:disabled, .copied) {
@@ -2096,7 +2096,7 @@ textarea:focus-visible {
   gap: 12px;
   min-height: 66px;
   padding: 0 4px 0 2px;
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--dialog-divider-border, var(--color-border-subtle));
 }
 
 .config-key-row:last-child {
@@ -2116,8 +2116,8 @@ textarea:focus-visible {
   align-items: center;
   justify-content: center;
   border-radius: 5px;
-  background: var(--color-surface-subtle);
-  color: var(--color-text-muted);
+  background: var(--config-key-index-bg);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-meta);
   font-variant-numeric: tabular-nums;
   font-weight: var(--font-weight-semibold);
@@ -2148,7 +2148,7 @@ textarea:focus-visible {
 .config-key-details code {
   min-width: 0;
   overflow: hidden;
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-label);
   letter-spacing: 0;
   text-overflow: ellipsis;
@@ -2326,7 +2326,7 @@ textarea:focus-visible {
   border: 1px solid var(--color-border-strong);
   border-radius: 8px;
   background: var(--color-surface);
-  box-shadow: var(--shadow-dialog);
+  box-shadow: var(--config-dialog-shadow);
 }
 
 .config-dialog.config-dialog-sm {
@@ -2615,7 +2615,7 @@ textarea:focus-visible {
   border: 1px solid var(--color-border-default);
   border-radius: 8px;
   background: var(--color-surface);
-  color: var(--color-text-secondary);
+  color: var(--color-text-tertiary);
 }
 
 .config-software-setting-copy > div {
@@ -2625,7 +2625,7 @@ textarea:focus-visible {
 }
 
 .config-software-setting-copy strong {
-  color: var(--color-text-secondary);
+  color: var(--config-network-section-color);
   font-size: var(--font-size-body);
   line-height: var(--line-height-body);
 }
@@ -2927,7 +2927,7 @@ textarea:focus-visible {
   display: block;
   margin-bottom: 5px;
   overflow: hidden;
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-regular);
   text-overflow: ellipsis;
@@ -3019,7 +3019,7 @@ textarea:focus-visible {
   display: block;
   margin-top: 4px;
   overflow: hidden;
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-label);
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -3219,7 +3219,7 @@ textarea:focus-visible {
 }
 
 .model-config-heading small {
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-meta);
   font-weight: var(--font-weight-regular);
 }
@@ -4066,7 +4066,7 @@ textarea:focus-visible {
   border: 1px solid var(--color-border-strong);
   border-radius: 8px;
   background: var(--color-surface);
-  box-shadow: var(--shadow-dialog);
+  box-shadow: var(--config-dialog-shadow);
 }
 
 .management-dialog label,
@@ -4075,7 +4075,7 @@ textarea:focus-visible {
   grid-template-rows: 18px 40px;
   gap: 6px;
   min-width: 0;
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
 }
@@ -4215,7 +4215,7 @@ textarea:focus-visible {
 .provider-row-meta span {
   min-width: 0;
   overflow: hidden;
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-label);
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -4301,7 +4301,7 @@ textarea:focus-visible {
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-meta);
   white-space: nowrap;
 }
@@ -4345,7 +4345,7 @@ textarea:focus-visible {
   top: -16px;
   margin: -16px -18px 0;
   padding: 14px 18px 10px;
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--dialog-divider-border, var(--color-border-subtle));
   background: var(--color-surface);
 }
 
@@ -4355,7 +4355,7 @@ textarea:focus-visible {
   bottom: -16px;
   margin: 0 -18px -16px;
   padding: 10px 18px 16px;
-  border-top: 1px solid var(--color-border-subtle);
+  border-top: 1px solid var(--dialog-divider-border, var(--color-border-subtle));
   background: var(--color-surface);
 }
 
@@ -4490,7 +4490,7 @@ textarea:focus-visible {
   display: grid;
   gap: 14px;
   padding: 4px 12px 14px;
-  border-top: 1px solid var(--color-border-subtle);
+  border-top: 1px solid var(--dialog-divider-border, var(--color-border-subtle));
 }
 
 .provider-advanced-toggle {
@@ -4791,7 +4791,7 @@ textarea:focus-visible {
   left: 0;
   max-height: 270px;
   overflow-y: auto;
-  border: 1px solid var(--color-border-default);
+  border: 1px solid var(--thinking-model-list-border, var(--color-border-default));
   border-radius: 7px;
   background: var(--color-surface);
   box-shadow: var(--thinking-model-list-shadow);
@@ -6449,9 +6449,9 @@ textarea:focus-visible {
 }
 
 .agent-claude-context-toggle:has(input:checked) {
-  border-color: var(--color-border-default);
+  border-color: var(--agent-claude-toggle-checked-border);
   background: var(--ui-accent-soft);
-  color: var(--color-text-secondary);
+  color: var(--agent-claude-toggle-checked-text);
 }
 
 .agent-claude-context-toggle:has(input:disabled) {
@@ -7048,7 +7048,7 @@ textarea:focus-visible {
   padding: 9px 11px;
   border: 1px solid var(--color-border-strong);
   border-radius: 8px;
-  background: var(--color-surface-hover);
+  background: var(--codex-catalog-option-bg);
 }
 
 .codex-catalog-option > input {
@@ -7315,8 +7315,8 @@ textarea:focus-visible {
 }
 
 .usage-collector-state.success .status-dot {
-  background: var(--color-success);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-success) 20%, transparent);
+  background: var(--status-dot-success-bg);
+  box-shadow: var(--status-dot-success-shadow);
 }
 
 .usage-collector-state.error .status-dot {
@@ -7619,7 +7619,7 @@ textarea:focus-visible {
   border: 1px solid transparent;
   border-radius: 999px;
   background: transparent;
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-caption);
   cursor: pointer;
   transition: all 0.15s ease;
@@ -7700,7 +7700,7 @@ textarea:focus-visible {
 }
 
 .usage-trend-grid {
-  stroke: var(--color-border-subtle);
+  stroke: var(--usage-trend-grid-stroke);
   stroke-dasharray: 3 3;
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
@@ -7979,7 +7979,7 @@ textarea:focus-visible {
   grid-column: 1 / -1;
   width: 100%;
   height: 4px;
-  background: var(--color-surface-hover);
+  background: var(--usage-token-bar-track-bg, var(--color-border-subtle));
   border-radius: 999px;
   overflow: hidden;
 }
@@ -7993,22 +7993,22 @@ textarea:focus-visible {
 
 .usage-token-row.tone-input,
 .usage-token-donut-segment.tone-input {
-  --token-color: var(--color-border-default);
+  --token-color: var(--usage-token-input);
 }
 
 .usage-token-row.tone-output,
 .usage-token-donut-segment.tone-output {
-  --token-color: var(--color-border-default);
+  --token-color: var(--usage-token-output);
 }
 
 .usage-token-row.tone-cache-read,
 .usage-token-donut-segment.tone-cache-read {
-  --token-color: var(--color-border-default);
+  --token-color: var(--usage-token-cache-read);
 }
 
 .usage-token-row.tone-cache-creation,
 .usage-token-donut-segment.tone-cache-creation {
-  --token-color: var(--color-border-default);
+  --token-color: var(--usage-token-cache-creation);
 }
 
 .usage-token-notes {
@@ -8112,7 +8112,7 @@ textarea:focus-visible {
 }
 
 .usage-token-context-metrics .tone-success dd {
-  color: var(--color-success-text);
+  color: var(--usage-result-success-text);
 }
 
 .usage-token-context-metrics .tone-failed dd {
@@ -9384,7 +9384,7 @@ textarea:focus-visible {
 
 .page-footnote {
   margin: -6px 0 0;
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-label);
 }
 
@@ -9603,7 +9603,7 @@ textarea:focus-visible {
   align-items: center;
   gap: 8px;
   min-height: 72px;
-  color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
   font-size: var(--font-size-body);
 }
 

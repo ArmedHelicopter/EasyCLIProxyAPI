@@ -123,8 +123,8 @@
   background: var(--quota-color, var(--success-color));
 }
 .credential-quota-dense .credential-quota-row.high { --quota-color: var(--color-success); }
-.credential-quota-dense .credential-quota-row.medium { --quota-color: var(--color-border-default); }
-.credential-quota-dense .credential-quota-row.low { --quota-color: var(--color-border-default); }
+.credential-quota-dense .credential-quota-row.medium { --quota-color: var(--color-warning); }
+.credential-quota-dense .credential-quota-row.low { --quota-color: var(--color-danger); }
 .credential-quota-dense .credential-quota-row small {
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;

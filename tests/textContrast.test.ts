@@ -149,13 +149,13 @@ it('preserves the light semantic palette independently of workspace aliases', ()
   })) expect(resolve(tokens[name], tokens)).toBe(expected);
 });
 
-it('preserves dark failure semantics without changing light text', () => {
+it('preserves failure and danger button text semantics across light and dark themes', () => {
   expect(declarations('.usage-token-context-metrics .tone-failed dd').color).toBe('var(--usage-result-failed-text)');
   expect(declarations('.danger-button').color).toBe('var(--button-danger-soft-text)');
-  for (const theme of ['light', 'dark']) {
-    const tokens = { ...declarations(':root'), ...(theme === 'dark' ? declarations(":root[data-theme='dark']") : {}) };
-    for (const name of ['--usage-result-failed-text', '--button-danger-soft-text']) {
-      expect(resolve(tokens[name], tokens)).toBe(theme === 'dark' ? '#fca5a5' : '#1e293b');
-    }
-  }
+  const lightTokens = declarations(':root');
+  const darkTokens = { ...declarations(':root'), ...declarations(":root[data-theme='dark']") };
+  expect(resolve(lightTokens['--usage-result-failed-text'], lightTokens)).toBe('#b91c1c');
+  expect(resolve(lightTokens['--button-danger-soft-text'], lightTokens)).toBe('#e11d48');
+  expect(resolve(darkTokens['--usage-result-failed-text'], darkTokens)).toBe('#f87171');
+  expect(resolve(darkTokens['--button-danger-soft-text'], darkTokens)).toBe('#fb7185');
 });

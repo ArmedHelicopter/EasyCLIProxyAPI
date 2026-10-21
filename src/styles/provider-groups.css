@@ -33,7 +33,7 @@
 .config-dialog.management-dialog.api-provider-dialog { width: min(640px, 100%); }
 .api-provider-dialog .provider-dialog-section {
   min-width: 0; display: grid; gap: 10px; padding: 12px 0;
-  border-top: 1px solid var(--color-border-subtle);
+  border-top: 1px solid var(--dialog-divider-border, var(--color-border-subtle));
 }
 .api-provider-dialog .provider-dialog-section > h3 {
   margin: 0; color: var(--text-primary); font-size: 13px; font-weight: 600;

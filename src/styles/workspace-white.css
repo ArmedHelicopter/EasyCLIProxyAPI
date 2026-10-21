@@ -20,22 +20,40 @@ body,
   --text-quaternary: var(--workspace-text-muted);
 }
 
+:is(.config-dialog, .app-dialog:not(.core-health-dialog)) {
+  --surface-muted-bg: var(--theme-overlay-soft-surface, var(--surface-muted-dialog-bg));
+}
+
 :is(.workspace, .app-dialog) :is(
   .agent-model-section, .agent-auth-segmented, .routing-segmented,
-  .credential-quota, .usage-collector-state
+  .credential-quota
 ) {
   background: var(--color-surface);
   border: 1px solid var(--workspace-border);
 }
 
 :is(.workspace, .app-dialog) :is(
-  .secondary-button:not(.danger, .ghost, .copied), .icon-button:not(.danger, .ghost, .copied), .agent-auth-segmented-button,
+  .secondary-button:not(.danger, .ghost, .copied), .agent-auth-segmented-button,
   .routing-segmented button,
   .usage-price-row-actions button
 ) {
   background: var(--color-surface);
-  color: var(--workspace-text-secondary);
-  border-color: var(--workspace-border);
+  color: var(--workspace-button-secondary-text, var(--text-secondary));
+  border-color: var(--workspace-button-secondary-border, var(--border-color));
+  box-shadow: none;
+}
+
+:is(.workspace, .app-dialog) .icon-button:not(.quiet, .danger, .ghost, .copied) {
+  background: var(--workspace-icon-button-bg, var(--color-surface));
+  color: var(--workspace-icon-button-color, var(--workspace-button-secondary-text, var(--text-secondary)));
+  border-color: var(--workspace-icon-button-border, var(--workspace-button-secondary-border, var(--border-color)));
+  box-shadow: none;
+}
+
+:is(.workspace, .app-dialog) .icon-button.quiet:not(.danger, .ghost, .copied) {
+  background: var(--color-surface);
+  color: var(--workspace-icon-button-quiet-color, var(--workspace-button-secondary-text, var(--text-secondary)));
+  border-color: var(--icon-button-quiet-border, var(--border-secondary));
   box-shadow: none;
 }
 
@@ -63,9 +81,9 @@ body,
   .routing-segmented button,
   .agent-list-items button, .usage-price-row-actions button
 ):hover:not(:disabled, .copied) {
-  background: var(--workspace-hover);
-  border-color: var(--color-accent);
-  color: var(--color-accent-strong);
+  background: var(--workspace-button-secondary-hover-bg);
+  border-color: var(--workspace-button-secondary-hover-border);
+  color: var(--workspace-button-secondary-hover-color);
 }
 
 .workspace .agent-auth-segmented-button.active,
@@ -100,7 +118,7 @@ body,
   .usage-filter-toggle
 ) {
   background: var(--color-surface);
-  border-color: var(--workspace-border);
+  border-color: var(--border-color);
 }
 
 .workspace .usage-records-page
@@ -137,10 +155,11 @@ body,
 
 .workspace .usage-records-page
   .usage-collector-state {
-  background: var(--color-surface);
-  border: 1px solid var(--workspace-border);
+  background: var(--usage-collector-bg);
+  border: var(--usage-collector-border);
+  border-color: var(--usage-collector-border-color, var(--workspace-border));
 }
 
 .workspace .usage-model-bar-track {
-  box-shadow: inset 0 0 0 1px var(--workspace-border);
+  box-shadow: var(--usage-model-bar-track-shadow);
 }
