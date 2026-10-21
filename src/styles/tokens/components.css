@@ -29,6 +29,8 @@
   --usage-subpage-muted: var(--theme-text-muted, var(--color-text-muted));
   --usage-subpage-border: var(--theme-border, var(--color-border-default));
 
+  --workspace-surface: var(--color-workspace);
+  --sidebar-surface: var(--sidebar-bg);
   --workspace-text-secondary: var(--theme-text-secondary, #253449);
   --workspace-text-tertiary: var(--theme-text-tertiary, #475569);
   --workspace-text-muted: var(--theme-text-muted, #526174);

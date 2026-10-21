@@ -55,14 +55,12 @@ describe('CSS layer architecture and specificity regression', () => {
     expect(indexHtml).not.toMatch(/@layer\b/);
   });
 
-  it('prohibits !important across all src CSS stylesheets except theme-window-material.css', () => {
+  it('prohibits !important across all src CSS stylesheets', () => {
     const files = walkCss(srcRoot);
     const violations: string[] = [];
 
     for (const filePath of files) {
       const relPath = relative(srcRoot, filePath).replaceAll('\\', '/');
-      if (relPath === 'styles/theme-window-material.css') continue;
-
       const content = readFileSync(filePath, 'utf8');
       const ast = postcss.parse(content, { from: filePath });
 
@@ -74,6 +72,50 @@ describe('CSS layer architecture and specificity regression', () => {
     }
 
     expect(violations).toEqual([]);
+  });
+
+  it('ensures window material styles are driven by tokens and data-window-material', () => {
+    const materialCss = readFileSync(join(srcRoot, 'styles/theme-window-material.css'), 'utf8');
+    const ast = postcss.parse(materialCss, { from: 'theme-window-material.css' });
+
+    let tokenRuleFound = false;
+    let hasWorkspaceToken = false;
+    let hasSidebarToken = false;
+    let workspaceUsesToken = false;
+    let sidebarUsesToken = false;
+
+    ast.walkRules((rule) => {
+      for (const selector of rule.selectors) {
+        expect(selector.startsWith(':root[data-window-material]')).toBe(true);
+      }
+      if (rule.selector.trim() === ':root[data-window-material]') {
+        tokenRuleFound = true;
+        rule.walkDecls((decl) => {
+          if (decl.prop === '--workspace-surface') hasWorkspaceToken = true;
+          if (decl.prop === '--sidebar-surface') hasSidebarToken = true;
+        });
+      }
+      if (rule.selectors.some((s) => s.includes('.workspace'))) {
+        rule.walkDecls('background', (decl) => {
+          if (decl.value.includes('var(--workspace-surface)')) workspaceUsesToken = true;
+        });
+      }
+      if (rule.selectors.some((s) => s.includes('.sidebar'))) {
+        rule.walkDecls('background', (decl) => {
+          if (decl.value.includes('var(--sidebar-surface)')) sidebarUsesToken = true;
+        });
+      }
+    });
+
+    expect(tokenRuleFound).toBe(true);
+    expect(hasWorkspaceToken).toBe(true);
+    expect(hasSidebarToken).toBe(true);
+    expect(workspaceUsesToken).toBe(true);
+    expect(sidebarUsesToken).toBe(true);
+
+    const componentsCss = readFileSync(join(srcRoot, 'styles/tokens/components.css'), 'utf8');
+    expect(componentsCss).toMatch(/--workspace-surface:\s*var\(--color-workspace\);/);
+    expect(componentsCss).toMatch(/--sidebar-surface:\s*var\(--sidebar-bg\);/);
   });
 
   it('ensures all src CSS files belong to a declared layer without unlayered style escape', () => {
