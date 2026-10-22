@@ -36,7 +36,7 @@ const exceptions: Record<string, string[]> = {
   'Tabs and SegmentedControl choices (1.3)': [
     'routing-segmented', 'agent-subpage-tabs', 'oauth-subpage-tabs', 'config-subpage-tabs', 'usage-tabs', 'plugin-tabs', 'home-protocol-tabs', 'usage-analysis-metric',
     'quota-category-filter', 'thinking-effort-options', 'agent-auth-segmented', 'agent-auth-segmented-button', 'simple-mode-api-platforms', 'simple-mode-api-platform',
-    'theme-selector-modes', 'config-settings-navigation',
+    'theme-selector-modes',
   ],
   'Sidebar and theme/language menus: navigation chrome with its own sidebar tokens': [
     'nav-section', 'sidebar-link', 'sidebar-contact', 'sidebar-easy-entry', 'sidebar-language-trigger', 'sidebar-language-list', 'sidebar-privacy-toggle', 'nav-plugin-toggle',

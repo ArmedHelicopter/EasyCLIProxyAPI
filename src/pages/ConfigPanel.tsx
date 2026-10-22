@@ -1060,7 +1060,7 @@ export function ConfigPanelPage() {
       {confirmationDialog}
       <div className="config-settings-layout">
         <div className="config-settings-topnav">
-          <Tabs ref={categoryNavigationRef} className="config-subpage-tabs config-settings-navigation" aria-label={t('config.tabs.label')} value={activeSubpage} onChange={activateConfigSubpage}
+          <Tabs ref={categoryNavigationRef} className="config-subpage-tabs" aria-label={t('config.tabs.label')} value={activeSubpage} onChange={activateConfigSubpage}
             items={settingsCategories.map(item => {
               const Icon = CATEGORY_ICONS[item.id];
               return { value: item.id, id: `config-subpage-tab-${item.id}`, panelId: 'config-subpage-panel', label: <><Icon size={17} aria-hidden="true" /><span>{templateText(item.title, locale)}</span>{categoryDirty(item.id) ? <span className="config-nav-dirty" title={st('dirty')}><span className="sr-only">{st('dirty')}</span></span> : null}</> };
