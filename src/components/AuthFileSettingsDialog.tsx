@@ -130,7 +130,7 @@ export function AuthFileSettingsDialog({ name, displayName = name, provider = ''
                   <textarea rows={3} value={draft.excluded_models} onChange={(event) => update('excluded_models', event.currentTarget.value)} spellCheck={false} placeholder={'gpt-example\nclaude-*'} />
                   <small>{t('authFiles.settings.excludedHint')}</small>
                 </label>
-                <details className="credential-settings-catalog">
+                <details className="credential-settings-catalog surface-frame">
                   <summary>{t('authFiles.settings.catalog', { count: models.length })}</summary>
                   {catalogLoading ? <p role="status">{t('common.loading')}</p> : null}
                   {catalogError ? <Notice tone="warn" variant="text" live={false}>{t('authFiles.settings.catalogError')}<small>{catalogError}</small></Notice> : null}

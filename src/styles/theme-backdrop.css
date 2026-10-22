@@ -1,5 +1,5 @@
 :root[data-theme-backdrop='gradient'] #root {
-  background: var(--theme-backdrop-image) center / 100% 100% no-repeat var(--theme-backdrop-color) !important;
+  background: var(--theme-backdrop-image) center / 100% 100% no-repeat var(--theme-backdrop-color);
 }
 
 :root[data-theme-backdrop='gradient'] :is(.immersive-window, .app-shell, .workspace),

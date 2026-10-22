@@ -192,7 +192,7 @@
     grid-template-rows: auto minmax(0, 1fr) auto;
     gap: 8px;
     padding: 10px;
-    border-right: 1px solid var(--theme-d5d2cb);
+    border-right: 1px solid var(--color-border-strong);
     border-bottom: 0;
   }
 

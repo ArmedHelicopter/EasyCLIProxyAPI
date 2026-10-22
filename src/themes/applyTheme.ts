@@ -61,12 +61,17 @@ export function createThemeApplicator(document: Document, platformMaterial: () =
         overlayStyle.dataset.themeMaterials = '';
         document.head.append(overlayStyle);
       }
-      overlayStyle.textContent = overlayRules;
+      overlayStyle.textContent = `@layer theme {\n${overlayRules}\n}`;
     } else {
       overlayStyle?.remove();
       overlayStyle = undefined;
     }
-    root.style.backgroundColor = theme.windowBackground;
-    if (document.body) document.body.style.backgroundColor = theme.windowBackground;
+    if (material) {
+      root.style.backgroundColor = '';
+      if (document.body) document.body.style.backgroundColor = '';
+    } else {
+      root.style.backgroundColor = theme.windowBackground;
+      if (document.body) document.body.style.backgroundColor = theme.backdrop ? '' : theme.windowBackground;
+    }
   };
 }
