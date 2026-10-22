@@ -17,7 +17,6 @@ const allowedSelectors: Record<string, string> = {
 const rowButtons: Record<string, [number, string]> = {
   'components/WindowFrame.tsx': [2, 'Native window chrome uses caption button dimensions.'],
   'App.tsx': [2, 'Sidebar navigation items and language list rows (.nav-section, .sidebar-language-list).'],
-  'components/ThemeSelector.tsx': [3, 'Sidebar theme trigger, theme cards and menu actions (.theme-selector-*).'],
   'pages/EasyModePage.tsx': [1, 'Language menu items (.simple-mode-lang-menu).'],
   'pages/ThinkingAliasesPage.tsx': [3, 'Model list rows and effort options (.thinking-model-list, .thinking-effort-options).'],
   'pages/AgentClientList.tsx': [1, 'Client list rows (.agent-list-items).'],
