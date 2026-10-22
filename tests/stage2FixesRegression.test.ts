@@ -195,7 +195,7 @@ describe('Stage 2 acceptance fixes regression', () => {
   it('P2-4: surface-sunken implements subtle background and subtle border', () => {
     const sunkenDecls = getDeclarations(surfacesRoot, ':where(.surface-sunken)');
     expect(sunkenDecls.background).toBe('var(--color-surface-subtle)');
-    expect(sunkenDecls.border).toBe('1px solid var(--color-border-subtle)');
+    expect(sunkenDecls.border).toBe('var(--card-border-width) solid var(--color-border-subtle)');
 
     const lightBg = resolveToken(sunkenDecls.background, allTokensLight);
     const lightBorder = resolveToken(sunkenDecls.border, allTokensLight);

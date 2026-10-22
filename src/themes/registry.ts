@@ -1,4 +1,6 @@
-import { isThemeId, isThemeLabel, themeOpacityTokenProperties, themeTokenProperties, type SystemThemes, type ThemeAppearance, type ThemeDefinition, type ThemeLabel, type ThemePreview } from './types';
+import { isThemeId, isThemeLabel, type SystemThemes, type ThemeAppearance, type ThemeDefinition, type ThemeIssue, type ThemeLabel, type ThemePreview } from './types';
+import { normalizeThemeTokens } from './tokenContract';
+import { isThemeAssetPath, normalizeThemeAssets } from './resources';
 import { warmSand } from './warmSand';
 import { graphite } from './graphite';
 import { midnight } from './midnight';
@@ -7,30 +9,33 @@ import { dark } from './dark';
 import { sakura } from './sakura';
 import { backdropImage, normalizeBackdrop } from './backdrop';
 
-export function normalizeTheme(definition: ThemeDefinition): ThemeDefinition {
+export function normalizeTheme(definition: ThemeDefinition, report: (issue: ThemeIssue) => void = () => {}): ThemeDefinition {
   if (!isThemeId(definition.id) || definition.id === 'system') throw new Error(`Invalid theme ID: ${definition.id}`);
   if (!['light', 'dark'].includes(definition.appearance) || !Number.isFinite(definition.order)
     || !(definition.nameKey || isThemeLabel(definition.name))
     || (definition.name !== undefined && !isThemeLabel(definition.name))
     || (definition.description !== undefined && !isThemeLabel(definition.description))
+    || (definition.schemaVersion !== undefined && definition.schemaVersion !== 1)
     || (definition.windowMaterial !== undefined && !['solid', 'translucent'].includes(definition.windowMaterial))) {
     throw new Error(`Invalid theme metadata: ${definition.id}`);
   }
   if (!/^#[\da-f]{6}$/i.test(definition.windowBackground)) throw new Error(`Invalid window background: ${definition.id}`);
   if (!definition.tokens || typeof definition.tokens !== 'object') throw new Error(`Invalid theme tokens: ${definition.id}`);
-  const tokens: Record<string, string> = {};
-  for (const [key, value] of Object.entries(definition.tokens)) {
-    if (!Object.prototype.hasOwnProperty.call(themeTokenProperties, key)) continue;
-    const valid = typeof value === 'string' && (Object.prototype.hasOwnProperty.call(themeOpacityTokenProperties, key)
-      ? /^(?:\d+(?:\.\d+)?)%$/.test(value) && Number(value.slice(0, -1)) <= 100
-      : /^#(?:[\da-f]{6}|[\da-f]{8})$/i.test(value));
-    if (!valid) throw new Error(`Invalid theme color: ${definition.id}.${key}`);
-    tokens[key] = value;
+  const tokens = normalizeThemeTokens(definition.tokens, report);
+  const icon = isThemeAssetPath(definition.icon) ? definition.icon : undefined;
+  if (definition.icon !== undefined && icon === undefined) report({ field: 'icon', code: 'invalid-icon' });
+  if (definition.assets !== undefined && (!definition.assets || typeof definition.assets !== 'object' || Array.isArray(definition.assets))) {
+    report({ field: 'assets', code: 'invalid-asset' });
   }
+  const assets = normalizeThemeAssets(definition.assets, (field) => report({ field: `assets.${field}`, code: 'invalid-asset' }));
   const label = (value: ThemeLabel) => typeof value === 'string' ? value : Object.freeze({ ...value });
-  return Object.freeze({ ...definition,
+  const { icon: _icon, assets: _assets, ...rest } = definition;
+  return Object.freeze({ ...rest,
+    schemaVersion: 1,
     ...(definition.name === undefined ? {} : { name: label(definition.name) }),
     ...(definition.description === undefined ? {} : { description: label(definition.description) }),
+    ...(icon === undefined ? {} : { icon }),
+    ...(assets === undefined ? {} : { assets }),
     tokens: Object.freeze(tokens),
     ...(definition.backdrop === undefined ? {} : { backdrop: normalizeBackdrop(definition.backdrop, definition.id) }),
   });

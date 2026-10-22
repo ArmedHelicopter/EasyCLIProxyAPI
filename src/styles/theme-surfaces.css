@@ -10,6 +10,14 @@ option, optgroup {
   background-color: var(--theme-overlay-surface);
 }
 
+:where(.primary-button, .secondary-button, .danger-button, .icon-button),
+:where(.switch-track),
+:where(.app-dialog),
+:where(.config-dialog-text-input, .config-network-input, .select-control),
+:where([role='tablist']) {
+  border-width: var(--border-width);
+}
+
 body.table-col-resizing,
 body.table-col-resizing * {
   cursor: col-resize;

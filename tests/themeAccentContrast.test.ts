@@ -38,7 +38,7 @@ test('default accents keep readable contrast text', async () => {
   const light = css.slice(css.indexOf(':root {'));
   const dark = css.slice(css.indexOf(":root[data-theme='dark'] {"));
   for (const block of [light, dark]) {
-    expect(contrast(value(block, 'color-accent'), value(block, 'color-accent-contrast'))).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(value(block, 'color-accent'), value(block, 'color-text-on-accent'))).toBeGreaterThanOrEqual(4.5);
   }
   for (const theme of themeRegistry.themes) {
     const { accent, accentContrast } = theme.tokens;

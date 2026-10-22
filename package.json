@@ -16,6 +16,7 @@
     "test:ui:settings": "node tests/config-settings-ui.cjs",
     "test:ui:browser-mock": "node tests/browser-mock-ui.cjs",
     "screenshots": "node scripts/capture-readme-screenshots.cjs",
+    "theme:schema": "bun scripts/theme-schema.mjs",
     "tauri": "tauri"
   },
   "dependencies": {
