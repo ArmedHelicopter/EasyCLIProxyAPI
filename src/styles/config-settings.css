@@ -6,16 +6,9 @@
 .config-settings-search input::-webkit-search-cancel-button { display: none; }
 .config-settings-search button { flex: none; }
 .config-settings-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-items: start; min-width: 0; }
-.config-settings-topnav { display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 10; min-width: 0; padding: 12px 0; border-bottom: 1px solid var(--border-color); background: var(--theme-sticky-background, var(--bg-secondary)); }
-.config-settings-navigation.config-subpage-tabs { display: flex; flex-wrap: nowrap; gap: 4px; flex: 1 1 0; min-width: 0; width: auto; max-width: 100%; padding: 0; margin: 0; border: 0; background: none; border-radius: var(--radius-none); overflow-x: auto; overflow-y: hidden; scrollbar-width: none; scroll-padding-inline: 4px; }
-.config-settings-navigation::-webkit-scrollbar { display: none; width: 0; height: 0; }
-.config-page .config-settings-navigation.config-subpage-tabs button { display: flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 5px; min-width: 0; width: auto; height: 34px; min-height: 34px; margin: 0; padding: 5px 8px; border: 1px solid transparent; border-bottom: 2px solid transparent; border-radius: var(--radius-md) var(--radius-md) var(--radius-none) var(--radius-none); background: transparent; color: var(--text-secondary); text-align: center; white-space: nowrap; font-size: 12px; line-height: 1.5; font-weight: 500; box-shadow: none; }
-.config-page .config-settings-navigation.config-subpage-tabs button:hover { background: var(--bg-hover); color: var(--text-primary); }
-.config-page .config-settings-navigation.config-subpage-tabs button.active { border-bottom-color: var(--primary-color); background: transparent; color: var(--primary-color); font-weight: 650; box-shadow: none; }
-.config-page .config-settings-navigation.config-subpage-tabs button:focus-visible { outline: 2px solid var(--primary-color); outline-offset: -3px; }
-.config-settings-navigation button > svg { flex: none; color: var(--text-tertiary); }
-.config-settings-navigation button.active > svg { color: var(--primary-color); }
-.config-settings-navigation button > span:not(.config-nav-dirty) { min-width: 0; }
+.config-settings-topnav { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; flex-wrap: wrap; }
+.config-page .config-subpage-tabs button { display: flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 5px; min-width: 0; }
+.config-page .config-subpage-tabs button > svg { flex: none; }
 .config-nav-dirty { flex: none; width: 6px; height: 6px; margin-left: auto; border-radius: var(--radius-full); background: var(--primary-color); }
 .config-settings-content { min-width: 0; }
 /* Only flatten page sections. Dialogs may be rendered inside these sections. */
@@ -110,13 +103,11 @@
 
 @media (max-width: 1150px) {
   .config-settings-layout { gap: 20px; }
-  .config-page .config-settings-navigation.config-subpage-tabs button { padding: 10px 8px; }
 }
 @media (max-width: 720px) {
   .config-page { gap: 20px; }
   .config-settings-search { flex-basis: auto; }
-  .config-settings-navigation button > svg { display: none; }
-  .config-page .config-settings-navigation.config-subpage-tabs button { padding: 10px 12px; }
+  .config-subpage-tabs button > svg { display: none; }
   .config-settings-content .config-network-grid { grid-template-columns: minmax(0, 1fr); }
   .config-settings-content .config-network-section { padding: 16px; }
   .config-settings-content .config-network-field { min-height: 0; }
@@ -511,7 +502,6 @@
 }
 
 @media (max-width: 720px) {
-  .config-settings-topnav { flex-wrap: wrap; gap: 10px; }
-  .config-settings-navigation.config-subpage-tabs { flex-basis: 100%; }
+  .config-settings-topnav .config-subpage-tabs { flex-basis: 100%; }
   .config-settings-topnav .config-settings-search { flex: 1 1 100%; }
 }
