@@ -39,7 +39,7 @@ const roleExceptions: Record<string, [number, number, string]> = {
   'components/AuthFileSettingsDialog.tsx': [0, 1, 'Catalog loading text.'],
   'components/StructuredConfigEditor.tsx': [1, 0, 'Field-level key error.'],
   'components/TemplateConfigSection.tsx': [1, 2, 'Field-level validation error, loading text and save status.'],
-  'components/ThemeSelector.tsx': [0, 2, 'Sidebar popover notices.'],
+  'components/ThemeSelector.tsx': [0, 3, 'Sidebar popover notices and per-folder theme diagnostics.'],
   'components/claude-code/ClaudeCodeModelInputs.tsx': [0, 1, 'Field hint.'],
   'pages/AgentClientList.tsx': [0, 2, 'Result count and selection summary.'],
   'pages/AgentConfigBackupDialog.tsx': [0, 1, 'Loading text.'],

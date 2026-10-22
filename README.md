@@ -155,16 +155,32 @@ Manually renamed files without a session ID in their filename or a database path
 
 ## Custom Themes
 
-Put one theme per `.json` file in the `themes` folder of the application data directory: next to the executable on Windows and Linux, and `~/Library/Application Support/com.cpa.gui/themes` for the macOS app (next to the executable when run outside the `.app` bundle). The **Open themes folder** button at the bottom of the theme picker creates and opens it; **Reload** applies changes without restarting. Custom themes appear after the built-in themes in file name order. Up to 64 files of at most 64 KB each are read; an invalid file is skipped and its name is shown in the picker, along with the number of files beyond the limit.
+Each custom theme is a folder inside the `themes` folder of the application data directory: next to the executable on Windows and Linux, and `~/Library/Application Support/com.cpa.gui/themes` for the macOS app (next to the executable when run outside the `.app` bundle). The **Open themes folder** button at the bottom of the theme picker creates and opens it; **Reload** applies changes without restarting. Custom themes appear after the built-in themes in folder-name order.
+
+```
+themes/
+  harbor-dark/
+    theme.json
+    assets/
+      icon.png
+      backdrop.webp
+```
+
+- Only one level of folders is read. JSON files directly in `themes/`, folders without `theme.json`, symlinked folders and a symlinked `theme.json` are ignored.
+- Up to 64 theme folders of at most 64 KB each are read; folders beyond the limit are reported in the picker. A folder that cannot be read, contains invalid JSON, has invalid metadata, reuses another theme's id or declares an unsupported `schemaVersion` is skipped, and the picker shows its name and the reason.
 
 ```json
 {
+  "$schema": "./theme.schema.json",
+  "schemaVersion": 1,
   "id": "harbor-dark",
   "name": { "en": "Harbor", "zh-CN": "港湾", "ja": "ハーバー" },
   "description": "Deep teal surfaces with a sea-glass accent",
   "appearance": "dark",
   "windowBackground": "#0E1A1F",
   "windowMaterial": "translucent",
+  "icon": "assets/icon.png",
+  "assets": { "backdropImage": "assets/backdrop.webp" },
   "tokens": {
     "workspaceBackground": "#0E1A1F",
     "surface": "#14242B",
@@ -173,23 +189,30 @@ Put one theme per `.json` file in the `themes` folder of the application data di
     "accent": "#6FD3C1",
     "accentContrast": "#0E1A1F",
     "sidebarBackground": "#0B151A",
+    "radiusMedium": "6px",
+    "controlBorderWidth": "2px",
+    "cardBorderWidth": "1px",
+    "shadowSmall": "0 1px 2px #00000014",
     "windowMaterialWorkspaceOpacity": "72%",
     "windowMaterialSidebarOpacity": "40%"
   }
 }
 ```
 
+- `schemaVersion` (required): currently `1`. Any other value skips the file; a missing value is treated as `1`.
 - `id` (required): lowercase letters, digits and `-`, starting with a letter. It must not reuse a built-in ID (`light`, `dark`, `warm-sand-light`, `graphite-dark`, `midnight-dark`, `sakura-light`) or another custom theme's ID.
 - `name` (required) and `description`: a string or an object keyed by `en`, `zh-CN`, `zh-TW` and `ja`.
 - `appearance` (required): `light` or `dark`; the theme is listed in that group.
 - `windowBackground` (required): `#RRGGBB`, the native window color shown before the page paints.
-- `tokens` (required, may be empty): color tokens accept `#RRGGBB` or `#RRGGBBAA`; omitted colors keep the default light or dark value. The opacity tokens below accept percentages. Unknown or removed token keys are ignored.
-- `backdrop`: optional gradient background with the same structure as the built-in Midnight Blue and Sakura Blush themes.
 - `windowMaterial`: `solid` (default) or `translucent`. A translucent theme shows the native window material behind the sidebar and workspace: Liquid Glass on macOS 26 and later, vibrancy on earlier macOS, Mica on Windows 11 and Acrylic on Windows 10 1809 and later. Linux and older Windows versions have no material and render the theme exactly like a solid one, so keep `windowBackground` and the tokens complete. While a material is shown it replaces `backdrop`.
-- Optional opacity tokens in `tokens`: `windowMaterialWorkspaceOpacity` (workspace, default `"72%"`) and `windowMaterialSidebarOpacity` (sidebar, default `"40%"`). Each accepts a percentage string from `"0%"` (fully transparent) to `"100%"` (opaque), including decimals such as `"37.5%"`. These tokens only affect supported systems when `windowMaterial` is `translucent`; the root, body and shell stay transparent to expose the native material. Invalid values skip the file. This is part of the theme, with no separate material setting; built-in themes remain solid.
-- `$schema` is allowed and ignored; any other field makes the file invalid.
+- `backdrop`: optional gradient background with the same structure as the built-in Midnight Blue and Sakura Blush themes.
+- `icon` and `assets`: reserved relative paths inside the theme folder (`png`, `jpg`, `jpeg`, `webp`, `svg`, `avif`). They must not be absolute, contain `..`, be URLs or use backslashes. An invalid entry is dropped. The current version validates and keeps them but does not display these files yet.
+- `tokens` (required, may be empty): appearance tokens only. Colors accept `#RRGGBB` or `#RRGGBBAA`; opacities accept `"0%"` to `"100%"`; corner radii accept `0px` to `24px` (`radiusFull` up to `9999px`); border widths accept `0px` to `4px`; shadows accept `none` or comma-separated `[inset] x y [blur] [spread] color`. Unknown keys and invalid values are dropped individually, the rest of the theme still loads, and the picker lists each ignored field. Control sizes, spacing, layout and typography cannot be themed: keys such as `spacing`, `fontFamily` or button heights are ignored.
+- `$schema` is allowed and ignored; any other top-level field makes the file invalid.
 
-Available token keys: `workspaceBackground`, `surface`, `softSurface`, `hoverBackground`, `textPrimary`, `textSecondary`, `textTertiary`, `textMuted`, `border`, `borderSubtle`, `borderStrong`, `borderHover`, `panelShadow`, `accent`, `accentStrong`, `accentSoft`, `accentContrast`, `accentShadow`, `primaryButtonBackground`, `primaryButtonHoverBackground`, `primaryButtonText`, `primaryButtonBorder`, `primaryButtonHoverBorder`, `controlActiveBackground`, `controlActiveThumb`, `focusRing`, `sidebarBackground`, `sidebarText`, `sidebarTextStrong`, `sidebarTextMuted`, `sidebarBorder`, `sidebarHover`, `sidebarSelected`, `sidebarSelectedBorder`, `sidebarSelectedShadow`, `popoverBackground`, `overlaySoftSurface`, `overlayHoverBackground`, `scrim`, `controlThumb`, `windowMaterialWorkspaceOpacity`, `windowMaterialSidebarOpacity`.
+The tokens drive the shared controls and surfaces: buttons, switches, inputs and selects, tabs, dialogs and popovers, cards, panels and sections, the sidebar and the window scrim.
+
+Available token keys: `workspaceBackground`, `surface`, `softSurface`, `hoverBackground`, `textPrimary`, `textSecondary`, `textTertiary`, `textMuted`, `border`, `borderSubtle`, `borderStrong`, `borderHover`, `panelShadow`, `accent`, `accentStrong`, `accentSoft`, `accentContrast`, `accentShadow`, `primaryButtonBackground`, `primaryButtonHoverBackground`, `primaryButtonText`, `primaryButtonBorder`, `primaryButtonHoverBorder`, `controlActiveBackground`, `controlActiveThumb`, `focusRing`, `sidebarBackground`, `sidebarText`, `sidebarTextStrong`, `sidebarTextMuted`, `sidebarBorder`, `sidebarHover`, `sidebarSelected`, `sidebarSelectedBorder`, `sidebarSelectedShadow`, `popoverBackground`, `overlaySoftSurface`, `overlayHoverBackground`, `scrim`, `controlThumb`, `radiusSmall`, `radiusMedium`, `radiusLarge`, `radiusFull`, `controlBorderWidth`, `cardBorderWidth`, `shadowExtraSmall`, `shadowSmall`, `shadowMedium`, `shadowLarge`, `shadowPopover`, `shadowDialog`, `shadowSpotlight`, `windowMaterialWorkspaceOpacity`, `windowMaterialSidebarOpacity`. `theme.schema.json` in the repository is generated from the same token definitions and can be referenced from a theme file.
 
 ## Quick Start
 

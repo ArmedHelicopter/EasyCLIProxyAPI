@@ -163,9 +163,15 @@ const assert = require('node:assert/strict');
     assert.equal(await page.locator('.theme-selector-group[data-appearance="dark"] .theme-selector-card').last().getAttribute('data-theme-id'), 'harbor-dark');
     assert.equal(await card('harbor-dark').innerText(), '港湾');
     const customNotice = () => page.locator('.theme-selector-custom-notice');
-    for (const name of ['b-broken.json', 'c-duplicate.json', 'd-extra.json', 'e-large.json']) assert.match(await customNotice().innerText(), new RegExp(name.replace('.', '\\.')));
-    assert.doesNotMatch(await customNotice().innerText(), /a-harbor/);
-    assert.match(await customNotice().innerText(), /另有 3 个主题文件超出/);
+    const customProblems = () => page.locator('.theme-selector-custom-problems');
+    const problems = await customProblems().innerText();
+    for (const name of ['b-broken', 'c-duplicate', 'd-extra', 'e-large']) assert.match(problems, new RegExp(name));
+    assert.doesNotMatch(problems, /a-harbor/);
+    for (const reason of ['JSON 格式错误', 'id 与已有主题重复', '主题元信息无效', '无法读取该文件']) {
+      assert.match(problems, new RegExp(reason));
+    }
+    assert.match(await customNotice().innerText(), /另有 3 个主题文件夹超出/);
+    assert.match(await page.locator('.theme-selector-hint').innerText(), /themes\/<.*>\/theme\.json/);
     await page.locator('[data-action="open-themes"]').click();
     await page.waitForFunction(() => window.themeFixture.calls.some(call => call.cmd === 'open_custom_themes_directory'));
     await page.evaluate(() => window.themeFixture.setCustomThemes([], true));
@@ -178,6 +184,18 @@ const assert = require('node:assert/strict');
     assert.equal(await customNotice().count(), 0);
     assert.match(await trigger().getAttribute('aria-label'), /主题不可用/);
     assert.equal(await page.locator('html').getAttribute('data-theme-id'), 'light');
+    await page.evaluate(() => window.themeFixture.setCustomThemes([{ folder: 'diag', content: JSON.stringify({
+      schemaVersion: 1, id: 'diag-dark', name: 'Diag', appearance: 'dark', windowBackground: '#0E1A1F',
+      tokens: { accent: '#6FD3C1', spacing: '8px', radiusMedium: '40px', borderWidth: '2px' },
+    }) }]));
+    await page.locator('[data-action="reload-themes"]').click();
+    await page.locator('.theme-selector-custom-problems').waitFor();
+    assert.equal(await card('diag-dark').count(), 1, 'a theme with discarded tokens still loads');
+    const diagnostics = await page.locator('.theme-selector-custom-problems').innerText();
+    assert.match(diagnostics, /diag/);
+    assert.match(diagnostics, /spacing（未知 token）|spacing \(未知 token\)/);
+    assert.match(diagnostics, /radiusMedium（取值无效）|radiusMedium \(取值无效\)/);
+    assert.match(diagnostics, /borderWidth（未知 token）|borderWidth \(未知 token\)/);
     await page.keyboard.press('Escape');
     await open('platform=macos&open-error'); await nativeReady();
     await openMenu();

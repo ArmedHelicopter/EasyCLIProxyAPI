@@ -149,16 +149,32 @@ Codex 的 **会话管理 → 编辑上下文（实验性）** 仅在点击某个
 
 ## 自定义主题
 
-每个主题一个 `.json` 文件，放在应用数据目录的 `themes` 文件夹中：Windows 和 Linux 为程序所在目录，macOS 应用为 `~/Library/Application Support/com.cpa.gui/themes`（不以 `.app` 方式运行时为程序所在目录）。主题菜单底部的 **打开主题目录** 会创建并打开该目录，**重新加载** 无需重启即可应用改动。自定义主题按文件名顺序排在内置主题之后。最多读取 64 个文件，单个文件不超过 64 KB；无效文件会被跳过，并在主题菜单中显示文件名及超出上限的文件数。
+每个自定义主题是应用数据目录 `themes` 文件夹下的一个子文件夹：Windows 和 Linux 为程序所在目录，macOS 应用为 `~/Library/Application Support/com.cpa.gui/themes`（不以 `.app` 方式运行时为程序所在目录）。主题菜单底部的 **打开主题目录** 会创建并打开该目录，**重新加载** 无需重启即可应用改动。自定义主题按文件夹名顺序排在内置主题之后。
+
+```
+themes/
+  harbor-dark/
+    theme.json
+    assets/
+      icon.png
+      backdrop.webp
+```
+
+- 只读取一层子文件夹。直接放在 `themes/` 下的 JSON 文件、没有 `theme.json` 的文件夹、符号链接文件夹和符号链接的 `theme.json` 都会被忽略。
+- 最多读取 64 个主题文件夹，单个文件不超过 64 KB；超出上限的数量会显示在主题菜单中。无法读取、JSON 格式错误、元信息无效、id 与其他主题重复或 `schemaVersion` 不受支持的文件夹会被跳过，并在主题菜单中显示文件夹名和原因。
 
 ```json
 {
+  "$schema": "./theme.schema.json",
+  "schemaVersion": 1,
   "id": "harbor-dark",
   "name": { "en": "Harbor", "zh-CN": "港湾", "ja": "ハーバー" },
   "description": "Deep teal surfaces with a sea-glass accent",
   "appearance": "dark",
   "windowBackground": "#0E1A1F",
   "windowMaterial": "translucent",
+  "icon": "assets/icon.png",
+  "assets": { "backdropImage": "assets/backdrop.webp" },
   "tokens": {
     "workspaceBackground": "#0E1A1F",
     "surface": "#14242B",
@@ -167,23 +183,30 @@ Codex 的 **会话管理 → 编辑上下文（实验性）** 仅在点击某个
     "accent": "#6FD3C1",
     "accentContrast": "#0E1A1F",
     "sidebarBackground": "#0B151A",
+    "radiusMedium": "6px",
+    "controlBorderWidth": "2px",
+    "cardBorderWidth": "1px",
+    "shadowSmall": "0 1px 2px #00000014",
     "windowMaterialWorkspaceOpacity": "72%",
     "windowMaterialSidebarOpacity": "40%"
   }
 }
 ```
 
+- `schemaVersion`（必填）：当前为 `1`。其他值会跳过该文件；缺少时按 `1` 处理。
 - `id`（必填）：小写字母、数字和 `-`，以字母开头；不能与内置主题（`light`, `dark`, `warm-sand-light`, `graphite-dark`, `midnight-dark`, `sakura-light`）或其他自定义主题重复。
 - `name`（必填）和 `description`：字符串，或以 `en`、`zh-CN`、`zh-TW`、`ja` 为键的对象。
 - `appearance`（必填）：`light` 或 `dark`，决定主题出现在哪个分组。
 - `windowBackground`（必填）：`#RRGGBB`，页面绘制前原生窗口显示的颜色。
-- `tokens`（必填，可为空对象）：颜色 token 取值为 `#RRGGBB` 或 `#RRGGBBAA`，未填写的颜色使用默认亮色或暗色取值。下述不透明度 token 使用百分比。未知或已移除的 token 键会被忽略。
-- `backdrop`：可选的渐变背景，结构与内置的午夜蓝、樱语红粉主题相同。
 - `windowMaterial`：`solid`（默认）或 `translucent`。半透明主题会在侧边栏和工作区后面显示系统原生窗口材质：macOS 26 及以上为液态玻璃，更早的 macOS 为 vibrancy，Windows 11 为 Mica，Windows 10 1809 及以上为 Acrylic。Linux 和更早的 Windows 不支持材质，主题会按不透明主题原样显示，因此 `windowBackground` 和各项 token 仍需填写完整。显示材质时 `backdrop` 渐变不生效。
-- `tokens` 中可选的不透明度键：`windowMaterialWorkspaceOpacity`（工作区，默认 `"72%"`）、`windowMaterialSidebarOpacity`（侧栏，默认 `"40%"`）。取值为 `"0%"`（完全透明）到 `"100%"`（不透明）的百分比字符串，支持 `"37.5%"` 等小数。仅在系统支持材质且 `windowMaterial` 为 `translucent` 时生效；根节点、body 和外壳保持透明以显示原生材质。非法取值会跳过该文件。材质属于主题配置，没有独立设置项；内置主题仍保持不透明。
-- 允许出现 `$schema`（会被忽略）；其他任何字段都会使文件无效。
+- `backdrop`：可选的渐变背景，结构与内置的午夜蓝、樱语红粉主题相同。
+- `icon` 和 `assets`：预留的主题文件夹内相对路径（`png`、`jpg`、`jpeg`、`webp`、`svg`、`avif`）。不能是绝对路径、包含 `..`、URL 或反斜杠；无效项会被丢弃。当前版本只校验并保留，不会显示这些文件。
+- `tokens`（必填，可为空对象）：只包含外观类 token。颜色取值为 `#RRGGBB` 或 `#RRGGBBAA`；不透明度为 `"0%"` 到 `"100%"`；圆角为 `0px` 到 `24px`（`radiusFull` 最多 `9999px`）；边框粗细为 `0px` 到 `4px`；阴影为 `none` 或逗号分隔的 `[inset] x y [blur] [spread] color`。未知键和非法取值会逐项丢弃，其余主题仍然可用，主题菜单会列出每个被忽略的字段。控件尺寸、间距、布局和字体不开放：`spacing`、`fontFamily`、按钮高度等键会被忽略。
+- 允许出现 `$schema`（会被忽略）；其他任何顶层字段都会使文件无效。
 
-可用的 token 键：`workspaceBackground`, `surface`, `softSurface`, `hoverBackground`, `textPrimary`, `textSecondary`, `textTertiary`, `textMuted`, `border`, `borderSubtle`, `borderStrong`, `borderHover`, `panelShadow`, `accent`, `accentStrong`, `accentSoft`, `accentContrast`, `accentShadow`, `primaryButtonBackground`, `primaryButtonHoverBackground`, `primaryButtonText`, `primaryButtonBorder`, `primaryButtonHoverBorder`, `controlActiveBackground`, `controlActiveThumb`, `focusRing`, `sidebarBackground`, `sidebarText`, `sidebarTextStrong`, `sidebarTextMuted`, `sidebarBorder`, `sidebarHover`, `sidebarSelected`, `sidebarSelectedBorder`, `sidebarSelectedShadow`, `popoverBackground`, `overlaySoftSurface`, `overlayHoverBackground`, `scrim`, `controlThumb`, `windowMaterialWorkspaceOpacity`, `windowMaterialSidebarOpacity`。
+这些 token 作用于公共控件与表面：按钮、开关、输入框与下拉框、Tabs、弹窗与浮层、卡片、面板与分区、侧边栏和遮罩。
+
+可用的 token 键：`workspaceBackground`, `surface`, `softSurface`, `hoverBackground`, `textPrimary`, `textSecondary`, `textTertiary`, `textMuted`, `border`, `borderSubtle`, `borderStrong`, `borderHover`, `panelShadow`, `accent`, `accentStrong`, `accentSoft`, `accentContrast`, `accentShadow`, `primaryButtonBackground`, `primaryButtonHoverBackground`, `primaryButtonText`, `primaryButtonBorder`, `primaryButtonHoverBorder`, `controlActiveBackground`, `controlActiveThumb`, `focusRing`, `sidebarBackground`, `sidebarText`, `sidebarTextStrong`, `sidebarTextMuted`, `sidebarBorder`, `sidebarHover`, `sidebarSelected`, `sidebarSelectedBorder`, `sidebarSelectedShadow`, `popoverBackground`, `overlaySoftSurface`, `overlayHoverBackground`, `scrim`, `controlThumb`, `radiusSmall`, `radiusMedium`, `radiusLarge`, `radiusFull`, `controlBorderWidth`, `cardBorderWidth`, `shadowExtraSmall`, `shadowSmall`, `shadowMedium`, `shadowLarge`, `shadowPopover`, `shadowDialog`, `shadowSpotlight`, `windowMaterialWorkspaceOpacity`, `windowMaterialSidebarOpacity`。仓库中的 `theme.schema.json` 由同一份 token 定义生成，主题文件可以引用它。
 
 ## 快速开始
 

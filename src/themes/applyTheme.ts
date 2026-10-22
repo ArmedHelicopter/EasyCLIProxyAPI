@@ -34,7 +34,6 @@ export function createThemeApplicator(document: Document, platformMaterial: () =
         '--theme-overlay-surface': palette.surface,
         '--sidebar-popover-bg': palette.surface,
         '--theme-overlay-soft-surface': palette.softSurface,
-        '--theme-overlay-hover-background': palette.hoverBackground,
       })) root.style.setProperty(property, value);
     }
     if (theme.backdrop) {

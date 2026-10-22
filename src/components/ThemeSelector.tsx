@@ -8,8 +8,24 @@ import {
   useResolvedThemeId, useSystemThemes, useThemePreferenceIssue, useThemeRegistry,
 } from '../theme';
 import { themePreview, type ThemeRegistry } from '../themes/registry';
-import { localizeThemeLabel, type ThemeAppearance, type ThemeDefinition } from '../themes/types';
+import { localizeThemeLabel, type ThemeAppearance, type ThemeDefinition, type ThemeIssueCode } from '../themes/types';
+import type { CustomThemeSkipReason } from '../themes/customThemes';
+import type { MessageKey } from '../i18n/resources';
 import './ThemeSelector.css';
+
+const skipReasonKeys: Record<CustomThemeSkipReason, MessageKey> = {
+  unreadable: 'app.theme.custom.reason.unreadable',
+  'invalid-json': 'app.theme.custom.reason.invalidJson',
+  'unsupported-version': 'app.theme.custom.reason.unsupportedVersion',
+  'invalid-metadata': 'app.theme.custom.reason.invalidMetadata',
+  'duplicate-id': 'app.theme.custom.reason.duplicateId',
+};
+const issueKeys: Record<ThemeIssueCode, MessageKey> = {
+  'unknown-token': 'app.theme.custom.issue.unknownToken',
+  'invalid-token': 'app.theme.custom.issue.invalidToken',
+  'invalid-icon': 'app.theme.custom.issue.invalidIcon',
+  'invalid-asset': 'app.theme.custom.issue.invalidAsset',
+};
 
 function ThemeThumbnail({ theme }: { theme: ThemeDefinition }) {
   const preview = themePreview(theme);
@@ -63,9 +79,16 @@ export function ThemeSelector({ value, onChange, open, onOpenChange, registry: o
   const customText = [
     openFailed ? t('app.theme.custom.openFailed') : '',
     custom.failed ? t('app.theme.custom.loadFailed') : '',
-    custom.skipped.length ? t('app.theme.custom.skipped', { files: custom.skipped.join(', ') }) : '',
     custom.omitted ? t('app.theme.custom.omitted', { count: custom.omitted }) : '',
   ].filter(Boolean).join(' ');
+  const customProblems = [
+    ...custom.skipped.map(({ folder, reason }) =>
+      t('app.theme.custom.skippedFile', { folder, reason: t(skipReasonKeys[reason]) })),
+    ...custom.diagnostics.map(({ folder, issues }) => t('app.theme.custom.diagnostics', {
+      folder,
+      fields: issues.map(({ field, code }) => `${field} (${t(issueKeys[code])})`).join(', '),
+    })),
+  ];
   const openDirectory = () => {
     setOpenFailed(false);
     openCustomThemesDirectory().catch(() => setOpenFailed(true));
@@ -174,6 +197,10 @@ export function ThemeSelector({ value, onChange, open, onOpenChange, registry: o
             );
           })}
           {customText ? <div className="theme-selector-notice theme-selector-custom-notice" role="status">{customText}</div> : null}
+          {customProblems.length ? <div className="theme-selector-notice theme-selector-custom-problems" role="status">
+            {customProblems.map((problem, index) => <div key={`${index}-${problem}`}>{problem}</div>)}
+          </div> : null}
+          <p className="theme-selector-hint">{t('app.theme.custom.folderHint')}</p>
           <div className="theme-selector-actions">
             <button type="button" data-action="open-themes" onClick={openDirectory}>
               <FolderOpen size={13} aria-hidden="true" />{t('app.theme.custom.openFolder')}

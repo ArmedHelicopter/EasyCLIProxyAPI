@@ -137,16 +137,32 @@ Codex の **セッション管理 → コンテキスト編集（実験的）** 
 
 ## カスタムテーマ
 
-テーマ 1 つにつき 1 つの `.json` ファイルを、アプリデータディレクトリの `themes` フォルダに置きます。Windows と Linux では実行ファイルと同じディレクトリ、macOS アプリでは `~/Library/Application Support/com.cpa.gui/themes` です（`.app` 以外から実行した場合は実行ファイルと同じディレクトリ）。テーマメニュー下部の **テーマフォルダを開く** でフォルダを作成して開き、**再読み込み** で再起動せずに変更を反映できます。カスタムテーマはファイル名順に組み込みテーマの後へ並びます。読み込むのは最大 64 ファイル、1 ファイル 64 KB までです。無効なファイルはスキップされ、そのファイル名と上限を超えたファイル数がテーマメニューに表示されます。
+カスタムテーマは、アプリデータディレクトリの `themes` フォルダ内のサブフォルダ 1 つにつき 1 つです。Windows と Linux では実行ファイルと同じディレクトリ、macOS アプリでは `~/Library/Application Support/com.cpa.gui/themes` です（`.app` 以外から実行した場合は実行ファイルと同じディレクトリ）。テーマメニュー下部の **テーマフォルダを開く** でフォルダを作成して開き、**再読み込み** で再起動せずに変更を反映できます。カスタムテーマはフォルダ名順に組み込みテーマの後へ並びます。
+
+```
+themes/
+  harbor-dark/
+    theme.json
+    assets/
+      icon.png
+      backdrop.webp
+```
+
+- 読み込むのは 1 階層のサブフォルダのみです。`themes/` 直下の JSON ファイル、`theme.json` のないフォルダ、シンボリックリンクのフォルダと `theme.json` は無視されます。
+- 最大 64 個のテーマフォルダ、1 ファイル 64 KB までを読み込みます。上限を超えた数はテーマメニューに表示されます。読み込めない、JSON が不正、メタ情報が無効、id が他のテーマと重複、または未対応の `schemaVersion` を持つフォルダはスキップされ、フォルダ名と理由がテーマメニューに表示されます。
 
 ```json
 {
+  "$schema": "./theme.schema.json",
+  "schemaVersion": 1,
   "id": "harbor-dark",
   "name": { "en": "Harbor", "zh-CN": "港湾", "ja": "ハーバー" },
   "description": "Deep teal surfaces with a sea-glass accent",
   "appearance": "dark",
   "windowBackground": "#0E1A1F",
   "windowMaterial": "translucent",
+  "icon": "assets/icon.png",
+  "assets": { "backdropImage": "assets/backdrop.webp" },
   "tokens": {
     "workspaceBackground": "#0E1A1F",
     "surface": "#14242B",
@@ -155,23 +171,30 @@ Codex の **セッション管理 → コンテキスト編集（実験的）** 
     "accent": "#6FD3C1",
     "accentContrast": "#0E1A1F",
     "sidebarBackground": "#0B151A",
+    "radiusMedium": "6px",
+    "controlBorderWidth": "2px",
+    "cardBorderWidth": "1px",
+    "shadowSmall": "0 1px 2px #00000014",
     "windowMaterialWorkspaceOpacity": "72%",
     "windowMaterialSidebarOpacity": "40%"
   }
 }
 ```
 
+- `schemaVersion`（必須）：現在は `1`。それ以外の値ではファイルをスキップします。省略時は `1` として扱います。
 - `id`（必須）：英小文字・数字・`-` で、先頭は英字。組み込みテーマ（`light`, `dark`, `warm-sand-light`, `graphite-dark`, `midnight-dark`, `sakura-light`）や他のカスタムテーマと重複できません。
 - `name`（必須）と `description`：文字列、または `en`・`zh-CN`・`zh-TW`・`ja` をキーとするオブジェクト。
 - `appearance`（必須）：`light` または `dark`。テーマが表示されるグループを決めます。
 - `windowBackground`（必須）：`#RRGGBB`。ページ描画前にネイティブウィンドウに表示される色です。
-- `tokens`（必須、空オブジェクト可）：色 token は `#RRGGBB` または `#RRGGBBAA`。省略した色は既定のライトまたはダークの値になります。以下の不透明度 token はパーセントで指定します。未知または削除済みの token キーは無視されます。
-- `backdrop`：任意のグラデーション背景。構造は組み込みのミッドナイトブルー、桜ピンクと同じです。
 - `windowMaterial`：`solid`（既定）または `translucent`。半透明テーマではサイドバーとワークスペースの背後にネイティブのウィンドウマテリアルが表示されます。macOS 26 以降は Liquid Glass、それ以前の macOS は vibrancy、Windows 11 は Mica、Windows 10 1809 以降は Acrylic です。Linux と古い Windows ではマテリアルがなく、不透明テーマとまったく同じ表示になるため、`windowBackground` とトークンは省略せずに指定してください。マテリアル表示中は `backdrop` は使われません。
-- `tokens` の任意の不透明度キー：`windowMaterialWorkspaceOpacity`（ワークスペース、既定 `"72%"`）、`windowMaterialSidebarOpacity`（サイドバー、既定 `"40%"`）。値は `"0%"`（完全に透明）から `"100%"`（不透明）のパーセント文字列で、`"37.5%"` のような小数も使えます。対応する OS で `windowMaterial` が `translucent` の場合のみ有効です。ルート、body、シェルはネイティブマテリアルを表示するため透明になります。不正な値を含むファイルはスキップされます。マテリアルはテーマの設定であり、独立した設定項目はありません。組み込みテーマは不透明のままです。
-- `$schema` は記述可能で無視されます。それ以外のフィールドがあるとファイルは無効になります。
+- `backdrop`：任意のグラデーション背景。構造は組み込みのミッドナイトブルー、桜ピンクと同じです。
+- `icon` と `assets`：テーマフォルダ内の相対パス（`png`、`jpg`、`jpeg`、`webp`、`svg`、`avif`）を予約します。絶対パス、`..`、URL、バックスラッシュは使用できません。無効な項目は破棄されます。現在のバージョンは検証して保持するだけで、これらのファイルはまだ表示しません。
+- `tokens`（必須、空オブジェクト可）：外観トークンのみです。色は `#RRGGBB` または `#RRGGBBAA`、不透明度は `"0%"` から `"100%"`、角丸は `0px` から `24px`（`radiusFull` は最大 `9999px`）、枠線の太さは `0px` から `4px`、影は `none` またはカンマ区切りの `[inset] x y [blur] [spread] color` です。未知のキーと不正な値は項目ごとに破棄され、テーマの残りは読み込まれ、無視されたフィールドがテーマメニューに表示されます。コントロールのサイズ、余白、レイアウト、タイポグラフィは対象外です。`spacing`、`fontFamily`、ボタンの高さなどは無視されます。
+- `$schema` は記述可能で無視されます。それ以外のトップレベルフィールドがあるとファイルは無効になります。
 
-利用できる token キー：`workspaceBackground`, `surface`, `softSurface`, `hoverBackground`, `textPrimary`, `textSecondary`, `textTertiary`, `textMuted`, `border`, `borderSubtle`, `borderStrong`, `borderHover`, `panelShadow`, `accent`, `accentStrong`, `accentSoft`, `accentContrast`, `accentShadow`, `primaryButtonBackground`, `primaryButtonHoverBackground`, `primaryButtonText`, `primaryButtonBorder`, `primaryButtonHoverBorder`, `controlActiveBackground`, `controlActiveThumb`, `focusRing`, `sidebarBackground`, `sidebarText`, `sidebarTextStrong`, `sidebarTextMuted`, `sidebarBorder`, `sidebarHover`, `sidebarSelected`, `sidebarSelectedBorder`, `sidebarSelectedShadow`, `popoverBackground`, `overlaySoftSurface`, `overlayHoverBackground`, `scrim`, `controlThumb`, `windowMaterialWorkspaceOpacity`, `windowMaterialSidebarOpacity`。
+これらのトークンは共通コントロールとサーフェスに反映されます：ボタン、スイッチ、入力欄とセレクト、タブ、ダイアログとポップオーバー、カード・パネル・セクション、サイドバー、スクリムです。
+
+利用できる token キー：`workspaceBackground`, `surface`, `softSurface`, `hoverBackground`, `textPrimary`, `textSecondary`, `textTertiary`, `textMuted`, `border`, `borderSubtle`, `borderStrong`, `borderHover`, `panelShadow`, `accent`, `accentStrong`, `accentSoft`, `accentContrast`, `accentShadow`, `primaryButtonBackground`, `primaryButtonHoverBackground`, `primaryButtonText`, `primaryButtonBorder`, `primaryButtonHoverBorder`, `controlActiveBackground`, `controlActiveThumb`, `focusRing`, `sidebarBackground`, `sidebarText`, `sidebarTextStrong`, `sidebarTextMuted`, `sidebarBorder`, `sidebarHover`, `sidebarSelected`, `sidebarSelectedBorder`, `sidebarSelectedShadow`, `popoverBackground`, `overlaySoftSurface`, `overlayHoverBackground`, `scrim`, `controlThumb`, `radiusSmall`, `radiusMedium`, `radiusLarge`, `radiusFull`, `controlBorderWidth`, `cardBorderWidth`, `shadowExtraSmall`, `shadowSmall`, `shadowMedium`, `shadowLarge`, `shadowPopover`, `shadowDialog`, `shadowSpotlight`, `windowMaterialWorkspaceOpacity`, `windowMaterialSidebarOpacity`。リポジトリの `theme.schema.json` は同じ token 定義から生成され、テーマファイルから参照できます。
 
 ## クイックスタート
 

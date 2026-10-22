@@ -87,7 +87,7 @@ const CUSTOM_THEME_MAX_BYTES: u64 = 64 * 1024;
 #[derive(Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct CustomThemeFile {
-    file_name: String,
+    folder: String,
     content: Option<String>,
 }
 
@@ -109,6 +109,14 @@ fn read_custom_theme(path: &std::path::Path) -> Option<String> {
     (content.len() as u64 <= CUSTOM_THEME_MAX_BYTES).then_some(content)
 }
 
+fn theme_file_in(folder: &std::path::Path) -> Option<std::path::PathBuf> {
+    let path = folder.join("theme.json");
+    std::fs::symlink_metadata(&path)
+        .ok()
+        .filter(|metadata| metadata.is_file())
+        .map(|_| path)
+}
+
 fn list_theme_files(directory: &std::path::Path) -> Result<CustomThemeList, String> {
     let entries = match std::fs::read_dir(directory) {
         Ok(entries) => entries,
@@ -121,18 +129,15 @@ fn list_theme_files(directory: &std::path::Path) -> Result<CustomThemeList, Stri
     let mut omitted = 0;
     for entry in entries
         .filter_map(Result::ok)
-        .filter(|entry| entry.file_type().is_ok_and(|kind| kind.is_file()))
+        .filter(|entry| entry.file_type().is_ok_and(|kind| kind.is_dir()))
     {
-        let Ok(name) = entry.file_name().into_string() else {
+        let Ok(folder) = entry.file_name().into_string() else {
             continue;
         };
-        if !std::path::Path::new(&name)
-            .extension()
-            .is_some_and(|extension| extension.eq_ignore_ascii_case("json"))
-        {
+        let Some(path) = theme_file_in(&entry.path()) else {
             continue;
-        }
-        files.push((name, entry.path()));
+        };
+        files.push((folder, path));
         if files.len() > CUSTOM_THEME_LIMIT {
             files.pop();
             omitted += 1;
@@ -142,9 +147,9 @@ fn list_theme_files(directory: &std::path::Path) -> Result<CustomThemeList, Stri
         files: files
             .into_sorted_vec()
             .into_iter()
-            .map(|(file_name, path)| CustomThemeFile {
+            .map(|(folder, path)| CustomThemeFile {
                 content: read_custom_theme(&path),
-                file_name,
+                folder,
             })
             .collect(),
         omitted,
@@ -329,7 +334,7 @@ mod tests {
     }
 
     #[test]
-    fn lists_custom_theme_files_sorted_with_limits() {
+    fn lists_theme_folders_sorted_with_limits() {
         let directory = std::env::temp_dir().join(format!(
             "ezcpa-custom-themes-{}-{}",
             std::process::id(),
@@ -342,37 +347,52 @@ mod tests {
             list_theme_files(&directory).unwrap(),
             CustomThemeList::default()
         );
-        std::fs::create_dir_all(directory.join("folder.json")).unwrap();
-        std::fs::write(directory.join("b.json"), "{\"id\":\"b\"}").unwrap();
-        std::fs::write(directory.join("A.JSON"), "{}").unwrap();
-        std::fs::write(directory.join("notes.txt"), "ignored").unwrap();
+        std::fs::create_dir_all(directory.join("b")).unwrap();
+        std::fs::write(directory.join("b/theme.json"), "{\"id\":\"b\"}").unwrap();
+        std::fs::create_dir_all(directory.join("A")).unwrap();
+        std::fs::write(directory.join("A/theme.json"), "{}").unwrap();
+        std::fs::create_dir_all(directory.join("empty")).unwrap();
+        std::fs::create_dir_all(directory.join("nested/themes")).unwrap();
+        std::fs::write(directory.join("nested/themes/theme.json"), "{}").unwrap();
+        std::fs::write(directory.join("stray.json"), "{}").unwrap();
+        std::fs::write(directory.join("b/notes.txt"), "ignored").unwrap();
+        std::fs::create_dir_all(directory.join("c-large")).unwrap();
         std::fs::write(
-            directory.join("c-large.json"),
+            directory.join("c-large/theme.json"),
             vec![b' '; CUSTOM_THEME_MAX_BYTES as usize + 1],
         )
         .unwrap();
-        std::fs::write(directory.join("d-binary.json"), [0xff, 0xfe]).unwrap();
+        std::fs::create_dir_all(directory.join("d-binary")).unwrap();
+        std::fs::write(directory.join("d-binary/theme.json"), [0xff, 0xfe]).unwrap();
         #[cfg(unix)]
-        std::os::unix::fs::symlink(directory.join("b.json"), directory.join("link.json")).unwrap();
+        {
+            std::os::unix::fs::symlink(directory.join("b"), directory.join("link-folder")).unwrap();
+            std::fs::create_dir_all(directory.join("link-file")).unwrap();
+            std::os::unix::fs::symlink(
+                directory.join("b/theme.json"),
+                directory.join("link-file/theme.json"),
+            )
+            .unwrap();
+        }
         let list = list_theme_files(&directory).unwrap();
         assert_eq!(list.omitted, 0);
         assert_eq!(
             list.files,
             vec![
                 CustomThemeFile {
-                    file_name: "A.JSON".to_string(),
+                    folder: "A".to_string(),
                     content: Some("{}".to_string())
                 },
                 CustomThemeFile {
-                    file_name: "b.json".to_string(),
+                    folder: "b".to_string(),
                     content: Some("{\"id\":\"b\"}".to_string())
                 },
                 CustomThemeFile {
-                    file_name: "c-large.json".to_string(),
+                    folder: "c-large".to_string(),
                     content: None
                 },
                 CustomThemeFile {
-                    file_name: "d-binary.json".to_string(),
+                    folder: "d-binary".to_string(),
                     content: None
                 },
             ]
@@ -380,18 +400,22 @@ mod tests {
         std::fs::remove_dir_all(&directory).unwrap();
         std::fs::create_dir_all(&directory).unwrap();
         for index in (0..CUSTOM_THEME_LIMIT + 2).rev() {
-            std::fs::write(directory.join(format!("theme-{index:03}.json")), "{}").unwrap();
+            let folder = directory.join(format!("theme-{index:03}"));
+            std::fs::create_dir_all(&folder).unwrap();
+            std::fs::write(folder.join("theme.json"), "{}").unwrap();
         }
-        std::fs::write(directory.join("0-first.json"), "{}").unwrap();
+        let first = directory.join("0-first");
+        std::fs::create_dir_all(&first).unwrap();
+        std::fs::write(first.join("theme.json"), "{}").unwrap();
         std::fs::write(directory.join("notes.txt"), "ignored").unwrap();
         let list = list_theme_files(&directory).unwrap();
-        let mut expected = vec!["0-first.json".to_string()];
-        expected.extend((0..CUSTOM_THEME_LIMIT - 1).map(|index| format!("theme-{index:03}.json")));
+        let mut expected = vec!["0-first".to_string()];
+        expected.extend((0..CUSTOM_THEME_LIMIT - 1).map(|index| format!("theme-{index:03}")));
         assert_eq!(list.omitted, 3);
         assert_eq!(
             list.files
                 .iter()
-                .map(|file| file.file_name.clone())
+                .map(|file| file.folder.clone())
                 .collect::<Vec<_>>(),
             expected
         );

@@ -7,7 +7,7 @@ import ts from 'typescript';
 const root = join(import.meta.dir, '..', 'src');
 const trunk = ['primary-button', 'secondary-button', 'danger-button', 'icon-button', 'compact-button', 'small-button', 'tiny-button', 'link-button'];
 const modifiers = new Set(['ghost', 'quiet', 'danger', 'muted', 'copied', 'active', 'selected', 'locked', 'open', 'disabled', 'is-hidden', 'is-expanded', 'has-accounts', 'highlight-save', 'spin', 'oauth', 'api']);
-const trunkFiles = ['styles.css', 'styles/ui-refinements.css', 'styles/workspace-white.css'];
+const trunkFiles = ['styles.css', 'styles/ui-refinements.css', 'styles/workspace-white.css', 'styles/theme-surfaces.css'];
 const trunkOverrides: Record<string, string> = {
   'styles/usage-subpages.css': 'Usage panels recolor secondary buttons with page tokens (usage-page-*); moves into semantic tokens in stage 2.',
 };
