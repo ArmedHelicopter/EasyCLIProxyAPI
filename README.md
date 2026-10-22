@@ -155,7 +155,7 @@ Manually renamed files without a session ID in their filename or a database path
 
 ## Custom Themes
 
-Each custom theme is a folder inside the `themes` folder of the application data directory: next to the executable on Windows and Linux, and `~/Library/Application Support/com.cpa.gui/themes` for the macOS app (next to the executable when run outside the `.app` bundle). The **Open themes folder** button at the bottom of the theme picker creates and opens it; **Reload** applies changes without restarting. Custom themes appear after the built-in themes in folder-name order.
+Each custom theme is a folder inside the `themes` folder of the application data directory: next to the executable on Windows and Linux, and `~/Library/Application Support/com.cpa.gui/themes` for the macOS app (next to the executable when run outside the `.app` bundle). The **Open themes folder** button at the bottom of the theme picker creates and opens it; **Reload** applies changes without restarting. Custom themes appear after the built-in themes in folder-name order. The theme picker opens in a dialog where you can search by name, description or theme ID, filter by source (all, built-in or custom), and pick separate light and dark themes while the mode is set to Auto.
 
 ```
 themes/
