@@ -124,7 +124,7 @@ export function OAuthManagementPage() {
 
   return (
     <section className="page oauth-management-page">
-      <Tabs className="agent-subpage-tabs oauth-subpage-tabs" aria-label={t('oauth.tabs.label')} value={activeSubpage}
+      <Tabs className="oauth-subpage-tabs secondary-page-tabs" aria-label={t('oauth.tabs.label')} value={activeSubpage}
         onChange={subpage => { setAuthFilesProvider(undefined); setActiveSubpage(subpage); }}
         items={oauthSubpages.map(subpage => ({ value: subpage.id, id: `oauth-subpage-tab-${subpage.id}`, panelId: 'oauth-subpage-panel', label: t(subpage.labelKey) }))} />
 

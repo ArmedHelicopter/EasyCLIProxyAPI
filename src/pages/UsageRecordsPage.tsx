@@ -38,6 +38,7 @@ import {
   Gauge,
   Pencil,
   RefreshCw,
+  Search,
   Trash2,
   TriangleAlert,
   Wallet,
@@ -489,7 +490,7 @@ export function UsageRecordsPage() {
       <div className="usage-topbar">
         <div className="usage-page-navigation">
           <h1 className="sr-only">{t('usage.title')}</h1>
-          <Tabs className="usage-tabs" aria-label={t('usage.pageLabel')} value={activeTab} onChange={setActiveTab}
+          <Tabs className="usage-tabs secondary-page-tabs" aria-label={t('usage.pageLabel')} value={activeTab} onChange={setActiveTab}
             items={USAGE_TABS.map(({ value, labelKey }) => ({ value, id: `usage-tab-${value}`, panelId: 'usage-tab-panel', label: <span>{t(labelKey)}</span> }))} />
         </div>
 
@@ -1541,12 +1542,15 @@ function PricingView({
         </div>
         <div className="usage-pricing-actions">
           <div className="usage-pricing-action-group">
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.currentTarget.value)}
-              placeholder={t('usage.pricing.search')}
-              aria-label={t('usage.pricing.search')}
-            />
+            <div className="usage-pricing-search search-control" data-size="default">
+              <Search size={16} aria-hidden="true" />
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.currentTarget.value)}
+                placeholder={t('usage.pricing.search')}
+                aria-label={t('usage.pricing.search')}
+              />
+            </div>
             <button type="button" className="secondary-button compact-button" onClick={() => setDraft(emptyPriceDraft())}>
               {t('usage.pricing.add')}
             </button>

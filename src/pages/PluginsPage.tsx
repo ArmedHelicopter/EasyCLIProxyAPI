@@ -200,12 +200,12 @@ export function PluginsPage() {
 
   return <div className="plugins-page" role="region" aria-label={pt('title')}>
     <div className="plugin-navigation">
-      {supported === true && <Tabs activation="manual" className="plugin-tabs" aria-label={pt('title')} value={tab} disabled={busy}
+      {supported === true && <Tabs variant="segmented" activation="manual" className="plugin-tabs" aria-label={pt('title')} value={tab} disabled={busy}
         onChange={value => { setTab(value); setSearch(''); setFilter('all'); }}
         items={(['installed', 'store', 'settings'] as const).map(value => ({ value, id: `plugin-tab-${value}`, panelId: 'plugin-tab-panel', label: pt(value === 'installed' ? 'local' : value) }))} />}
       <div className="plugin-toolbar">
         {supported === true && tab !== 'settings' && <>
-        <div className="plugin-search">
+        <div className="plugin-search search-control" data-size="default">
           <Search size={17} aria-hidden="true" />
           <input ref={searchRef} type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder={pt('search')} aria-label={pt('search')} />
           <button type="button" className="icon-button quiet ghost tiny-button plugin-search-clear" disabled={!search} aria-label={t('common.clear')} title={t('common.clear')}

@@ -197,7 +197,7 @@ export function CodexModelCatalogDialog({ onClose, onSaved }: CodexModelCatalogD
 
       <div className="surface-section codex-catalog-body">
         <aside className="codex-catalog-sidebar">
-          <div className="codex-catalog-search">
+          <div className="codex-catalog-search search-control" data-size="default">
             <Search size={15} aria-hidden />
             <input value={search} onChange={(event) => setSearch(event.currentTarget.value)} placeholder={t('agents.catalog.search')} />
           </div>

@@ -34,7 +34,7 @@ const removed = [
 const exceptions: Record<string, string[]> = {
   'Native window caption controls use OS-sized chrome': ['window-controls', 'window-close'],
   'Tabs and SegmentedControl choices (1.3)': [
-    'routing-segmented', 'agent-subpage-tabs', 'oauth-subpage-tabs', 'config-subpage-tabs', 'usage-tabs', 'plugin-tabs', 'home-protocol-tabs', 'usage-analysis-metric',
+    'tabs-control', 'routing-segmented', 'agent-subpage-tabs', 'oauth-subpage-tabs', 'config-subpage-tabs', 'usage-tabs', 'plugin-tabs', 'home-protocol-tabs', 'usage-analysis-metric',
     'quota-category-filter', 'thinking-effort-options', 'agent-auth-segmented', 'agent-auth-segmented-button', 'simple-mode-api-platforms', 'simple-mode-api-platform',
     'theme-selector-modes',
   ],

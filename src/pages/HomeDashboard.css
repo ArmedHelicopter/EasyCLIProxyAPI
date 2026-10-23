@@ -81,7 +81,7 @@
 .home-stat-card.error { --stat-color: var(--failure-badge-text); }
 .home-stat-card h3 { margin: 0; color: var(--text-secondary); font-size: 12px; font-weight: 500; line-height: 1.5; }
 .home-stat-value { display: block; color: var(--text-primary); font-size: 32px; font-weight: 550; font-variant-numeric: tabular-nums; line-height: 1.15; letter-spacing: -.045em; }
-.home-stat-track { height: 3px; margin: 0; overflow: hidden; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--stat-color) 12%, transparent); }
+.home-stat-track { height: 6px; margin: 0; overflow: hidden; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--stat-color) 12%, transparent); }
 .home-stat-track > span { display: block; height: 100%; border-radius: inherit; background: var(--stat-color); }
 .home-stat-card p { margin: auto 0 0; color: var(--text-secondary); font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; }
 
