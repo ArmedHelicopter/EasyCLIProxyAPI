@@ -219,10 +219,7 @@ body, html, #root {
 }
 
 /* 6. Subpage navigation */
-.agent-subpage-tabs,
-.oauth-subpage-tabs,
-.config-subpage-tabs,
-.usage-tabs {
+.agent-subpage-tabs {
   display: inline-flex;
   align-items: stretch;
   gap: 4px;
@@ -237,17 +234,8 @@ body, html, #root {
 }
 
 .agent-subpage-tabs button,
-.oauth-subpage-tabs button,
-.config-subpage-tabs button,
-.usage-tabs button,
 .agent-subpage-tabs button:hover,
-.oauth-subpage-tabs button:hover,
-.config-subpage-tabs button:hover,
-.usage-tabs button:hover,
-.agent-subpage-tabs button.active,
-.oauth-subpage-tabs button.active,
-.config-subpage-tabs button.active,
-.usage-tabs button.active {
+.agent-subpage-tabs button.active {
   min-width: 0;
   height: 38px;
   padding: 0 14px;
@@ -261,17 +249,11 @@ body, html, #root {
   font-weight: var(--font-weight-medium);
 }
 
-.agent-subpage-tabs button:hover,
-.oauth-subpage-tabs button:hover,
-.config-subpage-tabs button:hover,
-.usage-tabs button:hover {
+.agent-subpage-tabs button:hover {
   color: var(--text-primary);
 }
 
-.agent-subpage-tabs button.active,
-.oauth-subpage-tabs button.active,
-.config-subpage-tabs button.active,
-.usage-tabs button.active {
+.agent-subpage-tabs button.active {
   margin-bottom: -1px;
   border-bottom-color: var(--ui-accent);
   color: var(--text-primary);
@@ -533,10 +515,6 @@ button.oauth-account-count:focus-visible {
 }
 
 /* Usage records follow the same shell surface as the home page. */
-.app-shell:has(.usage-records-page) .content {
-  padding: clamp(12px, 1.5vw, 20px) clamp(12px, 1.5vw, 20px) 16px;
-}
-
 .usage-records-page {
   gap: clamp(8px, 1.5vh, 16px);
   color: var(--usage-records-page-color);

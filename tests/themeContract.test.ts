@@ -24,6 +24,12 @@ async function sourceText(): Promise<string> {
 }
 
 describe('theme token contract', () => {
+  test('exposes independent colors for percentage meters', () => {
+    for (const key of ['meterLow', 'meterMedium', 'meterHigh']) {
+      expect(isThemeTokenKey(key)).toBe(true);
+      expect(isValidThemeToken(key as ThemeTokenKey, '#123456')).toBe(true);
+    }
+  });
   test('keeps every exposed token appearance-only and typed', () => {
     expect(tokenKeys.length).toBeGreaterThan(40);
     for (const key of tokenKeys) expect(key).not.toMatch(/size|spacing|gap|height|font|line|padding|margin/i);

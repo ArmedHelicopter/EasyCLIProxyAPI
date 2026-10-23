@@ -1616,7 +1616,7 @@ export function ApiAccessPage() {
               <h2 title={providerLabel(activeDefinition)}>{providerLabel(activeDefinition)}</h2>
               <span>{t(activeDefinition.openAi ? 'apiAccess.entries.summaryProviders' : 'apiAccess.entries.summaryKeys', { count: rows.length })}</span>
             </div>
-            <div className="management-toolbar compact-toolbar api-access-search">
+            <div className="management-toolbar compact-toolbar api-access-search search-control" data-size="default">
               <Search size={16} aria-hidden="true" />
               <input value={filter} onChange={(event) => setFilter(event.currentTarget.value)} placeholder={t('apiAccess.search')} aria-label={t('apiAccess.search')} />
             </div>
@@ -1875,7 +1875,7 @@ function ProviderHealthDialog({ row, onClose, keySelector }: ProviderHealthDialo
       </div>
 
       {keySelector}
-      <div className="model-discovery-search">
+      <div className="model-discovery-search search-control" data-size="default">
         <Search size={16} aria-hidden="true" />
         <input value={search} onChange={(event) => setSearch(event.currentTarget.value)} placeholder={t('apiAccess.health.search')} />
       </div>

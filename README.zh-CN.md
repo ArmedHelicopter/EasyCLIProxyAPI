@@ -206,7 +206,11 @@ themes/
 
 这些 token 作用于公共控件与表面：按钮、开关、输入框与下拉框、Tabs、弹窗与浮层、卡片、面板与分区、侧边栏和遮罩。
 
-可用的 token 键：`workspaceBackground`, `surface`, `softSurface`, `hoverBackground`, `textPrimary`, `textSecondary`, `textTertiary`, `textMuted`, `border`, `borderSubtle`, `borderStrong`, `borderHover`, `panelShadow`, `accent`, `accentStrong`, `accentSoft`, `accentContrast`, `accentShadow`, `primaryButtonBackground`, `primaryButtonHoverBackground`, `primaryButtonText`, `primaryButtonBorder`, `primaryButtonHoverBorder`, `controlActiveBackground`, `controlActiveThumb`, `focusRing`, `sidebarBackground`, `sidebarText`, `sidebarTextStrong`, `sidebarTextMuted`, `sidebarBorder`, `sidebarHover`, `sidebarSelected`, `sidebarSelectedBorder`, `sidebarSelectedShadow`, `popoverBackground`, `overlaySoftSurface`, `overlayHoverBackground`, `scrim`, `controlThumb`, `radiusSmall`, `radiusMedium`, `radiusLarge`, `radiusFull`, `controlBorderWidth`, `cardBorderWidth`, `shadowExtraSmall`, `shadowSmall`, `shadowMedium`, `shadowLarge`, `shadowPopover`, `shadowDialog`, `shadowSpotlight`, `windowMaterialWorkspaceOpacity`, `windowMaterialSidebarOpacity`。仓库中的 `theme.schema.json` 由同一份 token 定义生成，主题文件可以引用它。
+可用的 token 键：`workspaceBackground`, `surface`, `softSurface`, `hoverBackground`, `textPrimary`, `textSecondary`, `textTertiary`, `textMuted`, `border`, `borderSubtle`, `borderStrong`, `borderHover`, `panelShadow`, `accent`, `accentStrong`, `accentSoft`, `accentContrast`, `accentShadow`, `primaryButtonBackground`, `primaryButtonHoverBackground`, `primaryButtonText`, `primaryButtonBorder`, `primaryButtonHoverBorder`, `controlActiveBackground`, `controlActiveThumb`, `focusRing`, `meterLow`, `meterMedium`, `meterHigh`, `sidebarBackground`, `sidebarText`, `sidebarTextStrong`, `sidebarTextMuted`, `sidebarBorder`, `sidebarHover`, `sidebarSelected`, `sidebarSelectedBorder`, `sidebarSelectedShadow`, `popoverBackground`, `overlaySoftSurface`, `overlayHoverBackground`, `scrim`, `controlThumb`, `radiusSmall`, `radiusMedium`, `radiusLarge`, `radiusFull`, `controlBorderWidth`, `cardBorderWidth`, `shadowExtraSmall`, `shadowSmall`, `shadowMedium`, `shadowLarge`, `shadowPopover`, `shadowDialog`, `shadowSpotlight`, `windowMaterialWorkspaceOpacity`, `windowMaterialSidebarOpacity`。仓库中的 `theme.schema.json` 由同一份 token 定义生成，主题文件可以引用它。
+
+搜索框共用圆角外框，聚焦反馈覆盖整个控件。原生选择框统一闭合外观，并保留系统选项菜单。
+
+请求成功率、凭证可用率和剩余额度共用连续的低—中—高配色。可通过 `tokens` 中的 `meterLow`、`meterMedium`、`meterHigh` 自定义，未知值与零值保持区分。OAuth、使用记录和高级功能统一使用纯文字顶部下划线标签页，并保持相同的导航间距；其他少量二级分类使用分段导航。
 
 ## 快速开始
 

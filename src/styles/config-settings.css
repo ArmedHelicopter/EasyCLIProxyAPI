@@ -8,7 +8,6 @@
 .config-settings-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-items: start; min-width: 0; }
 .config-settings-topnav { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; flex-wrap: wrap; }
 .config-page .config-subpage-tabs button { display: flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 5px; min-width: 0; }
-.config-page .config-subpage-tabs button > svg { flex: none; }
 .config-nav-dirty { flex: none; width: 6px; height: 6px; margin-left: auto; border-radius: var(--radius-full); background: var(--primary-color); }
 .config-settings-content { min-width: 0; }
 /* Only flatten page sections. Dialogs may be rendered inside these sections. */
@@ -107,7 +106,6 @@
 @media (max-width: 720px) {
   .config-page { gap: 20px; }
   .config-settings-search { flex-basis: auto; }
-  .config-subpage-tabs button > svg { display: none; }
   .config-settings-content .config-network-grid { grid-template-columns: minmax(0, 1fr); }
   .config-settings-content .config-network-section { padding: 16px; }
   .config-settings-content .config-network-field { min-height: 0; }

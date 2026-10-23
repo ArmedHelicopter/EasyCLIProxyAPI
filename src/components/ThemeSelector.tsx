@@ -148,7 +148,7 @@ export function ThemeSelector({ value, onChange, open, onOpenChange, registry: o
           {mode === 'system' ? <p className="theme-selector-system-hint">{t('app.theme.catalog.systemHint')}</p> : null}
         </div>
         <div className="theme-selector-filters">
-          <label className="theme-selector-search">
+          <label className="theme-selector-search search-control" data-size="default">
             <Search size={16} aria-hidden="true" />
             <input ref={search} type="search" className="config-dialog-text-input"
               aria-label={t('app.theme.catalog.search')} placeholder={t('app.theme.catalog.searchHint')}

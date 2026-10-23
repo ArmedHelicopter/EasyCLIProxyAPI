@@ -1,4 +1,4 @@
-const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const { chromium, webkit } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { createServer: createPortProbe } = require('node:net');
@@ -25,7 +25,8 @@ const shotDir = process.env.CONFIG_TOPNAV_SHOTS || '';
     assert.equal(server.httpServer.address().port, port);
     const base = `http://127.0.0.1:${port}`;
     const channel = process.env.PLAYWRIGHT_CHANNEL || (process.platform === 'win32' ? 'msedge' : undefined);
-    browser = await chromium.launch({ channel, headless: true, args: ['--no-proxy-server'] });
+    const engine = process.env.PLAYWRIGHT_ENGINE === 'webkit' ? webkit : chromium;
+    browser = await engine.launch({ ...(engine === chromium ? { channel, args: ['--no-proxy-server'] } : {}), headless: true });
     const runtimeErrors = [];
 
     const computedOf = (page, selector) => page.locator(selector).first().evaluate(element => {
@@ -81,25 +82,61 @@ const shotDir = process.env.CONFIG_TOPNAV_SHOTS || '';
           await page.locator('#usage-tab-panel').waitFor();
         };
 
+        const openOAuth = async () => {
+          await page.locator('.nav-section').getByRole('button', { name: 'OAuth', exact: true }).click();
+          await page.locator('#oauth-subpage-panel').waitFor();
+        };
+        const navigationSnapshot = async selector => {
+          const nav = page.locator(selector);
+          const box = await nav.boundingBox();
+          assert.equal(await nav.getAttribute('data-variant'), 'underline', `${label}: shared underline variant`);
+          assert.equal(await nav.locator('button svg').count(), 0, `${label}: secondary tabs use text labels`);
+          return { x: box.x, y: box.y, height: box.height, tab: await computedOf(page, `${selector} button.active`) };
+        };
+        await openUsage();
+        const usageNavigation = await navigationSnapshot('.usage-tabs');
+        await openOAuth();
+        const oauthNavigation = await navigationSnapshot('.oauth-subpage-tabs');
+        await page.locator('#oauth-subpage-tab-authFiles').click();
+        const oauthFilesNavigation = await navigationSnapshot('.oauth-subpage-tabs');
         await openAdvanced();
+        const configNavigation = await navigationSnapshot('.config-subpage-tabs');
+        for (const actual of [oauthNavigation, oauthFilesNavigation, configNavigation]) {
+          for (const property of ['x', 'y', 'height']) {
+            assert.ok(Math.abs(actual[property] - usageNavigation[property]) < 1, `${label}: navigation ${property} matches usage (${actual[property]} vs ${usageNavigation[property]})`);
+          }
+          for (const property of ['height', 'paddingTop', 'paddingLeft', 'borderBottomWidth', 'borderTopLeftRadius', 'borderBottomLeftRadius', 'fontWeight']) {
+            assert.equal(actual.tab[property], usageNavigation.tab[property], `${label}: shared tab ${property}`);
+          }
+        }
 
         const topnav = await computedOf(page, '.config-settings-topnav');
         assert.equal(topnav.position, 'static', `${label}: topnav must scroll with the page like the shared top bar`);
         assert.equal(topnav.borderBottomWidth, '0px', `${label}: topnav must not draw its own full-width divider`);
         assert.equal(await backgroundAlpha(page, '.config-settings-topnav'), 0, `${label}: topnav must be transparent, got ${topnav.backgroundColor}`);
 
-        const advancedTab = await computedOf(page, '#config-subpage-tab-general.active');
+        const navigation = page.locator('.config-subpage-tabs');
+        await page.waitForFunction(expected => document.querySelector('.config-subpage-tabs').getAttribute('aria-orientation') === expected, 'horizontal');
+        assert.equal(await navigation.getAttribute('data-variant'), 'underline', `${label}: settings use shared horizontal tabs`);
+        const navigationBox = await navigation.boundingBox();
+        const contentBox = await page.locator('#config-subpage-panel').boundingBox();
+        assert.ok(contentBox.y >= navigationBox.y + navigationBox.height, `${label}: settings content stays below the horizontal navigation`);
+        await page.locator('#config-subpage-tab-general').focus();
+        await page.keyboard.press('ArrowRight');
+        await page.waitForFunction(() => document.activeElement?.id === 'config-subpage-tab-aliases');
+        assert.equal(await page.locator('#config-subpage-tab-aliases').getAttribute('aria-selected'), 'true');
+        await page.keyboard.press('Home');
+        await page.waitForFunction(() => document.activeElement?.id === 'config-subpage-tab-general');
         await openUsage();
+        assert.equal(await page.locator('.usage-tabs').getAttribute('data-variant'), 'underline', `${label}: data views retain underline navigation`);
         const usageTab = await computedOf(page, '.usage-tabs button.active');
-        assert.equal(advancedTab.height, usageTab.height, `${label}: active tab height must match the shared tabs`);
-        assert.equal(advancedTab.paddingTop, usageTab.paddingTop, `${label}: active tab padding must match the shared tabs`);
-        assert.equal(advancedTab.paddingLeft, usageTab.paddingLeft, `${label}: active tab padding must match the shared tabs`);
-        assert.equal(advancedTab.borderTopLeftRadius, usageTab.borderTopLeftRadius, `${label}: active tab radius must match the shared tabs`);
-        assert.equal(advancedTab.borderBottomLeftRadius, usageTab.borderBottomLeftRadius, `${label}: active tab radius must match the shared tabs`);
-        assert.equal(advancedTab.color, usageTab.color, `${label}: active tab color must match the shared tabs`);
-        assert.equal(advancedTab.borderBottomColor, usageTab.borderBottomColor, `${label}: active tab underline must match the shared tabs`);
-        assert.equal(advancedTab.backgroundColor, usageTab.backgroundColor, `${label}: active tab background must match the shared tabs`);
-        assert.equal(advancedTab.fontWeight, usageTab.fontWeight, `${label}: active tab weight must match the shared tabs`);
+        await openAdvanced();
+        const configTab = await computedOf(page, '.config-subpage-tabs button.active');
+        for (const property of ['height', 'paddingTop', 'paddingLeft', 'borderBottomWidth', 'borderTopLeftRadius', 'borderBottomLeftRadius', 'fontWeight']) {
+          assert.equal(configTab[property], usageTab[property], `${label}: settings and usage tabs share ${property}`);
+        }
+        assert.equal(usageTab.borderBottomWidth, '2px', `${label}: data view selection stays visible`);
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${label}: navigation must not overflow the window`);
 
         await openAdvanced();
         await page.locator('#config-subpage-tab-requests').click();
@@ -119,6 +156,8 @@ const shotDir = process.env.CONFIG_TOPNAV_SHOTS || '';
           const { mkdirSync } = await import('node:fs');
           mkdirSync(shotDir, { recursive: true });
           await page.screenshot({ path: path.join(shotDir, `advanced-topnav-${locale}.png`), clip: { x: 0, y: 0, width: viewport.width, height: 320 } });
+          await openOAuth();
+          await page.screenshot({ path: path.join(shotDir, `oauth-topbar-${locale}.png`), clip: { x: 0, y: 0, width: viewport.width, height: 320 } });
           await openUsage();
           await page.screenshot({ path: path.join(shotDir, `usage-topbar-${locale}.png`), clip: { x: 0, y: 0, width: viewport.width, height: 320 } });
         }
@@ -126,7 +165,7 @@ const shotDir = process.env.CONFIG_TOPNAV_SHOTS || '';
       }
     }
     assert.deepEqual(runtimeErrors, [], `No runtime errors: ${runtimeErrors.join(' | ')}`);
-    console.log('config-topnav-ui: passed 2 viewports x 2 locales');
+    console.log(`config-topnav-ui: passed 4 scenarios (${engine.name()}, 2 viewports x 2 locales)`);
   } finally {
     await browser?.close();
     await new Promise(resolve => server.httpServer.close(resolve));
