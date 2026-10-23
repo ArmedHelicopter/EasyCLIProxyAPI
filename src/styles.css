@@ -129,6 +129,12 @@ body,
   background: var(--color-workspace);
 }
 
+:root:has(.app-shell),
+:root:has(.app-shell) body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 .app-error-boundary {
   display: grid;
   min-height: 100vh;
@@ -221,6 +227,7 @@ textarea:focus-visible {
   height: 100%;
   overflow: auto;
   scrollbar-width: thin;
+  overscroll-behavior-y: contain;
 }
 
 .state-pill {
@@ -2791,7 +2798,7 @@ textarea:focus-visible {
 
 .notice-main {
   display: flex;
-  flex: 1 1 auto;
+  flex: 1 1 0;
   align-items: center;
   gap: 12px;
   min-width: 0;
@@ -7368,17 +7375,6 @@ textarea:focus-visible {
   transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.usage-tabs button:hover:not(.active) {
-  color: var(--text-primary);
-  background: color-mix(in srgb, var(--bg-primary) 70%, transparent);
-}
-
-.usage-tabs button.active {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  box-shadow: var(--shadow-sm);
-}
-
 /* Filter Toolbar */
 .usage-filter-panel {
   display: grid;
@@ -10128,8 +10124,8 @@ textarea:focus-visible {
 
 @media (max-width: 760px) {
   .app-shell:has(.usage-records-page) {
-    height: auto;
-    min-height: 100%;
+    height: 100%;
+    min-height: 0;
   }
 
   .app-shell:has(.usage-records-page) .content {
