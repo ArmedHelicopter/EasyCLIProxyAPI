@@ -1,13 +1,13 @@
 import { isThemeId, isThemeLabel, type SystemThemes, type ThemeAppearance, type ThemeDefinition, type ThemeIssue, type ThemeLabel, type ThemePreview } from './types';
 import { normalizeThemeTokens } from './tokenContract';
-import { isThemeAssetPath, normalizeThemeAssets } from './resources';
+import { isThemeAssetPath, isThemeImageDataUrl, normalizeThemeAssets } from './resources';
 import { warmSand } from './warmSand';
 import { graphite } from './graphite';
 import { midnight } from './midnight';
 import { light } from './light';
 import { dark } from './dark';
 import { sakura } from './sakura';
-import { backdropImage, normalizeBackdrop } from './backdrop';
+import { backdropImage, normalizeBackdrop, themeBackdropImage, themeImagePosition } from './backdrop';
 
 export function normalizeTheme(definition: ThemeDefinition, report: (issue: ThemeIssue) => void = () => {}): ThemeDefinition {
   if (!isThemeId(definition.id) || definition.id === 'system') throw new Error(`Invalid theme ID: ${definition.id}`);
@@ -29,13 +29,15 @@ export function normalizeTheme(definition: ThemeDefinition, report: (issue: Them
   }
   const assets = normalizeThemeAssets(definition.assets, (field) => report({ field: `assets.${field}`, code: 'invalid-asset' }));
   const label = (value: ThemeLabel) => typeof value === 'string' ? value : Object.freeze({ ...value });
-  const { icon: _icon, assets: _assets, ...rest } = definition;
+  const { icon: _icon, assets: _assets, backdropImage: image, ...rest } = definition;
   return Object.freeze({ ...rest,
     schemaVersion: 1,
     ...(definition.name === undefined ? {} : { name: label(definition.name) }),
     ...(definition.description === undefined ? {} : { description: label(definition.description) }),
     ...(icon === undefined ? {} : { icon }),
     ...(assets === undefined ? {} : { assets }),
+    ...(assets?.backdropImage && /\.(?:png|jpe?g|webp|avif)$/i.test(assets.backdropImage)
+      && isThemeImageDataUrl(image) ? { backdropImage: image } : {}),
     tokens: Object.freeze(tokens),
     ...(definition.backdrop === undefined ? {} : { backdrop: normalizeBackdrop(definition.backdrop, definition.id) }),
   });
@@ -71,7 +73,9 @@ export type ThemeRegistry = ReturnType<typeof createThemeRegistry>;
 export function themePreview(theme: ThemeDefinition): ThemePreview {
   const dark = theme.appearance === 'dark';
   return {
-    background: `${theme.backdrop ? `${backdropImage(theme.backdrop)}, ` : ''}${theme.tokens.workspaceBackground ?? theme.windowBackground}`,
+    background: theme.backdropImage
+      ? `${themeBackdropImage(theme)} ${themeImagePosition(theme)} / cover no-repeat ${theme.tokens.workspaceBackground ?? theme.windowBackground}`
+      : `${theme.backdrop ? `${backdropImage(theme.backdrop)}, ` : ''}${theme.tokens.workspaceBackground ?? theme.windowBackground}`,
     sidebar: theme.backdrop?.sidebar ?? theme.tokens.sidebarBackground ?? (dark ? '#0f1218' : '#f7f8fa'),
     surface: theme.backdrop?.panel ?? theme.tokens.surface ?? (dark ? '#141720' : '#ffffff'),
     accent: theme.tokens.accent ?? (dark ? '#f5f5f5' : '#222222'),

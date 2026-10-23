@@ -8,6 +8,11 @@ export function isThemeAssetPath(value: unknown): value is string {
   return segments.every((segment) => segment !== '' && segment !== '.' && segment !== '..');
 }
 
+export function isThemeImageDataUrl(value: unknown): value is string {
+  return typeof value === 'string' && value.length <= 11_184_840
+    && /^data:image\/(?:png|jpeg|webp|avif);base64,[A-Za-z0-9+/]+={0,2}$/.test(value);
+}
+
 export function normalizeThemeAssets(
   input: unknown,
   report: (field: string) => void,

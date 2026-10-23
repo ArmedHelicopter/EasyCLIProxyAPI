@@ -83,12 +83,15 @@ pub(crate) fn save_theme_selection(selection: ThemeSelection) -> Result<(), Stri
 
 const CUSTOM_THEME_LIMIT: usize = 64;
 const CUSTOM_THEME_MAX_BYTES: u64 = 64 * 1024;
+const CUSTOM_THEME_IMAGE_MAX_BYTES: u64 = 8 * 1024 * 1024;
 
 #[derive(Debug, PartialEq, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct CustomThemeFile {
     folder: String,
     content: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    backdrop_image: Option<String>,
 }
 
 #[derive(Debug, Default, PartialEq, serde::Serialize)]
@@ -115,6 +118,86 @@ fn theme_file_in(folder: &std::path::Path) -> Option<std::path::PathBuf> {
         .ok()
         .filter(|metadata| metadata.is_file())
         .map(|_| path)
+}
+
+fn read_backdrop_image(folder: &std::path::Path, content: &str) -> Option<String> {
+    use base64::Engine;
+    use std::io::Read;
+    use std::path::Component;
+
+    let theme: serde_json::Value = serde_json::from_str(content).ok()?;
+    let asset = theme.get("assets")?.get("backdropImage")?.as_str()?;
+    if asset.is_empty() || asset.contains(['\\', ':']) {
+        return None;
+    }
+    let relative = std::path::Path::new(asset);
+    let mime = match relative
+        .extension()?
+        .to_str()?
+        .to_ascii_lowercase()
+        .as_str()
+    {
+        "png" => "image/png",
+        "jpg" | "jpeg" => "image/jpeg",
+        "webp" => "image/webp",
+        "avif" => "image/avif",
+        _ => return None,
+    };
+    let mut path = folder.to_path_buf();
+    for component in relative.components() {
+        let Component::Normal(name) = component else {
+            return None;
+        };
+        path.push(name);
+        if std::fs::symlink_metadata(&path)
+            .ok()?
+            .file_type()
+            .is_symlink()
+        {
+            return None;
+        }
+    }
+    let metadata = std::fs::metadata(&path).ok()?;
+    if !metadata.is_file() || metadata.len() > CUSTOM_THEME_IMAGE_MAX_BYTES {
+        return None;
+    }
+    let mut bytes = Vec::new();
+    std::fs::File::open(path)
+        .ok()?
+        .take(CUSTOM_THEME_IMAGE_MAX_BYTES + 1)
+        .read_to_end(&mut bytes)
+        .ok()?;
+    if bytes.len() as u64 > CUSTOM_THEME_IMAGE_MAX_BYTES {
+        return None;
+    }
+    let valid = match mime {
+        "image/png" => bytes.starts_with(b"\x89PNG\r\n\x1a\n"),
+        "image/jpeg" => bytes.starts_with(&[0xff, 0xd8, 0xff]),
+        "image/webp" => bytes.starts_with(b"RIFF") && bytes.get(8..12) == Some(b"WEBP"),
+        "image/avif" => {
+            let size = bytes
+                .get(..4)
+                .and_then(|value| value.try_into().ok())
+                .map(u32::from_be_bytes)
+                .unwrap_or(0) as usize;
+            size >= 16
+                && size <= bytes.len()
+                && bytes.get(4..8) == Some(b"ftyp")
+                && (bytes
+                    .get(8..12)
+                    .is_some_and(|brand| matches!(brand, b"avif" | b"avis"))
+                    || bytes[16..size]
+                        .chunks_exact(4)
+                        .any(|brand| matches!(brand, b"avif" | b"avis")))
+        }
+        _ => false,
+    };
+    valid.then(|| {
+        format!(
+            "data:{mime};base64,{}",
+            base64::engine::general_purpose::STANDARD.encode(bytes)
+        )
+    })
 }
 
 fn list_theme_files(directory: &std::path::Path) -> Result<CustomThemeList, String> {
@@ -147,9 +230,16 @@ fn list_theme_files(directory: &std::path::Path) -> Result<CustomThemeList, Stri
         files: files
             .into_sorted_vec()
             .into_iter()
-            .map(|(folder, path)| CustomThemeFile {
-                content: read_custom_theme(&path),
-                folder,
+            .map(|(folder, path)| {
+                let content = read_custom_theme(&path);
+                let backdrop_image = content
+                    .as_deref()
+                    .and_then(|content| read_backdrop_image(path.parent()?, content));
+                CustomThemeFile {
+                    content,
+                    folder,
+                    backdrop_image,
+                }
             })
             .collect(),
         omitted,
@@ -381,19 +471,23 @@ mod tests {
             vec![
                 CustomThemeFile {
                     folder: "A".to_string(),
-                    content: Some("{}".to_string())
+                    content: Some("{}".to_string()),
+                    backdrop_image: None,
                 },
                 CustomThemeFile {
                     folder: "b".to_string(),
-                    content: Some("{\"id\":\"b\"}".to_string())
+                    content: Some("{\"id\":\"b\"}".to_string()),
+                    backdrop_image: None,
                 },
                 CustomThemeFile {
                     folder: "c-large".to_string(),
-                    content: None
+                    content: None,
+                    backdrop_image: None,
                 },
                 CustomThemeFile {
                     folder: "d-binary".to_string(),
-                    content: None
+                    content: None,
+                    backdrop_image: None,
                 },
             ]
         );
@@ -420,6 +514,92 @@ mod tests {
             expected
         );
         assert!(list.files.iter().all(|file| file.content.is_some()));
+        std::fs::remove_dir_all(directory).unwrap();
+    }
+
+    #[test]
+    fn custom_theme_backdrops_load_supported_images_and_preserve_invalid_themes() {
+        use base64::Engine;
+
+        let directory = std::env::temp_dir().join(format!(
+            "ezcpa-theme-images-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        let folder = directory.join("mountain");
+        std::fs::create_dir_all(folder.join("assets")).unwrap();
+        let theme =
+            |asset: &str| serde_json::json!({ "assets": { "backdropImage": asset } }).to_string();
+        for (name, bytes, mime) in [
+            ("snow.png", b"\x89PNG\r\n\x1a\n".as_slice(), "image/png"),
+            ("snow.jpg", &[0xff, 0xd8, 0xff], "image/jpeg"),
+            ("snow.jpeg", &[0xff, 0xd8, 0xff], "image/jpeg"),
+            ("snow.webp", b"RIFF\x04\0\0\0WEBP", "image/webp"),
+            ("snow.avif", b"\0\0\0\x10ftypavif\0\0\0\0", "image/avif"),
+        ] {
+            std::fs::write(folder.join("assets").join(name), bytes).unwrap();
+            let content = theme(&format!("assets/{name}"));
+            std::fs::write(folder.join("theme.json"), &content).unwrap();
+            let list = list_theme_files(&directory).unwrap();
+            assert_eq!(list.files.len(), 1);
+            assert_eq!(list.files[0].content.as_deref(), Some(content.as_str()));
+            assert_eq!(
+                list.files[0].backdrop_image,
+                Some(format!(
+                    "data:{mime};base64,{}",
+                    base64::engine::general_purpose::STANDARD.encode(bytes)
+                ))
+            );
+            assert!(serde_json::to_value(&list.files[0]).unwrap()["backdropImage"].is_string());
+        }
+        std::fs::write(folder.join("assets/invalid.png"), "not an image").unwrap();
+        std::fs::write(folder.join("assets/wrong.jpg"), b"\x89PNG\r\n\x1a\n").unwrap();
+        std::fs::write(folder.join("assets/snow.svg"), "<svg/>").unwrap();
+        std::fs::write(directory.join("outside.png"), b"\x89PNG\r\n\x1a\n").unwrap();
+        let oversized = std::fs::File::create(folder.join("assets/large.png")).unwrap();
+        oversized.set_len(CUSTOM_THEME_IMAGE_MAX_BYTES + 1).unwrap();
+        for asset in [
+            "assets/missing.png",
+            "assets/invalid.png",
+            "assets/wrong.jpg",
+            "assets/snow.svg",
+            "assets/large.png",
+            "../outside.png",
+            "assets/../../outside.png",
+            "assets\\snow.png",
+            "/outside.png",
+            "C:/outside.png",
+            "",
+        ] {
+            let content = theme(asset);
+            std::fs::write(folder.join("theme.json"), &content).unwrap();
+            let list = list_theme_files(&directory).unwrap();
+            assert_eq!(list.files.len(), 1);
+            assert_eq!(list.files[0].content.as_deref(), Some(content.as_str()));
+            assert_eq!(list.files[0].backdrop_image, None, "{asset}");
+            assert!(serde_json::to_value(&list.files[0])
+                .unwrap()
+                .get("backdropImage")
+                .is_none());
+        }
+        for content in ["{", "{}", r#"{"assets":{"backdropImage":1}}"#] {
+            assert_eq!(read_backdrop_image(&folder, content), None);
+        }
+        #[cfg(unix)]
+        {
+            std::os::unix::fs::symlink(
+                directory.join("outside.png"),
+                folder.join("assets/link.png"),
+            )
+            .unwrap();
+            std::os::unix::fs::symlink(folder.join("assets"), folder.join("linked")).unwrap();
+            for asset in ["assets/link.png", "linked/snow.png"] {
+                assert_eq!(read_backdrop_image(&folder, &theme(asset)), None);
+            }
+        }
         std::fs::remove_dir_all(directory).unwrap();
     }
 
