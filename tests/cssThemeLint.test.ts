@@ -21,6 +21,7 @@ const EXCLUDED_DIRECTORIES = [
 const REGISTERED_THEME_VARIABLES = new Set([
   ...Object.values(themeTokenProperties).flat().filter((name) => name.startsWith('--theme-')),
   '--theme-backdrop-image',
+  '--theme-backdrop-position',
   '--theme-backdrop-color',
   '--theme-backdrop-sidebar',
   '--theme-backdrop-panel',

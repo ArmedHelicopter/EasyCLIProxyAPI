@@ -1,7 +1,7 @@
 import { builtinThemes, normalizeTheme } from './registry';
 import type { ThemeDefinition, ThemeIssue } from './types';
 
-export type CustomThemeFile = { folder: string; content: string | null };
+export type CustomThemeFile = { folder: string; content: string | null; backdropImage?: string };
 export type CustomThemeList = { files: CustomThemeFile[]; omitted: number };
 export type CustomThemeSkipReason = 'unreadable' | 'invalid-json' | 'unsupported-version' | 'invalid-metadata' | 'duplicate-id';
 export type SkippedCustomTheme = { folder: string; reason: CustomThemeSkipReason };
@@ -12,7 +12,7 @@ const allowedKeys = new Set(['$schema', 'schemaVersion', 'id', 'name', 'descript
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === 'object' && !Array.isArray(value);
 
-function parseCustomTheme(record: Record<string, unknown>, order: number, issues: ThemeIssue[]): ThemeDefinition {
+function parseCustomTheme(record: Record<string, unknown>, order: number, issues: ThemeIssue[], backdropImage?: string): ThemeDefinition {
   if (Object.keys(record).some((key) => !allowedKeys.has(key))
     || record.name === undefined || typeof record.windowBackground !== 'string'
     || (record.$schema !== undefined && typeof record.$schema !== 'string')
@@ -20,7 +20,7 @@ function parseCustomTheme(record: Record<string, unknown>, order: number, issues
     throw new Error('Invalid custom theme');
   }
   const { $schema: _schema, schemaVersion: _version, ...definition } = record;
-  return normalizeTheme({ ...definition, order } as ThemeDefinition, (issue) => issues.push(issue));
+  return normalizeTheme({ ...definition, order, backdropImage } as ThemeDefinition, (issue) => issues.push(issue));
 }
 
 export function parseCustomThemes(files: readonly CustomThemeFile[], builtins: readonly ThemeDefinition[] = builtinThemes): CustomThemes {
@@ -52,7 +52,7 @@ export function parseCustomThemes(files: readonly CustomThemeFile[], builtins: r
     const issues: ThemeIssue[] = [];
     let theme: ThemeDefinition;
     try {
-      theme = parseCustomTheme(record, first + themes.length, issues);
+      theme = parseCustomTheme(record, first + themes.length, issues, file.backdropImage);
     } catch {
       skipped.push({ folder: file.folder, reason: 'invalid-metadata' });
       continue;

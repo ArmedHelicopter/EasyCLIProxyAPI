@@ -19,6 +19,7 @@ export type ThemeBackdrop = Readonly<{
   panel: string;
   inset?: string;
   hover?: string;
+  imagePosition?: readonly [number, number];
 }>;
 export type ThemePreview = { background: string; sidebar: string; surface: string; accent: string };
 export type ThemeWindowMaterial = 'solid' | 'translucent';
@@ -37,6 +38,7 @@ export type ThemeDefinition = {
   windowMaterial?: ThemeWindowMaterial;
   icon?: string;
   assets?: Readonly<Record<string, string>>;
+  backdropImage?: string;
   tokens: Readonly<ThemeTokens>;
   backdrop?: ThemeBackdrop;
 };

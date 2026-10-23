@@ -37,7 +37,7 @@ export function buildThemeSchema(): Record<string, unknown> {
       },
       assets: {
         type: 'object',
-        description: 'Named relative paths inside the theme folder.',
+        description: 'Named relative paths inside the theme folder. backdropImage displays a PNG, JPEG, WebP or AVIF background (up to 8 MiB); other entries are reserved.',
         propertyNames: { pattern: '^[a-zA-Z][a-zA-Z0-9-]{0,31}$' },
         additionalProperties: { type: 'string', pattern: themeAssetPathPattern },
       },
@@ -80,6 +80,7 @@ export function buildThemeSchema(): Record<string, unknown> {
           panel: { type: 'string', pattern: themeTokenKinds.color.schema.pattern },
           inset: { type: 'string', pattern: themeTokenKinds.color.schema.pattern },
           hover: { type: 'string', pattern: themeTokenKinds.color.schema.pattern },
+          imagePosition: { type: 'array', items: { type: 'number', minimum: 0, maximum: 100 }, minItems: 2, maxItems: 2 },
         },
       },
       tokens: {
