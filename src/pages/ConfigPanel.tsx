@@ -342,7 +342,7 @@ export function ConfigPanelPage() {
   };
 
   async function loadSettings(mode: DraftRefreshMode = 'replace') {
-    setLoading(true);
+    if (mode === 'replace') setLoading(true);
     setLoadError('');
     try {
       const result = await getCoreConfigSettings();
@@ -356,8 +356,10 @@ export function ConfigPanelPage() {
   }
 
   async function loadSoftwareSettings(mode: DraftRefreshMode = 'replace') {
-    setSoftwareSettingsLoading(true);
-    setSoftwareSavedStatusVisible(false);
+    if (mode === 'replace') {
+      setSoftwareSettingsLoading(true);
+      setSoftwareSavedStatusVisible(false);
+    }
     try {
       const result = await getSoftwareSettings();
       if (mode === 'preserve' && otherDraftDirtyRef.current.software) return;
@@ -376,7 +378,7 @@ export function ConfigPanelPage() {
   }
 
   async function loadTlsSettings(mode: DraftRefreshMode = 'replace') {
-    setTlsSettingsLoading(true);
+    if (mode === 'replace') setTlsSettingsLoading(true);
     try {
       const result = await getCoreTlsSettings();
       if (mode === 'preserve' && otherDraftDirtyRef.current.tls) return;

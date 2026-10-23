@@ -876,6 +876,7 @@ button.oauth-account-count:focus-visible {
 @media (max-width: 900px) {
   .app-shell:not(.app-shell-easy-mode) {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: max-content minmax(0, 1fr);
   }
 
   .content {
