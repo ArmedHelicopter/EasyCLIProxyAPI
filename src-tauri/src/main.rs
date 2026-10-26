@@ -180,6 +180,7 @@ const DEEPSEEK_HARNESS_CREDENTIAL: &str = "EASYCLIPROXYAPI_API_KEY";
 const DEEPSEEK_HARNESS_CREDENTIALS_VERSION: u64 = 1;
 const DEEPSEEK_HARNESS_DEFAULT_WEB_PORT: u16 = 3080;
 const DEEPSEEK_HARNESS_SETTINGS_FILE: &str = "settings.yaml";
+const DEEPSEEK_HARNESS_CORDIS_PATCH_REL_PATH: &str = "profiles/desktop/cordis.patch.yml";
 const DEEPSEEK_HARNESS_CREDENTIALS_FILE: &str = ".credentials.yaml";
 const PI_AGENT_ID: &str = "pi";
 const PI_AGENT_NAME: &str = "Pi";
