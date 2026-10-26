@@ -684,3 +684,160 @@ fn harness_falls_back_to_settings_yaml_when_cordis_patch_absent() {
 
     fs::remove_dir_all(home).unwrap();
 }
+
+const CORDIS_PATCH_HEADER: &str = "# Your patch layer for this dsh profile, applied after every bundle layer:\n# a top-level YAML array of loader patch entries (id-targeted config\n# overrides, disables, and insert lists; `!!js` expressions allowed).\n";
+
+fn cordis_patch_home(name: &str) -> (PathBuf, PathBuf) {
+    let home = agent_test_home(name);
+    let patch_dir = home.join(".dsh/profiles/desktop");
+    fs::create_dir_all(&patch_dir).unwrap();
+    let patch_file = patch_dir.join("cordis.patch.yml");
+    fs::write(
+        &patch_file,
+        format!("{CORDIS_PATCH_HEADER}- id: ui-chat\n  config:\n    transcriptView: standard\n"),
+    )
+    .unwrap();
+    (home, patch_file)
+}
+
+fn reset_harness_template(home: &Path) {
+    let test_models = models();
+    reset_agent_configuration_to_default_with_oauth(AgentDefaultConfiguration {
+        client: AgentClient::DeepSeekHarness,
+        home,
+        port: 8317,
+        api_key: "test-key",
+        model: "vision",
+        models: &test_models,
+        codex_catalog: None,
+        oauth_configuration: false,
+        claude_code_model_mappings: None,
+        claude_desktop_model_mappings: None,
+    })
+    .unwrap();
+}
+
+fn cordis_entry<'a>(seq: &'a [serde_norway::Value], id: &str) -> &'a serde_norway::Value {
+    seq.iter()
+        .find(|item| item.get("id").and_then(serde_norway::Value::as_str) == Some(id))
+        .unwrap_or_else(|| panic!("missing Cordis patch entry {id}"))
+}
+
+#[test]
+fn harness_template_writes_cordis_patch_as_top_level_sequence() {
+    let (home, patch_file) = cordis_patch_home("harness-template-cordis-sequence");
+
+    reset_harness_template(&home);
+
+    let content = fs::read_to_string(&patch_file).unwrap();
+    assert!(content.starts_with(CORDIS_PATCH_HEADER));
+    let header_lines = content.lines().take(3).collect::<Vec<_>>();
+    assert_eq!(header_lines.len(), 3);
+    assert!(header_lines.iter().all(|line| line.starts_with('#')));
+    assert!(header_lines[0].contains("Your patch layer for this dsh profile"));
+
+    let parsed = serde_norway::from_str::<serde_norway::Value>(&content).unwrap();
+    assert!(
+        parsed.is_sequence(),
+        "template output must be a top-level sequence"
+    );
+    let seq = parsed.as_sequence().unwrap();
+    let llm = cordis_entry(seq, "llm-pi-ai");
+    assert_eq!(
+        llm["config"]["providers"][DEEPSEEK_HARNESS_PROVIDER_ID]["baseURL"],
+        "http://127.0.0.1:8317/v1"
+    );
+    assert_eq!(
+        llm["config"]["providers"][DEEPSEEK_HARNESS_PROVIDER_ID]["apiKeyEnv"],
+        DEEPSEEK_HARNESS_CREDENTIAL
+    );
+    assert_eq!(
+        cordis_entry(seq, "agent-default-model")["config"]["model"],
+        "vision"
+    );
+    assert!(cordis_entry(seq, "subagent-model-selection-settings")["config"]["enabled"]
+        .as_bool()
+        .unwrap_or(false));
+
+    fs::remove_dir_all(home).unwrap();
+}
+
+#[test]
+fn harness_template_keeps_settings_yaml_as_mapping() {
+    let home = agent_test_home("harness-template-settings-mapping");
+    let paths = agent_config_paths(AgentClient::DeepSeekHarness, &home);
+    assert_eq!(
+        paths[0],
+        home.join(".dsh").join(DEEPSEEK_HARNESS_SETTINGS_FILE)
+    );
+
+    reset_harness_template(&home);
+
+    let content = fs::read_to_string(&paths[0]).unwrap();
+    let parsed = serde_norway::from_str::<serde_norway::Value>(&content).unwrap();
+    assert!(
+        parsed.is_mapping(),
+        "legacy settings.yaml template must stay a mapping"
+    );
+    assert_eq!(
+        parsed["llm-pi-ai"]["providers"][DEEPSEEK_HARNESS_PROVIDER_ID]["baseURL"],
+        "http://127.0.0.1:8317/v1"
+    );
+    assert_eq!(parsed["agent-default-model"]["model"], "vision");
+
+    fs::remove_dir_all(home).unwrap();
+}
+
+#[test]
+fn harness_template_cordis_patch_is_idempotent() {
+    let (home, patch_file) = cordis_patch_home("harness-template-cordis-idempotent");
+
+    reset_harness_template(&home);
+    let first = fs::read_to_string(&patch_file).unwrap();
+    reset_harness_template(&home);
+    let second = fs::read_to_string(&patch_file).unwrap();
+    assert_eq!(first, second);
+
+    // The regular update path must also converge on the same bytes.
+    let test_models = models();
+    apply(&home, &test_models);
+    let first_update = fs::read_to_string(&patch_file).unwrap();
+    assert!(first_update.starts_with(CORDIS_PATCH_HEADER));
+    apply(&home, &test_models);
+    let second_update = fs::read_to_string(&patch_file).unwrap();
+    assert_eq!(first_update, second_update);
+    assert!(
+        serde_norway::from_str::<serde_norway::Value>(&second_update)
+            .unwrap()
+            .is_sequence()
+    );
+
+    fs::remove_dir_all(home).unwrap();
+}
+
+#[test]
+fn harness_template_rejects_mapping_for_cordis_patch() {
+    let (home, patch_file) = cordis_patch_home("harness-template-cordis-rejects-mapping");
+    let paths = agent_config_paths(AgentClient::DeepSeekHarness, &home);
+    assert_eq!(paths[0], patch_file);
+    let before = config_images(&paths).unwrap();
+    let updates = vec![
+        AgentFileUpdate {
+            path: paths[0].clone(),
+            after: "llm-pi-ai:\n  providers:\n    easy-cliproxyapi:\n      baseURL: http://127.0.0.1:8317/v1\n".into(),
+        },
+        AgentFileUpdate {
+            path: paths[1].clone(),
+            after: build_deepseek_harness_credentials(None, "test-key").unwrap(),
+        },
+    ];
+
+    let error =
+        prepare_config_updates("deepseek-harness", &paths, &before, &updates, true).unwrap_err();
+    assert!(
+        error.contains("top-level YAML array"),
+        "unexpected error: {error}"
+    );
+
+    fs::remove_dir_all(home).unwrap();
+}

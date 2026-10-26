@@ -769,6 +769,12 @@ pub(crate) fn prepare_config_updates(
             .ok_or("Configuration update path mismatch")?;
         let mut rendered = update.after.clone();
         let mut generated = parse(&update.path, Some(&rendered))?;
+        if template && is_cordis_patch_path(&update.path) && !generated.is_array() {
+            return Err(format!(
+                "DSH Cordis profile patch must be a top-level YAML array: {}",
+                path_to_string(&update.path)
+            ));
+        }
         if !template {
             let original = parse(&update.path, text(entry.1.as_deref())?)?;
             if client == "codex"

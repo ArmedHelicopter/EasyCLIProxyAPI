@@ -329,6 +329,23 @@ pub(crate) fn is_cordis_patch(path: &Path, content: Option<&str>) -> bool {
     is_cordis_patch_path(path) || content.is_some_and(is_cordis_patch_content)
 }
 
+pub(crate) const DEEPSEEK_HARNESS_CORDIS_PATCH_HEADER: &str = "\
+# Your patch layer for this dsh profile, applied after every bundle layer:
+# a top-level YAML array of loader patch entries (id-targeted config
+# overrides, disables, and insert lists; `!!js` expressions allowed).
+";
+
+pub(crate) fn ensure_cordis_patch_header(content: &str) -> String {
+    if content
+        .trim_start()
+        .starts_with("# Your patch layer for this dsh profile")
+    {
+        content.to_string()
+    } else {
+        format!("{DEEPSEEK_HARNESS_CORDIS_PATCH_HEADER}{content}")
+    }
+}
+
 pub(crate) fn parse_agent_yaml_sequence(
     content: Option<&str>,
     label: &str,
@@ -570,6 +587,17 @@ pub(crate) fn build_deepseek_harness_settings(
         models,
         &mut DeepSeekHarnessCatalogState::default(),
     )
+}
+
+pub(crate) fn build_deepseek_harness_cordis_patch_template(
+    base_url: &str,
+    model: &str,
+    models: &[AgentModelOption],
+) -> Result<String, String> {
+    // Seeding the sequence branch keeps the template in the Cordis patch
+    // shape instead of generating the legacy settings.yaml mapping.
+    let settings = build_deepseek_harness_settings(Some("[]\n"), base_url, model, models)?;
+    Ok(ensure_cordis_patch_header(&settings))
 }
 
 pub(crate) fn render_deepseek_harness_settings(
