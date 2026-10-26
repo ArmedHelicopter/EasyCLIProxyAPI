@@ -234,6 +234,7 @@ export const zhCN = {
   "agents.harness.providerInput": "使用供应商默认输入",
   "agents.harness.defaultModel": "默认模型",
   "agents.harness.defaultHint": "仅作为新会话的默认模型；启动 DSH 后仍可自由切换整个目录中的模型。",
+  "agents.harness.profile": "DSH 配置档案",
   "agents.harness.title": "DeepSeek Harness 模型配置",
   "agents.harness.subtitle": "从 API 获取整个模型目录，按需覆盖模型能力和供应商参数。",
   "agents.harness.provider": "供应商设置",

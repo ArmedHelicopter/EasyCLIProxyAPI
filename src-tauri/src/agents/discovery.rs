@@ -170,9 +170,47 @@ pub(crate) fn deepseek_harness_home(home: &Path) -> PathBuf {
     agent_configuration_environment("DSH_HOME").unwrap_or_else(|| home.join(".dsh"))
 }
 
+#[cfg(not(test))]
+pub(crate) fn deepseek_harness_profile() -> String {
+    let profile = gui_config_path()
+        .ok()
+        .and_then(|path| fs::read_to_string(path).ok())
+        .and_then(|content| toml::from_str::<toml::Value>(&content).ok())
+        .and_then(|value| value.get("deepseek-harness-profile").and_then(|value| value.as_str()).map(str::to_string))
+        .unwrap_or_else(|| "desktop".to_string());
+    validate_deepseek_harness_profile(&profile).unwrap_or("desktop").to_string()
+}
+
+#[cfg(test)]
+pub(crate) fn deepseek_harness_profile() -> String {
+    "desktop".to_string()
+}
+
+pub(crate) fn deepseek_harness_profiles(home: &Path) -> Vec<String> {
+    let directory = deepseek_harness_home(home).join("profiles");
+    let mut profiles = std::collections::BTreeSet::from(["desktop".to_string()]);
+    if let Ok(entries) = fs::read_dir(directory) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir()
+                && path.join("cordis.patch.yml").is_file()
+                && validate_deepseek_harness_profile(&entry.file_name().to_string_lossy()).is_ok()
+            {
+                profiles.insert(entry.file_name().to_string_lossy().to_string());
+            }
+        }
+    }
+    profiles.into_iter().collect()
+}
+
 pub(crate) fn deepseek_harness_config_paths(home: &Path) -> Vec<PathBuf> {
+    deepseek_harness_config_paths_for_profile(home, &deepseek_harness_profile())
+}
+
+pub(crate) fn deepseek_harness_config_paths_for_profile(home: &Path, profile: &str) -> Vec<PathBuf> {
     let directory = deepseek_harness_home(home);
-    let patch = directory.join(DEEPSEEK_HARNESS_CORDIS_PATCH_REL_PATH);
+    let profile = validate_deepseek_harness_profile(profile).unwrap_or("desktop");
+    let patch = directory.join("profiles").join(profile).join("cordis.patch.yml");
     let settings = if patch.is_file() {
         patch
     } else {

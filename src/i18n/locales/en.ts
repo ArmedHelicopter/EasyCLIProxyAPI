@@ -249,6 +249,7 @@ export const en: Record<MessageKey, string> = {
   "agents.harness.providerInput": "Use provider default input",
   "agents.harness.defaultModel": "Default model",
   "agents.harness.defaultHint": "Used for new sessions. You can switch to any catalog model inside DSH.",
+  "agents.harness.profile": "DSH profile",
   "agents.harness.title": "DeepSeek Harness model configuration",
   "agents.harness.subtitle": "Load the model catalog from the API and customize models and provider settings.",
   "agents.harness.provider": "Provider settings",

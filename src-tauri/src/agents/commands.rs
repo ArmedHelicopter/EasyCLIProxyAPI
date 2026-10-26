@@ -46,6 +46,25 @@ enum AgentStatusDetectionTarget {
     PiProvider,
 }
 
+#[tauri::command]
+pub(crate) fn save_deepseek_harness_profile(
+    gui_config_state: tauri::State<'_, GuiConfigState>,
+    profile: String,
+) -> Result<GuiSettings, String> {
+    let profile = validate_deepseek_harness_profile(&profile)?.to_string();
+    let config = gui_config_state.update(|config| {
+        config.deepseek_harness_profile = Some(profile.clone());
+        Ok(())
+    })?;
+    Ok(GuiSettings::from(&config))
+}
+
+#[tauri::command]
+pub(crate) fn list_deepseek_harness_profiles(app: tauri::AppHandle) -> Result<Vec<String>, String> {
+    let home = app.path().home_dir().map_err(|error| format!("Failed to get user directory: {error}"))?;
+    Ok(deepseek_harness_profiles(&home))
+}
+
 pub(crate) fn inspect_agent_config_statuses(
     app: &tauri::AppHandle,
     config: &GuiConfigFile,

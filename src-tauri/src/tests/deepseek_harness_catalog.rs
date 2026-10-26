@@ -664,6 +664,68 @@ fn harness_cordis_patch_profile_selection_and_updates() {
 }
 
 #[test]
+fn harness_allowed_models_respect_user_removals_and_new_models() {
+    let home = agent_test_home("harness-allowed-models-policy");
+    let patch_dir = home.join(".dsh/profiles/desktop");
+    fs::create_dir_all(&patch_dir).unwrap();
+    let patch_file = patch_dir.join("cordis.patch.yml");
+    fs::write(&patch_file, "[]\n").unwrap();
+
+    let initial = models();
+    apply(&home, &initial);
+    let mut patch: serde_norway::Value = serde_norway::from_str(&fs::read_to_string(&patch_file).unwrap()).unwrap();
+    let allowed = patch
+        .as_sequence_mut().unwrap()
+        .iter_mut()
+        .find(|item| item["id"] == "subagent-model-selection-settings")
+        .unwrap()["config"]["allowedModels"].as_sequence_mut().unwrap();
+    allowed.retain(|item| item["model"] != "vision");
+    fs::write(&patch_file, serde_norway::to_string(&patch).unwrap()).unwrap();
+
+    let mut next = initial.clone();
+    next.retain(|model| model.name != "unknown");
+    next.push(AgentModelOption {
+        name: "new-model".into(),
+        alias: None,
+        is_alias: false,
+        input_modalities: None,
+        context_window: None,
+        harness_metadata: None,
+    });
+    apply(&home, &next);
+    let updated: serde_norway::Value = serde_norway::from_str(&fs::read_to_string(&patch_file).unwrap()).unwrap();
+    let allowed = updated.as_sequence().unwrap().iter()
+        .find(|item| item["id"] == "subagent-model-selection-settings").unwrap()["config"]["allowedModels"].as_sequence().unwrap();
+    assert!(!allowed.iter().any(|item| item["provider"] == DEEPSEEK_HARNESS_PROVIDER_ID && item["model"] == "vision"));
+    assert!(!allowed.iter().any(|item| item["provider"] == DEEPSEEK_HARNESS_PROVIDER_ID && item["model"] == "unknown"));
+    assert!(allowed.iter().any(|item| item["provider"] == DEEPSEEK_HARNESS_PROVIDER_ID && item["model"] == "new-model"));
+    fs::remove_dir_all(home).unwrap();
+}
+
+#[test]
+fn harness_profile_paths_follow_selected_profile_and_fallback() {
+    let home = agent_test_home("harness-profile-paths");
+    let web_dir = home.join(".dsh/profiles/web");
+    fs::create_dir_all(&web_dir).unwrap();
+    let web_patch = web_dir.join("cordis.patch.yml");
+    fs::write(&web_patch, "[]\n").unwrap();
+
+    assert_eq!(
+        deepseek_harness_config_paths_for_profile(&home, "web")[0],
+        web_patch
+    );
+    assert_eq!(
+        deepseek_harness_config_paths_for_profile(&home, "headless")[0],
+        home.join(".dsh/settings.yaml")
+    );
+    assert_eq!(
+        deepseek_harness_config_paths_for_profile(&home, "../escape")[0],
+        home.join(".dsh/settings.yaml")
+    );
+    fs::remove_dir_all(home).unwrap();
+}
+
+#[test]
 fn harness_falls_back_to_settings_yaml_when_cordis_patch_absent() {
     let home = agent_test_home("harness-fallback-settings");
     let paths = agent_config_paths(AgentClient::DeepSeekHarness, &home);

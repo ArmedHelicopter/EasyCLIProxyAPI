@@ -300,6 +300,7 @@ export const jaOverrides = {
   "agents.harness.providerInput": "プロバイダーの既定入力を使用",
   "agents.harness.defaultModel": "デフォルトモデル",
   "agents.harness.defaultHint": "新しいセッションの初期モデルです。DSH 内で自由に切り替えられます。",
+  "agents.harness.profile": "DSH プロファイル",
   "agents.harness.title": "DeepSeek Harness モデル設定",
   "agents.harness.subtitle": "API のモデル一覧を取得し、モデル能力とプロバイダー設定を調整します。",
   "agents.harness.provider": "プロバイダー設定",

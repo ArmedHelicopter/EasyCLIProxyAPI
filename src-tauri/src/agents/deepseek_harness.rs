@@ -1,6 +1,6 @@
 use super::*;
 use serde_json::{json, Map, Value};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 type Profile = Map<String, Value>;
 
@@ -26,6 +26,17 @@ pub(crate) struct DeepSeekHarnessCatalogState {
     provider: Profile,
     generated_models: BTreeMap<String, Profile>,
     generated_provider: Option<Profile>,
+    #[serde(default)]
+    published_easycliproxyapi_models: Option<BTreeSet<String>>,
+}
+
+impl DeepSeekHarnessCatalogState {
+    pub(crate) fn with_empty_published_models() -> Self {
+        Self {
+            published_easycliproxyapi_models: Some(BTreeSet::new()),
+            ..Default::default()
+        }
+    }
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -55,12 +66,14 @@ pub(crate) struct HarnessEditorRequest {
 }
 
 fn read_harness_state(bytes: Option<&[u8]>) -> Result<DeepSeekHarnessCatalogState, String> {
-    bytes
-        .map(|bytes| {
-            serde_json::from_slice(bytes)
-                .map_err(|_| "Failed to read DSH model configuration state. Check catalog-state.json".into())
-        })
-        .unwrap_or_else(|| Ok(Default::default()))
+    match bytes {
+        Some(bytes) => serde_json::from_slice(bytes)
+            .map_err(|_| "Failed to read DSH model configuration state. Check catalog-state.json".into()),
+        None => Ok(DeepSeekHarnessCatalogState {
+            published_easycliproxyapi_models: Some(BTreeSet::new()),
+            ..Default::default()
+        }),
+    }
 }
 
 fn harness_provider(root: &Value) -> Option<&Value> {
@@ -523,7 +536,12 @@ fn render_harness_profiles(
                 serde_norway::to_value(&published).map_err(|_| "Failed to serialize DSH model")?,
             );
             let model_ids: Vec<String> = models.iter().map(|m| m.name.clone()).collect();
-            update_cordis_subagent_allowed_models(seq, &model_ids)?;
+            update_cordis_subagent_allowed_models(
+                seq,
+                &model_ids,
+                state.published_easycliproxyapi_models.as_ref(),
+            )?;
+            state.published_easycliproxyapi_models = Some(model_ids.into_iter().collect());
             Ok(())
         })?
     } else {
@@ -570,17 +588,23 @@ pub(crate) fn deepseek_harness_template_catalog_state(images: &Images) -> Result
     let root = harness_root(text(
         images.first().ok_or("DSH settings are missing")?.1.as_deref(),
     )?)?;
-    let mut state = DeepSeekHarnessCatalogState::default();
+    let mut state = DeepSeekHarnessCatalogState {
+        published_easycliproxyapi_models: Some(BTreeSet::new()),
+        ..Default::default()
+    };
     if let Some(provider) = harness_provider(&root) {
         state.generated_provider = Some(selected_fields(provider, "provider"));
         if let Some(models) = provider.get("models").and_then(Value::as_array) {
+            let mut published = BTreeSet::new();
             for model in models {
                 if let Some(id) = model.get("id").and_then(Value::as_str) {
+                    published.insert(id.to_string());
                     state
                         .generated_models
                         .insert(id.into(), selected_fields(model, "model"));
                 }
             }
+            state.published_easycliproxyapi_models = Some(published);
         }
     }
     serde_json::to_vec(&state).map_err(|_| "Failed to generate DSH model configuration state".into())

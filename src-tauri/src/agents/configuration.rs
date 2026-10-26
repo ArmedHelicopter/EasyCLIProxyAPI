@@ -396,6 +396,7 @@ where
 pub(crate) fn update_cordis_subagent_allowed_models(
     seq: &mut Vec<serde_norway::Value>,
     model_ids: &[String],
+    last_published: Option<&std::collections::BTreeSet<String>>,
 ) -> Result<(), String> {
     let subagent_entry = seq
         .iter_mut()
@@ -422,6 +423,29 @@ pub(crate) fn update_cordis_subagent_allowed_models(
     if !config.get(yaml_key("enabled")).is_some_and(serde_norway::Value::is_bool) {
         config.insert(yaml_key("enabled"), serde_norway::Value::Bool(true));
     }
+    let available = model_ids.iter().cloned().collect::<std::collections::BTreeSet<_>>();
+    let existing_cpa = config
+        .get(yaml_key("allowedModels"))
+        .and_then(serde_norway::Value::as_sequence)
+        .into_iter()
+        .flatten()
+        .filter_map(|item| {
+            let map = item.as_mapping()?;
+            let provider = map.get(yaml_key("provider")).and_then(serde_norway::Value::as_str)?;
+            (provider == DEEPSEEK_HARNESS_PROVIDER_ID)
+                .then(|| map.get(yaml_key("model")).and_then(serde_norway::Value::as_str).map(str::to_string))
+                .flatten()
+        })
+        .collect::<std::collections::BTreeSet<_>>();
+    let managed = match last_published {
+        Some(previous) => existing_cpa
+            .intersection(&available)
+            .cloned()
+            .chain(available.difference(previous).cloned())
+            .collect::<std::collections::BTreeSet<_>>(),
+        None => existing_cpa.intersection(&available).cloned().collect(),
+    };
+
     let mut seen = std::collections::HashSet::new();
     let mut allowed = Vec::new();
     if let Some(existing_allowed) = config.get(yaml_key("allowedModels")).and_then(serde_norway::Value::as_sequence) {
@@ -429,16 +453,15 @@ pub(crate) fn update_cordis_subagent_allowed_models(
             if let Some(map) = item.as_mapping() {
                 let provider = map.get(yaml_key("provider")).and_then(serde_norway::Value::as_str).unwrap_or("");
                 let model = map.get(yaml_key("model")).and_then(serde_norway::Value::as_str).unwrap_or("");
-                if provider != DEEPSEEK_HARNESS_PROVIDER_ID {
-                    if seen.insert((provider.to_string(), model.to_string())) {
-                        allowed.push(item.clone());
-                    }
+                let keep = provider != DEEPSEEK_HARNESS_PROVIDER_ID || managed.contains(model);
+                if keep && seen.insert((provider.to_string(), model.to_string())) {
+                    allowed.push(item.clone());
                 }
             }
         }
     }
     for model_id in model_ids {
-        if seen.insert((DEEPSEEK_HARNESS_PROVIDER_ID.to_string(), model_id.clone())) {
+        if managed.contains(model_id) && seen.insert((DEEPSEEK_HARNESS_PROVIDER_ID.to_string(), model_id.clone())) {
             let mut entry = serde_norway::Mapping::new();
             entry.insert(yaml_key("provider"), serde_norway::Value::String(DEEPSEEK_HARNESS_PROVIDER_ID.to_string()));
             entry.insert(yaml_key("model"), serde_norway::Value::String(model_id.clone()));
@@ -536,7 +559,7 @@ pub(crate) fn render_deepseek_harness_cordis_patch(
                 }).collect()
             })
             .unwrap_or_default();
-        update_cordis_subagent_allowed_models(seq, &model_ids)?;
+        update_cordis_subagent_allowed_models(seq, &model_ids, None)?;
 
         Ok(())
     })
@@ -585,7 +608,7 @@ pub(crate) fn build_deepseek_harness_settings(
         base_url,
         model,
         models,
-        &mut DeepSeekHarnessCatalogState::default(),
+        &mut DeepSeekHarnessCatalogState::with_empty_published_models(),
     )
 }
 

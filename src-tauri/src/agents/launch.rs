@@ -696,7 +696,7 @@ fn terminate_deepseek_harness_process_tree(child: &mut Child) -> Result<(), Stri
     }
 }
 
-fn validate_deepseek_harness_profile(profile: &str) -> Result<&str, String> {
+pub(crate) fn validate_deepseek_harness_profile(profile: &str) -> Result<&str, String> {
     let profile = profile.trim();
     if profile.is_empty() {
         return Err("Enter a DeepSeek Harness profile name".to_string());
