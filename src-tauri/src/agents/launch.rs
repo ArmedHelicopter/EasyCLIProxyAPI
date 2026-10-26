@@ -1838,7 +1838,12 @@ mod tests {
             assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
             let stdout = String::from_utf8_lossy(&output.stdout);
             let lines = stdout.lines().collect::<Vec<_>>();
-            assert_eq!(lines, [path_to_string(&directory).as_str(), "two words", "launch-fixture"]);
+            let actual_directory = PathBuf::from(lines[0]);
+            assert_eq!(
+                actual_directory.canonicalize().unwrap(),
+                directory.canonicalize().unwrap(),
+            );
+            assert_eq!(lines[1..], ["two words", "launch-fixture"]);
         }
         fs::remove_dir_all(directory.parent().unwrap()).unwrap();
     }
