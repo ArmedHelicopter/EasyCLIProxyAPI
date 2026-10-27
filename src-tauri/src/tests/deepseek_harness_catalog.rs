@@ -577,6 +577,12 @@ fn harness_cordis_patch_profile_selection_and_updates() {
   name: "@deepseek-ai/dsh-client-ui-chat"
   config:
     transcriptView: standard
+- id: agent-default-model
+  name: "@deepseek-ai/dsh-agent-default-model"
+  config:
+    provider: other-provider
+    model: other-model
+    customField: preserve-me
 - id: subagent-model-selection-settings
   name: "@deepseek-ai/dsh-tool-subagent/model-selection-settings"
   config:
@@ -611,6 +617,7 @@ fn harness_cordis_patch_profile_selection_and_updates() {
     let default_entry = parsed_seq.iter().find(|i| i.get("id").and_then(serde_norway::Value::as_str) == Some("agent-default-model")).unwrap();
     assert_eq!(default_entry["config"]["provider"], DEEPSEEK_HARNESS_PROVIDER_ID);
     assert_eq!(default_entry["config"]["model"], "vision");
+    assert_eq!(default_entry["config"]["customField"], "preserve-me");
 
     let subagent_entry = parsed_seq.iter().find(|i| i.get("id").and_then(serde_norway::Value::as_str) == Some("subagent-model-selection-settings")).unwrap();
     assert_eq!(subagent_entry["config"]["enabled"], serde_norway::Value::Bool(true));
@@ -836,6 +843,100 @@ fn harness_template_rejects_mapping_for_cordis_patch() {
         prepare_config_updates("deepseek-harness", &paths, &before, &updates, true).unwrap_err();
     assert!(
         error.contains("top-level YAML array"),
+        "unexpected error: {error}"
+    );
+
+    fs::remove_dir_all(home).unwrap();
+}
+
+#[test]
+fn is_cordis_patch_content_uses_parsed_root_type() {
+    // Regression: an old settings.yaml that starts with the standard YAML
+    // document head `---` used to satisfy starts_with('-') and was then
+    // rejected by the Cordis sequence parser ("root must be a YAML sequence").
+    // Classification must come from the parsed root node type instead.
+    assert!(!is_cordis_patch_content(
+        "---\nllm-pi-ai:\n  providers:\n    other-provider:\n      displayName: Other\n"
+    ));
+    // A document head over a sequence root is still a Cordis patch.
+    assert!(is_cordis_patch_content(
+        "---\n- id: ui-chat\n  config:\n    transcriptView: standard\n"
+    ));
+    // Regular Cordis patch arrays stay detected (block, flow, empty).
+    assert!(is_cordis_patch_content(
+        "- id: ui-chat\n  config:\n    transcriptView: standard\n"
+    ));
+    assert!(is_cordis_patch_content("[{id: ui-chat}]\n"));
+    assert!(is_cordis_patch_content("[]\n"));
+    // `!!js` expressions inside the sequence must keep parsing.
+    assert!(is_cordis_patch_content(
+        "- id: ui-chat\n  config:\n    transcriptView: !!js/function \"function () {}\"\n"
+    ));
+    // Mapping-rooted legacy settings without a document head stay legacy.
+    assert!(!is_cordis_patch_content("llm-pi-ai:\n  providers: {}\n"));
+    // Empty and comment-only content follows the existing legacy semantics.
+    assert!(!is_cordis_patch_content(""));
+    assert!(!is_cordis_patch_content("   \n"));
+    assert!(!is_cordis_patch_content("# comment only\n"));
+}
+
+#[test]
+fn harness_updates_legacy_settings_yaml_with_document_head() {
+    let home = agent_test_home("harness-legacy-doc-head");
+    let settings = home.join(".dsh").join(DEEPSEEK_HARNESS_SETTINGS_FILE);
+    fs::create_dir_all(settings.parent().unwrap()).unwrap();
+    fs::write(
+        &settings,
+        "---\nllm-pi-ai:\n  providers:\n    other-provider:\n      displayName: Other\n",
+    )
+    .unwrap();
+
+    apply(&home, &models());
+
+    let updated = fs::read_to_string(&settings).unwrap();
+    let parsed = serde_norway::from_str::<serde_norway::Value>(&updated).unwrap();
+    assert!(parsed.is_mapping(), "legacy mapping root must be preserved");
+    let providers = parsed["llm-pi-ai"]["providers"]
+        .as_mapping()
+        .expect("llm-pi-ai.providers must stay a mapping");
+    assert!(
+        providers.contains_key(&yaml_key("other-provider")),
+        "unmanaged provider must survive the update"
+    );
+    let managed = &parsed["llm-pi-ai"]["providers"][DEEPSEEK_HARNESS_PROVIDER_ID];
+    assert_eq!(managed["displayName"], "EasyCLIProxyAPI");
+    assert_eq!(
+        managed["baseURL"],
+        serde_norway::Value::String("http://127.0.0.1:8317/v1".to_string())
+    );
+    assert_eq!(
+        parsed["agent-default-model"]["provider"],
+        DEEPSEEK_HARNESS_PROVIDER_ID
+    );
+    assert_eq!(parsed["agent-default-model"]["model"], "vision");
+
+    fs::remove_dir_all(home).unwrap();
+}
+
+#[test]
+fn harness_settings_yaml_errors_still_surface_for_invalid_yaml() {
+    let home = agent_test_home("harness-invalid-yaml");
+    let settings = home.join(".dsh").join(DEEPSEEK_HARNESS_SETTINGS_FILE);
+    fs::create_dir_all(settings.parent().unwrap()).unwrap();
+    fs::write(&settings, "llm-pi-ai:\n  providers: [unclosed\n").unwrap();
+
+    let error = apply_agent_configuration(
+        AgentClient::DeepSeekHarness,
+        &home,
+        8317,
+        "test-key",
+        "vision",
+        &models(),
+        None,
+    )
+    .unwrap_err();
+    assert!(
+        error.contains("Invalid DSH settings YAML format"),
         "unexpected error: {error}"
     );
 

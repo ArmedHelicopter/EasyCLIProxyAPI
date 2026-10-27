@@ -1069,22 +1069,21 @@ fn validate_unmanaged_preserved(
                                 }
                             }
                             Some("agent-default-model") => {
-                                let is_cpa = entry.get("config")
-                                    .and_then(|c| c.get("provider"))
-                                    .and_then(Value::as_str)
-                                    == Some(DEEPSEEK_HARNESS_PROVIDER_ID);
-                                if is_cpa {
-                                    for key in ["provider", "model", "reasoningEffort"] {
-                                        set(
-                                            entry,
-                                            &["config".into(), key.into()],
-                                            None,
-                                        );
-                                    }
-                                    let is_empty = entry.get("config").and_then(Value::as_object).map_or(true, |c| c.is_empty());
-                                    if is_empty {
-                                        remove_indices.push(i);
-                                    }
+                                // The default model selection is managed
+                                // regardless of which provider it currently
+                                // points at, so exclude these fields from
+                                // both sides of the comparison and let a
+                                // normal provider/model switch pass.
+                                for key in ["provider", "model", "reasoningEffort"] {
+                                    set(
+                                        entry,
+                                        &["config".into(), key.into()],
+                                        None,
+                                    );
+                                }
+                                let is_empty = entry.get("config").and_then(Value::as_object).map_or(true, |c| c.is_empty());
+                                if is_empty {
+                                    remove_indices.push(i);
                                 }
                             }
                             Some("subagent-model-selection-settings") => {

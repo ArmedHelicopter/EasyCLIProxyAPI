@@ -318,11 +318,8 @@ pub(crate) fn is_cordis_patch_path(path: &Path) -> bool {
 }
 
 pub(crate) fn is_cordis_patch_content(content: &str) -> bool {
-    let content = content.trim();
-    if content.starts_with('-') || content.starts_with("[]") {
-        return true;
-    }
-    serde_norway::from_str::<serde_norway::Value>(content).is_ok_and(|v| v.is_sequence())
+    serde_norway::from_str::<serde_norway::Value>(content)
+        .is_ok_and(|value| value.is_sequence())
 }
 
 pub(crate) fn is_cordis_patch(path: &Path, content: Option<&str>) -> bool {
