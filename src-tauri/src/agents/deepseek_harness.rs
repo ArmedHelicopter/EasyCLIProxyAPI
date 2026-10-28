@@ -250,12 +250,27 @@ pub(crate) async fn fetch_deepseek_harness_models(
         fetch_management_config_yaml(config),
     );
     let mut models = models?;
+    filter_oauth_excluded_agent_models(&mut models, configuration.as_deref().ok(), "codex");
     enrich_harness_context_windows(
         &mut models,
         &runtime.unwrap_or_default(),
         configuration.as_deref().ok(),
     )?;
     Ok(models)
+}
+
+pub(crate) fn filter_oauth_excluded_agent_models(models: &mut Vec<AgentModelOption>, configuration: Option<&str>, provider: &str) {
+    let Some(configuration) = configuration else { return; };
+    let Ok(document) = serde_norway::from_str::<Value>(configuration) else { return; };
+    let rules_value = document.get("oauth-excluded-models")
+        .or_else(|| document.get("oauth").and_then(Value::as_object).and_then(|oauth| oauth.get("excluded-models")));
+    let Some(rules) = rules_value.and_then(Value::as_object)
+        .and_then(|providers| providers.get(provider)).and_then(Value::as_array) else { return; };
+    let rules: Vec<String> = rules.iter().filter_map(Value::as_str).map(str::to_ascii_lowercase).collect();
+    models.retain(|model| !rules.iter().any(|rule| {
+        let escaped = regex::escape(rule).replace(r"\*", ".*");
+        regex::Regex::new(&format!("(?i)^{escaped}$")).is_ok_and(|pattern| pattern.is_match(&model.name))
+    }));
 }
 
 fn harness_model_defaults(model: &AgentModelOption, api: &str) -> Profile {

@@ -2,6 +2,16 @@ use super::support::*;
 use super::*;
 use serde_json::{json, Value};
 
+#[test]
+fn harness_model_discovery_hides_oauth_excluded_models() {
+    let mut models = vec![
+        AgentModelOption { name: "gpt-6.1-sol".into(), alias: None, is_alias: false, context_window: None, input_modalities: None, harness_metadata: None },
+        AgentModelOption { name: "gpt-6-sol".into(), alias: None, is_alias: false, context_window: None, input_modalities: None, harness_metadata: None },
+    ];
+    crate::agents::filter_oauth_excluded_agent_models(&mut models, Some("oauth-excluded-models:\n  codex: [gpt-6.1-sol]\n"), "codex");
+    assert_eq!(models.iter().map(|model| model.name.as_str()).collect::<Vec<_>>(), ["gpt-6-sol"]);
+}
+
 fn models() -> Vec<AgentModelOption> {
     parse_agent_model_options(&json!({"data":[
         {"id":"vision","input_modalities":["text","image"],"context_window":128000},
