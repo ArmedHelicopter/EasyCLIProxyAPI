@@ -11,6 +11,16 @@ fn models() -> Vec<AgentModelOption> {
     .unwrap()
 }
 
+#[test]
+fn tiny_model_provider_native_modalities_are_discovered() {
+    let models = parse_agent_model_options(&json!({"data":[
+        {"id":"tinymodel","modalities":{"input":["text","image"]}},
+        {"id":"nested-tiny","capabilities":{"modalities":{"input":["text","image"]}}}
+    ]})).unwrap();
+    assert_eq!(models[0].input_modalities, Some(vec!["text".into(), "image".into()]));
+    assert_eq!(models[1].input_modalities, Some(vec!["text".into(), "image".into()]));
+}
+
 fn root(home: &Path) -> Value {
     let paths = agent_config_paths(AgentClient::DeepSeekHarness, home);
     serde_json::to_value(

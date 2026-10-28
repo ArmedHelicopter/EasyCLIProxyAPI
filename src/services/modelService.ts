@@ -179,11 +179,17 @@ const normalizeModelList = (payload: unknown, preserveExistingAlias = false, pre
           ? ['input', 'input_modalities', 'inputModalities', 'supported_input_modalities', 'supportedInputModalities']
             .map(key => nestedCapabilities[key]).find(value => Array.isArray(value))
           : undefined;
-        const supportsImages = ['supports_images', 'supportsImages', 'vision', 'image']
+        const modalityObjects = [record.modalities, nestedCapabilities?.modalities]
+          .filter(isRecord)
+          .map(value => value.input)
+          .find(value => Array.isArray(value));
+        const topLevelInput = Array.isArray(record.input) ? record.input : undefined;
+        const supportedModalities = Array.isArray(record.supported_modalities) ? record.supported_modalities : undefined;
+        const supportsImages = ['supports_images', 'supportsImages', 'vision', 'image', 'accepts_images', 'acceptsImages']
           .map(key => record[key]).find(value => typeof value === 'boolean')
-          ?? (nestedCapabilities ? ['supports_images', 'supportsImages', 'vision', 'image']
+          ?? (nestedCapabilities ? ['supports_images', 'supportsImages', 'vision', 'image', 'accepts_images', 'acceptsImages']
             .map(key => nestedCapabilities[key]).find(value => typeof value === 'boolean') : undefined);
-        const modalities = [...directModalities, ...(Array.isArray(nestedRaw) ? nestedRaw : [])]
+        const modalities = [...directModalities, ...(Array.isArray(nestedRaw) ? nestedRaw : []), ...(modalityObjects ?? []), ...(topLevelInput ?? []), ...(supportedModalities ?? [])]
           .filter((value): value is string => typeof value === 'string')
           .map(value => value.trim().toLowerCase())
           .filter((value): value is 'text' | 'image' => value === 'text' || value === 'image');

@@ -110,6 +110,22 @@ describe('model catalog parsing', () => {
     ]);
   });
 
+  it('parses OpenAI-compatible TinyModel modality shapes without guessing', () => {
+    expect(modelsFromDiscoveredPayload({ data: [
+      { id: 'tinymodel', modalities: { input: ['text', 'image'] } },
+      { id: 'nested-tiny', capabilities: { modalities: { input: ['text', 'image'] } } },
+      { id: 'input-tiny', input: ['text', 'image'] },
+      { id: 'supported-tiny', supported_modalities: ['text', 'image'] },
+      { id: 'unknown-tiny' },
+    ] })).toEqual([
+      { name: 'tinymodel', inputModalities: ['text', 'image'] },
+      { name: 'nested-tiny', inputModalities: ['text', 'image'] },
+      { name: 'input-tiny', inputModalities: ['text', 'image'] },
+      { name: 'supported-tiny', inputModalities: ['text', 'image'] },
+      { name: 'unknown-tiny' },
+    ]);
+  });
+
   it('normalizes provider capability aliases for every model source', () => {
     expect(modelsFromDiscoveredPayload({ data: [
       { id: 'gpt', input_modalities: ['text', 'image'] },

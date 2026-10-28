@@ -785,8 +785,12 @@ pub(crate) fn parse_modalities(value: &Value) -> Option<Vec<String>> {
         ["input", "input_modalities", "inputModalities", "supported_input_modalities", "supportedInputModalities"]
             .into_iter()
             .find_map(|key| capabilities.get(key).and_then(Value::as_array))
+            .or_else(|| capabilities.get("modalities").and_then(Value::as_object).and_then(|modalities| modalities.get("input")).and_then(Value::as_array))
     });
-    let image_flag = ["supports_images", "supportsImages", "vision", "image"]
+    let modality_object = value.get("modalities").and_then(Value::as_object).and_then(|modalities| modalities.get("input")).and_then(Value::as_array);
+    let top_level_input = value.get("input").and_then(Value::as_array);
+    let supported_modalities = value.get("supported_modalities").and_then(Value::as_array);
+    let image_flag = ["supports_images", "supportsImages", "vision", "image", "accepts_images", "acceptsImages"]
         .into_iter()
         .find_map(|key| value.get(key).and_then(Value::as_bool))
         .or_else(|| value.get("capabilities").and_then(Value::as_object).and_then(|capabilities| {
@@ -794,15 +798,14 @@ pub(crate) fn parse_modalities(value: &Value) -> Option<Vec<String>> {
                 .into_iter()
                 .find_map(|key| capabilities.get(key).and_then(Value::as_bool))
         }));
-    let raw = direct.or(nested);
-    if raw.is_none() && image_flag != Some(true) {
-        return None;
-    }
-    let empty = Vec::new();
-    let raw = raw.unwrap_or(&empty);
     let mut seen = HashSet::new();
+    let empty = Vec::new();
+    let raw = direct.or(nested).unwrap_or(&empty);
     let mut modalities = raw
         .iter()
+        .chain(modality_object.into_iter().flatten())
+        .chain(top_level_input.into_iter().flatten())
+        .chain(supported_modalities.into_iter().flatten())
         .filter_map(Value::as_str)
         .map(str::trim)
         .map(str::to_ascii_lowercase)
