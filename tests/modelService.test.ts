@@ -116,12 +116,14 @@ describe('model catalog parsing', () => {
       { id: 'nested-tiny', capabilities: { modalities: { input: ['text', 'image'] } } },
       { id: 'input-tiny', input: ['text', 'image'] },
       { id: 'supported-tiny', supported_modalities: ['text', 'image'] },
+      { id: 'object-tiny', modalities: { input: [{ type: 'text' }, { type: 'image' }] } },
       { id: 'unknown-tiny' },
     ] })).toEqual([
       { name: 'tinymodel', inputModalities: ['text', 'image'] },
       { name: 'nested-tiny', inputModalities: ['text', 'image'] },
       { name: 'input-tiny', inputModalities: ['text', 'image'] },
       { name: 'supported-tiny', inputModalities: ['text', 'image'] },
+      { name: 'object-tiny', inputModalities: ['text', 'image'] },
       { name: 'unknown-tiny' },
     ]);
   });

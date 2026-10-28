@@ -806,9 +806,8 @@ pub(crate) fn parse_modalities(value: &Value) -> Option<Vec<String>> {
         .chain(modality_object.into_iter().flatten())
         .chain(top_level_input.into_iter().flatten())
         .chain(supported_modalities.into_iter().flatten())
-        .filter_map(Value::as_str)
-        .map(str::trim)
-        .map(str::to_ascii_lowercase)
+        .filter_map(|value| value.as_str().map(str::to_string).or_else(|| value.get("type").and_then(Value::as_str).map(str::to_string)))
+        .map(|value| value.trim().to_ascii_lowercase())
         .filter(|value| matches!(value.as_str(), "text" | "image"))
         .filter(|value| seen.insert(value.clone()))
         .collect::<Vec<_>>();

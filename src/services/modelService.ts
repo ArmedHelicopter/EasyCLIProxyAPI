@@ -190,7 +190,7 @@ const normalizeModelList = (payload: unknown, preserveExistingAlias = false, pre
           ?? (nestedCapabilities ? ['supports_images', 'supportsImages', 'vision', 'image', 'accepts_images', 'acceptsImages']
             .map(key => nestedCapabilities[key]).find(value => typeof value === 'boolean') : undefined);
         const modalities = [...directModalities, ...(Array.isArray(nestedRaw) ? nestedRaw : []), ...(modalityObjects ?? []), ...(topLevelInput ?? []), ...(supportedModalities ?? [])]
-          .filter((value): value is string => typeof value === 'string')
+          .flatMap((value) => typeof value === 'string' ? [value] : isRecord(value) && typeof value.type === 'string' ? [value.type] : [])
           .map(value => value.trim().toLowerCase())
           .filter((value): value is 'text' | 'image' => value === 'text' || value === 'image');
         if (supportsImages === true && !modalities.includes('image')) modalities.push('image');
