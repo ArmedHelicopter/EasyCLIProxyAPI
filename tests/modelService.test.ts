@@ -98,6 +98,32 @@ describe('model catalog parsing', () => {
     expect(usableModelAlias('')).toBe('');
   });
 
+  it('keeps missing provider capability metadata unknown instead of inventing text or image support', () => {
+    expect(modelsFromDiscoveredPayload({ data: [
+      { id: 'unknown-model' },
+      { id: 'vision-by-name' },
+      { id: 'explicit-image', capabilities: { image: true } },
+    ] })).toEqual([
+      { name: 'unknown-model' },
+      { name: 'vision-by-name' },
+      { name: 'explicit-image', inputModalities: ['image'] },
+    ]);
+  });
+
+  it('normalizes provider capability aliases for every model source', () => {
+    expect(modelsFromDiscoveredPayload({ data: [
+      { id: 'gpt', input_modalities: ['text', 'image'] },
+      { id: 'gemini', supportedInputModalities: ['text', 'image', 'audio'] },
+      { id: 'claude', supported_input_modalities: ['text'] },
+      { id: 'empty', inputModalities: ['audio'] },
+    ] })).toEqual([
+      { name: 'gpt', inputModalities: ['text', 'image'] },
+      { name: 'gemini', inputModalities: ['text', 'image'] },
+      { name: 'claude', inputModalities: ['text'] },
+      { name: 'empty' },
+    ]);
+  });
+
   it('does not import spaced display names as aliases when discovering models', () => {
     expect(modelsFromDiscoveredPayload({
       data: [

@@ -17,6 +17,15 @@ export type HarnessField = {
 };
 export const harnessSchema = schemaSource as unknown as Record<string, HarnessField[]>;
 export type HarnessContextDefault = { value: number; source: 'model' | 'provider' | 'default' };
+export type HarnessInputSource = 'model' | 'provider' | 'unknown';
+
+/** Describes which automatic input capability will win when a model has no override. */
+export function harnessInputSource(defaults: HarnessProfile, provider: HarnessProfile = {}): HarnessInputSource {
+  if (Array.isArray(defaults.input) && defaults.input.length > 0) return 'model';
+  if (Array.isArray(provider.defaultInput) && provider.defaultInput.length > 0) return 'provider';
+  if (Array.isArray(defaults.input)) return 'provider';
+  return 'unknown';
+}
 
 export function harnessContextDefault(defaults: HarnessProfile, provider: HarnessDraft): HarnessContextDefault {
   const valid = (value: unknown): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value > 0;
