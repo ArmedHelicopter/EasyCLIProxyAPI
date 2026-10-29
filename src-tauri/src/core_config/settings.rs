@@ -2292,6 +2292,10 @@ pub(crate) fn write_gui_config_to_path(
             "streaming-bootstrap-retries",
             value(i64::from(config.streaming_bootstrap_retries)),
         ),
+        (
+            "deepseek-harness-profile",
+            value(config.deepseek_harness_profile.as_deref().unwrap_or("desktop")),
+        ),
     ] {
         set_codex_table_item(root, key, item);
     }

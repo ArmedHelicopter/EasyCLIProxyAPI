@@ -2,6 +2,16 @@ use super::support::*;
 use super::*;
 use serde_json::{json, Value};
 
+#[test]
+fn harness_model_discovery_hides_oauth_excluded_models() {
+    let mut models = vec![
+        AgentModelOption { name: "gpt-6.1-sol".into(), alias: None, is_alias: false, context_window: None, input_modalities: None, harness_metadata: None },
+        AgentModelOption { name: "gpt-6-sol".into(), alias: None, is_alias: false, context_window: None, input_modalities: None, harness_metadata: None },
+    ];
+    crate::agents::filter_oauth_excluded_agent_models(&mut models, Some("oauth-excluded-models:\n  codex: [gpt-6.1-sol]\n"), "codex");
+    assert_eq!(models.iter().map(|model| model.name.as_str()).collect::<Vec<_>>(), ["gpt-6-sol"]);
+}
+
 fn models() -> Vec<AgentModelOption> {
     parse_agent_model_options(&json!({"data":[
         {"id":"vision","input_modalities":["text","image"],"context_window":128000},
@@ -9,6 +19,18 @@ fn models() -> Vec<AgentModelOption> {
         {"id":"unknown"}
     ]}))
     .unwrap()
+}
+
+#[test]
+fn tiny_model_provider_native_modalities_are_discovered() {
+    let models = parse_agent_model_options(&json!({"data":[
+        {"id":"tinymodel","modalities":{"input":["text","image"]}},
+        {"id":"nested-tiny","capabilities":{"modalities":{"input":["text","image"]}}},
+        {"id":"object-tiny","modalities":{"input":[{"type":"text"},{"type":"image"}]}}
+    ]})).unwrap();
+    assert_eq!(models[0].input_modalities, Some(vec!["text".into(), "image".into()]));
+    assert_eq!(models[1].input_modalities, Some(vec!["text".into(), "image".into()]));
+    assert_eq!(models[2].input_modalities, Some(vec!["text".into(), "image".into()]));
 }
 
 fn root(home: &Path) -> Value {
@@ -555,5 +577,351 @@ fn harness_template_and_backup_restore_reconcile_catalog_state() {
             .configuration["input"],
         json!(["text", "image"])
     );
+    fs::remove_dir_all(home).unwrap();
+}
+
+#[test]
+fn harness_cordis_patch_profile_selection_and_updates() {
+    let home = agent_test_home("harness-cordis-patch");
+    let patch_dir = home.join(".dsh/profiles/desktop");
+    fs::create_dir_all(&patch_dir).unwrap();
+    let patch_file = patch_dir.join("cordis.patch.yml");
+    let initial_cordis_patch = r#"# Initial patch
+- id: llm-pi-ai
+  name: "@deepseek-ai/dsh-llm-pi-ai"
+  config:
+    providers:
+      other-provider:
+        displayName: Other
+        models:
+          - id: other-model
+- id: ui-chat
+  name: "@deepseek-ai/dsh-client-ui-chat"
+  config:
+    transcriptView: standard
+- id: subagent-model-selection-settings
+  name: "@deepseek-ai/dsh-tool-subagent/model-selection-settings"
+  config:
+    enabled: true
+    allowedModels:
+      - provider: other-provider
+        model: other-model
+"#;
+    fs::write(&patch_file, initial_cordis_patch).unwrap();
+
+    let paths = agent_config_paths(AgentClient::DeepSeekHarness, &home);
+    assert_eq!(paths[0], patch_file);
+
+    let test_models = models();
+    apply(&home, &test_models);
+
+    let updated_patch = fs::read_to_string(&patch_file).unwrap();
+    let parsed_seq: Vec<serde_norway::Value> = serde_norway::from_str(&updated_patch).unwrap();
+    assert!(parsed_seq.len() >= 4);
+
+    let llm_entry = parsed_seq.iter().find(|i| i.get("id").and_then(serde_norway::Value::as_str) == Some("llm-pi-ai")).unwrap();
+    let easy_provider = &llm_entry["config"]["providers"][DEEPSEEK_HARNESS_PROVIDER_ID];
+    assert_eq!(easy_provider["displayName"], "EasyCLIProxyAPI");
+    assert_eq!(easy_provider["apiKeyEnv"], DEEPSEEK_HARNESS_CREDENTIAL);
+    assert_eq!(easy_provider["baseURL"], "http://127.0.0.1:8317/v1");
+    let models_arr = easy_provider["models"].as_sequence().unwrap();
+    assert_eq!(models_arr.len(), 3);
+    assert_eq!(models_arr[0]["id"], "vision");
+
+    assert!(llm_entry["config"]["providers"].get("other-provider").is_some());
+
+    let default_entry = parsed_seq.iter().find(|i| i.get("id").and_then(serde_norway::Value::as_str) == Some("agent-default-model")).unwrap();
+    assert_eq!(default_entry["config"]["provider"], DEEPSEEK_HARNESS_PROVIDER_ID);
+    assert_eq!(default_entry["config"]["model"], "vision");
+
+    let subagent_entry = parsed_seq.iter().find(|i| i.get("id").and_then(serde_norway::Value::as_str) == Some("subagent-model-selection-settings")).unwrap();
+    assert_eq!(subagent_entry["config"]["enabled"], serde_norway::Value::Bool(true));
+    let allowed_models = subagent_entry["config"]["allowedModels"].as_sequence().unwrap();
+    assert!(allowed_models.iter().any(|m| m["provider"] == "other-provider" && m["model"] == "other-model"));
+    assert!(allowed_models.iter().any(|m| m["provider"] == DEEPSEEK_HARNESS_PROVIDER_ID && m["model"] == "vision"));
+    assert!(allowed_models.iter().any(|m| m["provider"] == DEEPSEEK_HARNESS_PROVIDER_ID && m["model"] == "text-only"));
+    assert!(allowed_models.iter().any(|m| m["provider"] == DEEPSEEK_HARNESS_PROVIDER_ID && m["model"] == "unknown"));
+
+    let ui_entry = parsed_seq.iter().find(|i| i.get("id").and_then(serde_norway::Value::as_str) == Some("ui-chat")).unwrap();
+    assert_eq!(ui_entry["config"]["transcriptView"], "standard");
+
+    let (configured, selected_model) = inspect_deepseek_harness_config(&paths, 8317, "test-key").unwrap();
+    assert!(configured);
+    assert_eq!(selected_model, Some("vision".to_string()));
+    assert!(deepseek_harness_has_managed_marker(&paths).unwrap());
+
+    let snapshot = harness_editor_snapshot(&home, &test_models, 8317).unwrap();
+    assert_eq!(snapshot.models.len(), 3);
+    assert_eq!(snapshot.default_model, Some("vision".to_string()));
+
+    let mut edit = request(snapshot);
+    edit.models[1].configuration.insert("name".into(), json!("Custom Text Model"));
+    save_harness_editor(&home, &test_models, 8317, edit).unwrap();
+
+    let updated_patch_after_save = fs::read_to_string(&patch_file).unwrap();
+    let parsed_after_save: Vec<serde_norway::Value> = serde_norway::from_str(&updated_patch_after_save).unwrap();
+    let llm_after_save = parsed_after_save.iter().find(|i| i.get("id").and_then(serde_norway::Value::as_str) == Some("llm-pi-ai")).unwrap();
+    let model1 = &llm_after_save["config"]["providers"][DEEPSEEK_HARNESS_PROVIDER_ID]["models"][1];
+    assert_eq!(model1["name"], "Custom Text Model");
+
+    let removal_updates = prepare_deepseek_harness_managed_removal(&paths).unwrap();
+    assert_eq!(removal_updates.len(), 2);
+    let patch_after_removal = String::from_utf8(removal_updates[0].1.clone().unwrap()).unwrap();
+    let seq_after_removal: Vec<serde_norway::Value> = serde_norway::from_str(&patch_after_removal).unwrap();
+    let llm_after_removal = seq_after_removal.iter().find(|i| i.get("id").and_then(serde_norway::Value::as_str) == Some("llm-pi-ai")).unwrap();
+    assert!(llm_after_removal["config"]["providers"].get(DEEPSEEK_HARNESS_PROVIDER_ID).is_none());
+    assert!(llm_after_removal["config"]["providers"].get("other-provider").is_some());
+    let subagent_after_removal = seq_after_removal.iter().find(|i| i.get("id").and_then(serde_norway::Value::as_str) == Some("subagent-model-selection-settings")).unwrap();
+    let allowed_after_removal = subagent_after_removal["config"]["allowedModels"].as_sequence().unwrap();
+    assert_eq!(allowed_after_removal.len(), 1);
+    assert_eq!(allowed_after_removal[0]["provider"], "other-provider");
+
+    let restored = build_restored_deepseek_harness_settings(&updated_patch, Some(initial_cordis_patch)).unwrap().unwrap();
+    let seq_restored: Vec<serde_norway::Value> = serde_norway::from_str(&restored).unwrap();
+    let llm_restored = seq_restored.iter().find(|i| i.get("id").and_then(serde_norway::Value::as_str) == Some("llm-pi-ai")).unwrap();
+    assert!(llm_restored["config"]["providers"].get(DEEPSEEK_HARNESS_PROVIDER_ID).is_none());
+    assert!(llm_restored["config"]["providers"].get("other-provider").is_some());
+
+    fs::remove_dir_all(home).unwrap();
+}
+
+#[test]
+fn harness_allowed_models_respect_user_removals_and_new_models() {
+    let home = agent_test_home("harness-allowed-models-policy");
+    let patch_dir = home.join(".dsh/profiles/desktop");
+    fs::create_dir_all(&patch_dir).unwrap();
+    let patch_file = patch_dir.join("cordis.patch.yml");
+    fs::write(&patch_file, "[]\n").unwrap();
+
+    let initial = models();
+    apply(&home, &initial);
+    let mut patch: serde_norway::Value = serde_norway::from_str(&fs::read_to_string(&patch_file).unwrap()).unwrap();
+    let allowed = patch
+        .as_sequence_mut().unwrap()
+        .iter_mut()
+        .find(|item| item["id"] == "subagent-model-selection-settings")
+        .unwrap()["config"]["allowedModels"].as_sequence_mut().unwrap();
+    allowed.retain(|item| item["model"] != "vision");
+    fs::write(&patch_file, serde_norway::to_string(&patch).unwrap()).unwrap();
+
+    let mut next = initial.clone();
+    next.retain(|model| model.name != "unknown");
+    next.push(AgentModelOption {
+        name: "new-model".into(),
+        alias: None,
+        is_alias: false,
+        input_modalities: None,
+        context_window: None,
+        harness_metadata: None,
+    });
+    apply(&home, &next);
+    let updated: serde_norway::Value = serde_norway::from_str(&fs::read_to_string(&patch_file).unwrap()).unwrap();
+    let allowed = updated.as_sequence().unwrap().iter()
+        .find(|item| item["id"] == "subagent-model-selection-settings").unwrap()["config"]["allowedModels"].as_sequence().unwrap();
+    assert!(!allowed.iter().any(|item| item["provider"] == DEEPSEEK_HARNESS_PROVIDER_ID && item["model"] == "vision"));
+    assert!(!allowed.iter().any(|item| item["provider"] == DEEPSEEK_HARNESS_PROVIDER_ID && item["model"] == "unknown"));
+    assert!(allowed.iter().any(|item| item["provider"] == DEEPSEEK_HARNESS_PROVIDER_ID && item["model"] == "new-model"));
+    fs::remove_dir_all(home).unwrap();
+}
+
+#[test]
+fn harness_profile_paths_follow_selected_profile_and_fallback() {
+    let home = agent_test_home("harness-profile-paths");
+    let web_dir = home.join(".dsh/profiles/web");
+    fs::create_dir_all(&web_dir).unwrap();
+    let web_patch = web_dir.join("cordis.patch.yml");
+    fs::write(&web_patch, "[]\n").unwrap();
+
+    assert_eq!(
+        deepseek_harness_config_paths_for_profile(&home, "web")[0],
+        web_patch
+    );
+    assert_eq!(
+        deepseek_harness_config_paths_for_profile(&home, "headless")[0],
+        home.join(".dsh/settings.yaml")
+    );
+    assert_eq!(
+        deepseek_harness_config_paths_for_profile(&home, "../escape")[0],
+        home.join(".dsh/settings.yaml")
+    );
+    fs::remove_dir_all(home).unwrap();
+}
+
+#[test]
+fn harness_falls_back_to_settings_yaml_when_cordis_patch_absent() {
+    let home = agent_test_home("harness-fallback-settings");
+    let paths = agent_config_paths(AgentClient::DeepSeekHarness, &home);
+    assert_eq!(paths[0], home.join(".dsh").join(DEEPSEEK_HARNESS_SETTINGS_FILE));
+
+    let test_models = models();
+    apply(&home, &test_models);
+
+    assert!(paths[0].exists());
+    let settings_content = fs::read_to_string(&paths[0]).unwrap();
+    let parsed_mapping: serde_norway::Mapping = serde_norway::from_str(&settings_content).unwrap();
+    assert!(parsed_mapping.contains_key("llm-pi-ai"));
+    assert!(parsed_mapping.contains_key("agent-default-model"));
+
+    let (configured, selected_model) = inspect_deepseek_harness_config(&paths, 8317, "test-key").unwrap();
+    assert!(configured);
+    assert_eq!(selected_model, Some("vision".to_string()));
+
+    fs::remove_dir_all(home).unwrap();
+}
+
+const CORDIS_PATCH_HEADER: &str = "# Your patch layer for this dsh profile, applied after every bundle layer:\n# a top-level YAML array of loader patch entries (id-targeted config\n# overrides, disables, and insert lists; `!!js` expressions allowed).\n";
+
+fn cordis_patch_home(name: &str) -> (PathBuf, PathBuf) {
+    let home = agent_test_home(name);
+    let patch_dir = home.join(".dsh/profiles/desktop");
+    fs::create_dir_all(&patch_dir).unwrap();
+    let patch_file = patch_dir.join("cordis.patch.yml");
+    fs::write(
+        &patch_file,
+        format!("{CORDIS_PATCH_HEADER}- id: ui-chat\n  config:\n    transcriptView: standard\n"),
+    )
+    .unwrap();
+    (home, patch_file)
+}
+
+fn reset_harness_template(home: &Path) {
+    let test_models = models();
+    reset_agent_configuration_to_default_with_oauth(AgentDefaultConfiguration {
+        client: AgentClient::DeepSeekHarness,
+        home,
+        port: 8317,
+        api_key: "test-key",
+        model: "vision",
+        models: &test_models,
+        codex_catalog: None,
+        oauth_configuration: false,
+        claude_code_model_mappings: None,
+        claude_desktop_model_mappings: None,
+    })
+    .unwrap();
+}
+
+fn cordis_entry<'a>(seq: &'a [serde_norway::Value], id: &str) -> &'a serde_norway::Value {
+    seq.iter()
+        .find(|item| item.get("id").and_then(serde_norway::Value::as_str) == Some(id))
+        .unwrap_or_else(|| panic!("missing Cordis patch entry {id}"))
+}
+
+#[test]
+fn harness_template_writes_cordis_patch_as_top_level_sequence() {
+    let (home, patch_file) = cordis_patch_home("harness-template-cordis-sequence");
+
+    reset_harness_template(&home);
+
+    let content = fs::read_to_string(&patch_file).unwrap();
+    assert!(content.starts_with(CORDIS_PATCH_HEADER));
+    let header_lines = content.lines().take(3).collect::<Vec<_>>();
+    assert_eq!(header_lines.len(), 3);
+    assert!(header_lines.iter().all(|line| line.starts_with('#')));
+    assert!(header_lines[0].contains("Your patch layer for this dsh profile"));
+
+    let parsed = serde_norway::from_str::<serde_norway::Value>(&content).unwrap();
+    assert!(
+        parsed.is_sequence(),
+        "template output must be a top-level sequence"
+    );
+    let seq = parsed.as_sequence().unwrap();
+    let llm = cordis_entry(seq, "llm-pi-ai");
+    assert_eq!(
+        llm["config"]["providers"][DEEPSEEK_HARNESS_PROVIDER_ID]["baseURL"],
+        "http://127.0.0.1:8317/v1"
+    );
+    assert_eq!(
+        llm["config"]["providers"][DEEPSEEK_HARNESS_PROVIDER_ID]["apiKeyEnv"],
+        DEEPSEEK_HARNESS_CREDENTIAL
+    );
+    assert_eq!(
+        cordis_entry(seq, "agent-default-model")["config"]["model"],
+        "vision"
+    );
+    assert!(cordis_entry(seq, "subagent-model-selection-settings")["config"]["enabled"]
+        .as_bool()
+        .unwrap_or(false));
+
+    fs::remove_dir_all(home).unwrap();
+}
+
+#[test]
+fn harness_template_keeps_settings_yaml_as_mapping() {
+    let home = agent_test_home("harness-template-settings-mapping");
+    let paths = agent_config_paths(AgentClient::DeepSeekHarness, &home);
+    assert_eq!(
+        paths[0],
+        home.join(".dsh").join(DEEPSEEK_HARNESS_SETTINGS_FILE)
+    );
+
+    reset_harness_template(&home);
+
+    let content = fs::read_to_string(&paths[0]).unwrap();
+    let parsed = serde_norway::from_str::<serde_norway::Value>(&content).unwrap();
+    assert!(
+        parsed.is_mapping(),
+        "legacy settings.yaml template must stay a mapping"
+    );
+    assert_eq!(
+        parsed["llm-pi-ai"]["providers"][DEEPSEEK_HARNESS_PROVIDER_ID]["baseURL"],
+        "http://127.0.0.1:8317/v1"
+    );
+    assert_eq!(parsed["agent-default-model"]["model"], "vision");
+
+    fs::remove_dir_all(home).unwrap();
+}
+
+#[test]
+fn harness_template_cordis_patch_is_idempotent() {
+    let (home, patch_file) = cordis_patch_home("harness-template-cordis-idempotent");
+
+    reset_harness_template(&home);
+    let first = fs::read_to_string(&patch_file).unwrap();
+    reset_harness_template(&home);
+    let second = fs::read_to_string(&patch_file).unwrap();
+    assert_eq!(first, second);
+
+    // The regular update path must also converge on the same bytes.
+    let test_models = models();
+    apply(&home, &test_models);
+    let first_update = fs::read_to_string(&patch_file).unwrap();
+    assert!(first_update.starts_with(CORDIS_PATCH_HEADER));
+    apply(&home, &test_models);
+    let second_update = fs::read_to_string(&patch_file).unwrap();
+    assert_eq!(first_update, second_update);
+    assert!(
+        serde_norway::from_str::<serde_norway::Value>(&second_update)
+            .unwrap()
+            .is_sequence()
+    );
+
+    fs::remove_dir_all(home).unwrap();
+}
+
+#[test]
+fn harness_template_rejects_mapping_for_cordis_patch() {
+    let (home, patch_file) = cordis_patch_home("harness-template-cordis-rejects-mapping");
+    let paths = agent_config_paths(AgentClient::DeepSeekHarness, &home);
+    assert_eq!(paths[0], patch_file);
+    let before = config_images(&paths).unwrap();
+    let updates = vec![
+        AgentFileUpdate {
+            path: paths[0].clone(),
+            after: "llm-pi-ai:\n  providers:\n    easy-cliproxyapi:\n      baseURL: http://127.0.0.1:8317/v1\n".into(),
+        },
+        AgentFileUpdate {
+            path: paths[1].clone(),
+            after: build_deepseek_harness_credentials(None, "test-key").unwrap(),
+        },
+    ];
+
+    let error =
+        prepare_config_updates("deepseek-harness", &paths, &before, &updates, true).unwrap_err();
+    assert!(
+        error.contains("top-level YAML array"),
+        "unexpected error: {error}"
+    );
+
     fs::remove_dir_all(home).unwrap();
 }

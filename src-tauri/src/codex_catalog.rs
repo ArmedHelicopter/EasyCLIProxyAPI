@@ -775,21 +775,45 @@ fn enable_fast_mode(model: &mut Map<String, Value>) {
 }
 
 pub(crate) fn parse_modalities(value: &Value) -> Option<Vec<String>> {
-    let raw = value
+    let direct = value
         .get("input_modalities")
         .or_else(|| value.get("inputModalities"))
         .or_else(|| value.get("supported_input_modalities"))
         .or_else(|| value.get("supportedInputModalities"))
-        .and_then(Value::as_array)?;
+        .and_then(Value::as_array);
+    let nested = value.get("capabilities").and_then(Value::as_object).and_then(|capabilities| {
+        ["input", "input_modalities", "inputModalities", "supported_input_modalities", "supportedInputModalities"]
+            .into_iter()
+            .find_map(|key| capabilities.get(key).and_then(Value::as_array))
+            .or_else(|| capabilities.get("modalities").and_then(Value::as_object).and_then(|modalities| modalities.get("input")).and_then(Value::as_array))
+    });
+    let modality_object = value.get("modalities").and_then(Value::as_object).and_then(|modalities| modalities.get("input")).and_then(Value::as_array);
+    let top_level_input = value.get("input").and_then(Value::as_array);
+    let supported_modalities = value.get("supported_modalities").and_then(Value::as_array);
+    let image_flag = ["supports_images", "supportsImages", "vision", "image", "accepts_images", "acceptsImages"]
+        .into_iter()
+        .find_map(|key| value.get(key).and_then(Value::as_bool))
+        .or_else(|| value.get("capabilities").and_then(Value::as_object).and_then(|capabilities| {
+            ["supports_images", "supportsImages", "vision", "image"]
+                .into_iter()
+                .find_map(|key| capabilities.get(key).and_then(Value::as_bool))
+        }));
     let mut seen = HashSet::new();
-    let modalities = raw
+    let empty = Vec::new();
+    let raw = direct.or(nested).unwrap_or(&empty);
+    let mut modalities = raw
         .iter()
-        .filter_map(Value::as_str)
-        .map(str::trim)
-        .map(str::to_ascii_lowercase)
+        .chain(modality_object.into_iter().flatten())
+        .chain(top_level_input.into_iter().flatten())
+        .chain(supported_modalities.into_iter().flatten())
+        .filter_map(|value| value.as_str().map(str::to_string).or_else(|| value.get("type").and_then(Value::as_str).map(str::to_string)))
+        .map(|value| value.trim().to_ascii_lowercase())
         .filter(|value| matches!(value.as_str(), "text" | "image"))
         .filter(|value| seen.insert(value.clone()))
         .collect::<Vec<_>>();
+    if image_flag == Some(true) && seen.insert("image".to_string()) {
+        modalities.push("image".to_string());
+    }
     (!modalities.is_empty()).then_some(modalities)
 }
 

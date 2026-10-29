@@ -658,6 +658,7 @@ struct GuiConfigFile {
     max_retry_credentials: u32,
     max_retry_interval: i64,
     streaming_bootstrap_retries: u32,
+    deepseek_harness_profile: Option<String>,
 }
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
@@ -968,6 +969,7 @@ impl Default for GuiConfigFile {
             max_retry_credentials: DEFAULT_MAX_RETRY_CREDENTIALS,
             max_retry_interval: DEFAULT_MAX_RETRY_INTERVAL,
             streaming_bootstrap_retries: DEFAULT_STREAMING_BOOTSTRAP_RETRIES,
+            deepseek_harness_profile: None,
         }
     }
 }
@@ -1010,6 +1012,7 @@ struct GuiConfigPresence {
     max_retry_credentials: Option<u32>,
     max_retry_interval: Option<i64>,
     streaming_bootstrap_retries: Option<u32>,
+    deepseek_harness_profile: Option<String>,
 }
 
 #[derive(Clone, Serialize)]
@@ -1020,6 +1023,7 @@ struct GuiSettings {
     allow_lan: bool,
     run_on_startup: bool,
     close_behavior: WindowsCloseBehavior,
+    deepseek_harness_profile: String,
 }
 
 #[derive(Clone, Serialize)]
@@ -1543,6 +1547,8 @@ type AgentRecordExtension = (AgentModificationRecord, Vec<FileSnapshot>);
 struct GuiNetworkSettings {
     port: u16,
     allow_lan: bool,
+    #[serde(default)]
+    deepseek_harness_profile: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -2120,15 +2126,6 @@ impl GuiConfigState {
         Ok(config)
     }
 
-    fn update_network(&self, port: u16, allow_lan: bool) -> Result<GuiConfigFile, String> {
-        self.update(|config| {
-            config.port = port;
-            config.allow_lan = allow_lan;
-            config.host = if allow_lan { "0.0.0.0" } else { "127.0.0.1" }.to_string();
-            Ok(())
-        })
-    }
-
     fn update_network_routing(&self, settings: &GuiConfigFile) -> Result<GuiConfigFile, String> {
         self.update(|config| {
             config.port = settings.port;
@@ -2388,6 +2385,7 @@ impl From<&GuiConfigFile> for GuiSettings {
             allow_lan: config.allow_lan,
             run_on_startup: config.run_on_startup,
             close_behavior: config.close_behavior,
+            deepseek_harness_profile: config.deepseek_harness_profile.clone().unwrap_or_else(|| "desktop".to_string()),
         }
     }
 }
@@ -2834,6 +2832,8 @@ fn main() {
             update_codex_model_catalog,
             get_deepseek_harness_model_catalog_editor,
             save_deepseek_harness_model_catalog_editor,
+            list_deepseek_harness_profiles,
+            save_deepseek_harness_profile,
             get_codex_model_catalog_editor,
             save_codex_model_catalog_editor,
             get_thinking_aliases,

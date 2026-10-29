@@ -1,6 +1,6 @@
 use super::*;
 use serde_json::{json, Map, Value};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 type Profile = Map<String, Value>;
 
@@ -26,6 +26,17 @@ pub(crate) struct DeepSeekHarnessCatalogState {
     provider: Profile,
     generated_models: BTreeMap<String, Profile>,
     generated_provider: Option<Profile>,
+    #[serde(default)]
+    published_easycliproxyapi_models: Option<BTreeSet<String>>,
+}
+
+impl DeepSeekHarnessCatalogState {
+    pub(crate) fn with_empty_published_models() -> Self {
+        Self {
+            published_easycliproxyapi_models: Some(BTreeSet::new()),
+            ..Default::default()
+        }
+    }
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -41,9 +52,9 @@ pub(crate) struct HarnessEditorSnapshot {
     pub revision: String,
     pub models: Vec<HarnessEditorModel>,
     pub provider: Profile,
-    base_url: String,
-    default_model: Option<String>,
-    configured: bool,
+    pub base_url: String,
+    pub default_model: Option<String>,
+    pub configured: bool,
 }
 
 #[derive(Deserialize)]
@@ -55,12 +66,14 @@ pub(crate) struct HarnessEditorRequest {
 }
 
 fn read_harness_state(bytes: Option<&[u8]>) -> Result<DeepSeekHarnessCatalogState, String> {
-    bytes
-        .map(|bytes| {
-            serde_json::from_slice(bytes)
-                .map_err(|_| "Failed to read DSH model configuration state. Check catalog-state.json".into())
-        })
-        .unwrap_or_else(|| Ok(Default::default()))
+    match bytes {
+        Some(bytes) => serde_json::from_slice(bytes)
+            .map_err(|_| "Failed to read DSH model configuration state. Check catalog-state.json".into()),
+        None => Ok(DeepSeekHarnessCatalogState {
+            published_easycliproxyapi_models: Some(BTreeSet::new()),
+            ..Default::default()
+        }),
+    }
 }
 
 fn harness_provider(root: &Value) -> Option<&Value> {
@@ -70,11 +83,29 @@ fn harness_provider(root: &Value) -> Option<&Value> {
 }
 
 fn harness_root(existing: Option<&str>) -> Result<Value, String> {
-    serde_json::to_value(parse_agent_yaml_mapping(
-        existing,
-        "DeepSeek Harness settings",
-    )?)
-    .map_err(|_| "DSH settings must be a valid configuration mapping".into())
+    let Some(existing_str) = existing.map(str::trim).filter(|s| !s.is_empty()) else {
+        return Ok(Value::Object(Map::new()));
+    };
+    let parsed: serde_norway::Value = serde_norway::from_str(existing_str)
+        .map_err(|e| format!("Invalid DSH settings YAML format: {e}"))?;
+    if let Some(seq) = parsed.as_sequence() {
+        let mut root = Map::new();
+        for item in seq {
+            if let Some(id) = item.get("id").and_then(serde_norway::Value::as_str) {
+                if let Some(config) = item.get("config") {
+                    let json_val = serde_json::to_value(config)
+                        .map_err(|_| "Failed to convert DSH patch config to JSON".to_string())?;
+                    root.insert(id.to_string(), json_val);
+                }
+            }
+        }
+        Ok(Value::Object(root))
+    } else if let Some(map) = parsed.as_mapping() {
+        serde_json::to_value(map)
+            .map_err(|_| "DSH settings must be a valid configuration mapping".into())
+    } else {
+        Err("DSH settings root must be a valid configuration mapping or sequence".into())
+    }
 }
 
 fn selected_fields(value: &Value, group: &str) -> Profile {
@@ -219,12 +250,27 @@ pub(crate) async fn fetch_deepseek_harness_models(
         fetch_management_config_yaml(config),
     );
     let mut models = models?;
+    filter_oauth_excluded_agent_models(&mut models, configuration.as_deref().ok(), "codex");
     enrich_harness_context_windows(
         &mut models,
         &runtime.unwrap_or_default(),
         configuration.as_deref().ok(),
     )?;
     Ok(models)
+}
+
+pub(crate) fn filter_oauth_excluded_agent_models(models: &mut Vec<AgentModelOption>, configuration: Option<&str>, provider: &str) {
+    let Some(configuration) = configuration else { return; };
+    let Ok(document) = serde_norway::from_str::<Value>(configuration) else { return; };
+    let rules_value = document.get("oauth-excluded-models")
+        .or_else(|| document.get("oauth").and_then(Value::as_object).and_then(|oauth| oauth.get("excluded-models")));
+    let Some(rules) = rules_value.and_then(Value::as_object)
+        .and_then(|providers| providers.get(provider)).and_then(Value::as_array) else { return; };
+    let rules: Vec<String> = rules.iter().filter_map(Value::as_str).map(str::to_ascii_lowercase).collect();
+    models.retain(|model| !rules.iter().any(|rule| {
+        let escaped = regex::escape(rule).replace(r"\*", ".*");
+        regex::Regex::new(&format!("(?i)^{escaped}$")).is_ok_and(|pattern| pattern.is_match(&model.name))
+    }));
 }
 
 fn harness_model_defaults(model: &AgentModelOption, api: &str) -> Profile {
@@ -447,7 +493,73 @@ fn render_harness_profiles(
         .entry("displayName")
         .or_insert(json!("EasyCLIProxyAPI"));
     provider.entry("api").or_insert(json!("openai-completions"));
-    let rendered =
+    let is_cordis = existing.is_some_and(is_cordis_patch_content);
+    let rendered = if is_cordis {
+        render_agent_yaml_sequence_update(existing, "DeepSeek Harness Cordis patch", |seq| {
+            let llm_entry = seq
+                .iter_mut()
+                .find(|item| item.get("id").and_then(serde_norway::Value::as_str) == Some("llm-pi-ai"));
+            let llm = match llm_entry {
+                Some(entry) => entry,
+                None => {
+                    let mut new_entry = serde_norway::Mapping::new();
+                    new_entry.insert(yaml_key("id"), serde_norway::Value::String("llm-pi-ai".to_string()));
+                    new_entry.insert(yaml_key("name"), serde_norway::Value::String("@deepseek-ai/dsh-llm-pi-ai".to_string()));
+                    new_entry.insert(yaml_key("config"), serde_norway::Value::Mapping(serde_norway::Mapping::new()));
+                    seq.push(serde_norway::Value::Mapping(new_entry));
+                    seq.last_mut().unwrap()
+                }
+            };
+            let llm_map = llm
+                .as_mapping_mut()
+                .ok_or("Cordis patch llm-pi-ai must be a mapping")?;
+            let config = llm_map
+                .entry(yaml_key("config"))
+                .or_insert_with(|| serde_norway::Value::Mapping(serde_norway::Mapping::new()))
+                .as_mapping_mut()
+                .ok_or("Cordis patch llm-pi-ai.config must be a mapping")?;
+            let providers = config.entry(yaml_key("providers"))
+                .or_insert_with(|| serde_norway::Value::Mapping(serde_norway::Mapping::new()))
+                .as_mapping_mut()
+                .ok_or("Cordis patch llm-pi-ai.config.providers must be a mapping")?;
+            let managed = providers.entry(yaml_key(DEEPSEEK_HARNESS_PROVIDER_ID))
+                .or_insert_with(|| serde_norway::Value::Mapping(serde_norway::Mapping::new()))
+                .as_mapping_mut()
+                .ok_or("DSH provider configuration is missing")?;
+            managed.insert(
+                yaml_key("baseURL"),
+                serde_norway::Value::String(
+                    if api == "anthropic-messages" {
+                        base_url.trim_end_matches("/v1")
+                    } else {
+                        base_url
+                    }
+                    .into(),
+                ),
+            );
+            for key in harness_fields("provider") {
+                managed.remove(yaml_key(key));
+            }
+            for (key, value) in &provider {
+                managed.insert(
+                    yaml_key(key),
+                    serde_norway::to_value(value).map_err(|_| "Failed to serialize DSH provider")?,
+                );
+            }
+            managed.insert(
+                yaml_key("models"),
+                serde_norway::to_value(&published).map_err(|_| "Failed to serialize DSH model")?,
+            );
+            let model_ids: Vec<String> = models.iter().map(|m| m.name.clone()).collect();
+            update_cordis_subagent_allowed_models(
+                seq,
+                &model_ids,
+                state.published_easycliproxyapi_models.as_ref(),
+            )?;
+            state.published_easycliproxyapi_models = Some(model_ids.into_iter().collect());
+            Ok(())
+        })?
+    } else {
         render_agent_yaml_mapping_update(existing, "DeepSeek Harness settings", |root| {
             let managed = root
                 .get_mut(yaml_key("llm-pi-ai"))
@@ -480,7 +592,8 @@ fn render_harness_profiles(
                 serde_norway::to_value(&published).map_err(|_| "Failed to serialize DSH model")?,
             );
             Ok(())
-        })?;
+        })?
+    };
     state.generated_models = generated;
     state.generated_provider = Some(provider);
     Ok(rendered)
@@ -490,17 +603,23 @@ pub(crate) fn deepseek_harness_template_catalog_state(images: &Images) -> Result
     let root = harness_root(text(
         images.first().ok_or("DSH settings are missing")?.1.as_deref(),
     )?)?;
-    let mut state = DeepSeekHarnessCatalogState::default();
+    let mut state = DeepSeekHarnessCatalogState {
+        published_easycliproxyapi_models: Some(BTreeSet::new()),
+        ..Default::default()
+    };
     if let Some(provider) = harness_provider(&root) {
         state.generated_provider = Some(selected_fields(provider, "provider"));
         if let Some(models) = provider.get("models").and_then(Value::as_array) {
+            let mut published = BTreeSet::new();
             for model in models {
                 if let Some(id) = model.get("id").and_then(Value::as_str) {
+                    published.insert(id.to_string());
                     state
                         .generated_models
                         .insert(id.into(), selected_fields(model, "model"));
                 }
             }
+            state.published_easycliproxyapi_models = Some(published);
         }
     }
     serde_json::to_vec(&state).map_err(|_| "Failed to generate DSH model configuration state".into())
@@ -535,8 +654,14 @@ pub(crate) fn prepare_deepseek_harness_configuration(
     paths.push(deepseek_harness_catalog_state_path(&paths)?);
     let before = config_images(&paths)?;
     let mut state = read_harness_state(before[2].1.as_deref())?;
+    let existing_text = text(before[0].1.as_deref())?;
+    let existing_text = if is_cordis_patch_path(&paths[0]) && existing_text.map_or(true, |s| s.trim().is_empty()) {
+        Some("[]\n")
+    } else {
+        existing_text
+    };
     let settings = build_deepseek_harness_catalog_settings(
-        text(before[0].1.as_deref())?,
+        existing_text,
         &format!("{}/v1", managed_core_loopback_origin(port)),
         selected,
         models,
@@ -689,8 +814,14 @@ pub(crate) fn save_harness_editor(
         {
             return Err("The current default model is no longer available. Update the default model first".into());
         }
+        let existing_text = text(before[0].1.as_deref())?;
+        let existing_text = if is_cordis_patch_path(&paths[0]) && existing_text.map_or(true, |s| s.trim().is_empty()) {
+            Some("[]\n")
+        } else {
+            existing_text
+        };
         let settings = render_harness_profiles(
-            text(before[0].1.as_deref())?,
+            existing_text,
             &format!("{}/v1", managed_core_loopback_origin(port)),
             models,
             &mut state,

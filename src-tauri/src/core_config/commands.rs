@@ -74,6 +74,9 @@ pub(crate) fn save_gui_settings(
     let mut next = previous.clone();
     next.port = settings.port;
     next.allow_lan = settings.allow_lan;
+    if let Some(profile) = settings.deepseek_harness_profile.as_deref() {
+        next.deepseek_harness_profile = Some(validate_deepseek_harness_profile(profile)?.to_string());
+    }
     next.host = if settings.allow_lan {
         "0.0.0.0"
     } else {
@@ -81,7 +84,13 @@ pub(crate) fn save_gui_settings(
     }
     .to_string();
     patch_core_network_settings(&next)?;
-    let config = match gui_config_state.update_network(settings.port, settings.allow_lan) {
+    let config = match gui_config_state.update(|config| {
+        config.port = settings.port;
+        config.allow_lan = settings.allow_lan;
+        config.host = next.host.clone();
+        config.deepseek_harness_profile = next.deepseek_harness_profile.clone();
+        Ok(())
+    }) {
         Ok(config) => config,
         Err(error) => {
             let rollback_error = patch_core_network_settings(&previous).err();

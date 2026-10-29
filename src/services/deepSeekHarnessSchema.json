@@ -17,7 +17,7 @@
     {"name":"api","kind":"enum","values":["openai-completions","openai-responses","anthropic-messages"],"default":"openai-completions"},
     {"name":"defaultContextWindow","kind":"integer","min":1,"default":262144},
     {"name":"defaultMaxTokens","kind":"integer","min":1,"default":32768},
-    {"name":"defaultInput","kind":"modalities","default":["text"]},
+    {"name":"defaultInput","kind":"modalities"},
     {"name":"reasoning","kind":"enum","values":["off","minimal","low","medium","high","xhigh","max"]},
     {"name":"thinkingBudgets","kind":"group","group":"thinkingBudgets"},
     {"name":"cacheRetention","kind":"enum","values":["none","short","long"]},

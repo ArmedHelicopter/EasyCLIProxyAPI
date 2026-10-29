@@ -40,13 +40,7 @@ pub(crate) fn agent_config_paths(client: AgentClient, home: &Path) -> Vec<PathBu
         AgentClient::OpenCode => vec![opencode_config_path(home)],
         AgentClient::OpenClaw => vec![openclaw_agent_config_path(home)],
         AgentClient::Hermes => vec![hermes_agent_config_path(home)],
-        AgentClient::DeepSeekHarness => {
-            let directory = deepseek_harness_home(home);
-            vec![
-                directory.join(DEEPSEEK_HARNESS_SETTINGS_FILE),
-                directory.join(DEEPSEEK_HARNESS_CREDENTIALS_FILE),
-            ]
-        }
+        AgentClient::DeepSeekHarness => deepseek_harness_config_paths(home),
         AgentClient::WorkBuddy => vec![workbuddy_home(home).join("models.json")],
         AgentClient::AntigravityCli => antigravity_config_paths(client, home),
         AgentClient::CopilotCli | AgentClient::VscodeCopilot => copilot_config_paths(client, home),
@@ -174,6 +168,58 @@ pub(crate) fn omp_agent_directory(home: &Path) -> PathBuf {
 
 pub(crate) fn deepseek_harness_home(home: &Path) -> PathBuf {
     agent_configuration_environment("DSH_HOME").unwrap_or_else(|| home.join(".dsh"))
+}
+
+#[cfg(not(test))]
+pub(crate) fn deepseek_harness_profile() -> String {
+    let profile = gui_config_path()
+        .ok()
+        .and_then(|path| fs::read_to_string(path).ok())
+        .and_then(|content| toml::from_str::<toml::Value>(&content).ok())
+        .and_then(|value| value.get("deepseek-harness-profile").and_then(|value| value.as_str()).map(str::to_string))
+        .unwrap_or_else(|| "desktop".to_string());
+    validate_deepseek_harness_profile(&profile).unwrap_or("desktop").to_string()
+}
+
+#[cfg(test)]
+pub(crate) fn deepseek_harness_profile() -> String {
+    "desktop".to_string()
+}
+
+pub(crate) fn deepseek_harness_profiles(home: &Path) -> Vec<String> {
+    let directory = deepseek_harness_home(home).join("profiles");
+    let mut profiles = std::collections::BTreeSet::from(["desktop".to_string()]);
+    if let Ok(entries) = fs::read_dir(directory) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir()
+                && path.join("cordis.patch.yml").is_file()
+                && validate_deepseek_harness_profile(&entry.file_name().to_string_lossy()).is_ok()
+            {
+                profiles.insert(entry.file_name().to_string_lossy().to_string());
+            }
+        }
+    }
+    profiles.into_iter().collect()
+}
+
+pub(crate) fn deepseek_harness_config_paths(home: &Path) -> Vec<PathBuf> {
+    deepseek_harness_config_paths_for_profile(home, &deepseek_harness_profile())
+}
+
+pub(crate) fn deepseek_harness_config_paths_for_profile(home: &Path, profile: &str) -> Vec<PathBuf> {
+    let directory = deepseek_harness_home(home);
+    let profile = validate_deepseek_harness_profile(profile).unwrap_or("desktop");
+    let patch = directory.join("profiles").join(profile).join("cordis.patch.yml");
+    let settings = if patch.is_file() {
+        patch
+    } else {
+        directory.join(DEEPSEEK_HARNESS_SETTINGS_FILE)
+    };
+    vec![
+        settings,
+        directory.join(DEEPSEEK_HARNESS_CREDENTIALS_FILE),
+    ]
 }
 
 pub(crate) fn read_deepseek_harness_profile_version(home: &Path) -> Option<String> {
@@ -3967,16 +4013,9 @@ pub(crate) fn inspect_deepseek_harness_config(
     if paths.len() != 2 {
         return Err("Invalid number of DeepSeek Harness configuration paths".to_string());
     }
-    let settings = read_agent_yaml_mapping_or_empty(&paths[0], "DeepSeek Harness settings")?;
     let credentials = read_agent_yaml_mapping_or_empty(&paths[1], "DeepSeek Harness credentials")?;
-    let provider = yaml_mapping_value(&settings, "llm-pi-ai")
-        .and_then(serde_norway::Value::as_mapping)
-        .and_then(|section| yaml_mapping_value(section, "providers"))
-        .and_then(serde_norway::Value::as_mapping)
-        .and_then(|providers| yaml_mapping_value(providers, DEEPSEEK_HARNESS_PROVIDER_ID))
-        .and_then(serde_norway::Value::as_mapping);
-    let selection = yaml_mapping_value(&settings, "agent-default-model")
-        .and_then(serde_norway::Value::as_mapping);
+    let settings_val = read_deepseek_harness_settings_or_empty(&paths[0])?;
+    let (provider, selection) = extract_deepseek_harness_settings(&settings_val);
     let selected_provider = selection
         .and_then(|selection| yaml_mapping_value(selection, "provider"))
         .and_then(serde_norway::Value::as_str);
@@ -4057,21 +4096,63 @@ fn deepseek_harness_credentials_layout_supported(credentials: &serde_norway::Map
         })
 }
 
+pub(crate) fn read_deepseek_harness_settings_or_empty(
+    path: &Path,
+) -> Result<serde_norway::Value, String> {
+    if !path.is_file() {
+        return Ok(serde_norway::Value::Null);
+    }
+    let content = fs::read_to_string(path)
+        .map_err(|error| format!("Failed to read DeepSeek Harness settings {}: {error}", path_to_string(path)))?;
+    let content = content.trim();
+    if content.is_empty() {
+        return Ok(serde_norway::Value::Null);
+    }
+    serde_norway::from_str::<serde_norway::Value>(content)
+        .map_err(|error| format!("Invalid DeepSeek Harness settings YAML format: {error}"))
+}
+
+pub(crate) fn extract_deepseek_harness_settings<'a>(
+    settings: &'a serde_norway::Value,
+) -> (Option<&'a serde_norway::Mapping>, Option<&'a serde_norway::Mapping>) {
+    if let Some(seq) = settings.as_sequence() {
+        let provider = seq.iter()
+            .find(|item| item.get("id").and_then(serde_norway::Value::as_str) == Some("llm-pi-ai"))
+            .and_then(|item| item.get("config"))
+            .and_then(serde_norway::Value::as_mapping)
+            .and_then(|config| yaml_mapping_value(config, "providers"))
+            .and_then(serde_norway::Value::as_mapping)
+            .and_then(|providers| yaml_mapping_value(providers, DEEPSEEK_HARNESS_PROVIDER_ID))
+            .and_then(serde_norway::Value::as_mapping);
+        let selection = seq.iter()
+            .find(|item| item.get("id").and_then(serde_norway::Value::as_str) == Some("agent-default-model"))
+            .and_then(|item| item.get("config"))
+            .and_then(serde_norway::Value::as_mapping);
+        (provider, selection)
+    } else if let Some(map) = settings.as_mapping() {
+        let provider = yaml_mapping_value(map, "llm-pi-ai")
+            .and_then(serde_norway::Value::as_mapping)
+            .and_then(|section| yaml_mapping_value(section, "providers"))
+            .and_then(serde_norway::Value::as_mapping)
+            .and_then(|providers| yaml_mapping_value(providers, DEEPSEEK_HARNESS_PROVIDER_ID))
+            .and_then(serde_norway::Value::as_mapping);
+        let selection = yaml_mapping_value(map, "agent-default-model")
+            .and_then(serde_norway::Value::as_mapping);
+        (provider, selection)
+    } else {
+        (None, None)
+    }
+}
+
 pub(crate) fn deepseek_harness_has_managed_marker(paths: &[PathBuf]) -> Result<bool, String> {
     if paths.len() != 2 {
         return Err("Invalid number of DeepSeek Harness configuration paths".to_string());
     }
-    let settings = read_agent_yaml_mapping_or_empty(&paths[0], "DeepSeek Harness settings")?;
     let credentials = read_agent_yaml_mapping_or_empty(&paths[1], "DeepSeek Harness credentials")?;
-    let provider_exists = yaml_mapping_value(&settings, "llm-pi-ai")
-        .and_then(serde_norway::Value::as_mapping)
-        .and_then(|section| yaml_mapping_value(section, "providers"))
-        .and_then(serde_norway::Value::as_mapping)
-        .is_some_and(|providers| {
-            yaml_mapping_value(providers, DEEPSEEK_HARNESS_PROVIDER_ID).is_some()
-        });
-    let default_selected = yaml_mapping_value(&settings, "agent-default-model")
-        .and_then(serde_norway::Value::as_mapping)
+    let settings_val = read_deepseek_harness_settings_or_empty(&paths[0])?;
+    let (provider, selection) = extract_deepseek_harness_settings(&settings_val);
+    let provider_exists = provider.is_some();
+    let default_selected = selection
         .and_then(|selection| yaml_mapping_value(selection, "provider"))
         .and_then(serde_norway::Value::as_str)
         == Some(DEEPSEEK_HARNESS_PROVIDER_ID);

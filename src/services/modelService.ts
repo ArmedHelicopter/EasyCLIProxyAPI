@@ -63,6 +63,12 @@ export function mergeModelOptions(...groups: ModelOption[][]): ModelOption[] {
     if (!name) return;
     const previous = merged.get(modelKey(name));
     const next: ModelOption = { ...previous, ...model, name };
+    if (previous?.inputModalities?.length && !model.inputModalities?.length) {
+      next.inputModalities = [...previous.inputModalities];
+    }
+    if (model.inputModalities?.length && previous?.inputModalities?.length) {
+      next.inputModalities = Array.from(new Set([...previous.inputModalities, ...model.inputModalities]));
+    }
     const alias = (model.alias ?? '').trim() || previous?.alias;
     const displayName = (model.displayName ?? '').trim() || previous?.displayName;
     if (alias && alias !== name) next.alias = alias;
@@ -164,6 +170,32 @@ const normalizeModelList = (payload: unknown, preserveExistingAlias = false, pre
       ...(alias && alias !== name ? { alias } : {}),
       ...(displayName && displayName !== name ? { displayName } : {}),
       ...(thinking && (preserveExistingAlias || Object.keys(thinking).length > 0) ? { thinking } : {}),
+      ...(record ? (() => {
+        const raw = ['input_modalities', 'inputModalities', 'supported_input_modalities', 'supportedInputModalities']
+          .map(key => record[key]).find(value => Array.isArray(value));
+        const directModalities = Array.isArray(raw) ? raw : [];
+        const nestedCapabilities = record.capabilities && isRecord(record.capabilities) ? record.capabilities : undefined;
+        const nestedRaw = nestedCapabilities
+          ? ['input', 'input_modalities', 'inputModalities', 'supported_input_modalities', 'supportedInputModalities']
+            .map(key => nestedCapabilities[key]).find(value => Array.isArray(value))
+          : undefined;
+        const modalityObjects = [record.modalities, nestedCapabilities?.modalities]
+          .filter(isRecord)
+          .map(value => value.input)
+          .find(value => Array.isArray(value));
+        const topLevelInput = Array.isArray(record.input) ? record.input : undefined;
+        const supportedModalities = Array.isArray(record.supported_modalities) ? record.supported_modalities : undefined;
+        const supportsImages = ['supports_images', 'supportsImages', 'vision', 'image', 'accepts_images', 'acceptsImages']
+          .map(key => record[key]).find(value => typeof value === 'boolean')
+          ?? (nestedCapabilities ? ['supports_images', 'supportsImages', 'vision', 'image', 'accepts_images', 'acceptsImages']
+            .map(key => nestedCapabilities[key]).find(value => typeof value === 'boolean') : undefined);
+        const modalities = [...directModalities, ...(Array.isArray(nestedRaw) ? nestedRaw : []), ...(modalityObjects ?? []), ...(topLevelInput ?? []), ...(supportedModalities ?? [])]
+          .flatMap((value) => typeof value === 'string' ? [value] : isRecord(value) && typeof value.type === 'string' ? [value.type] : [])
+          .map(value => value.trim().toLowerCase())
+          .filter((value): value is 'text' | 'image' => value === 'text' || value === 'image');
+        if (supportsImages === true && !modalities.includes('image')) modalities.push('image');
+        return modalities.length ? { inputModalities: Array.from(new Set(modalities)) } : {};
+      })() : {}),
     };
   }).filter((item): item is ModelOption => item !== null);
 };

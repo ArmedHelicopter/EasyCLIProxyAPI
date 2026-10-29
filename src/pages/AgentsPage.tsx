@@ -121,6 +121,7 @@ import { Dialog } from '../components/Dialog';
 import { useConfirmation } from '../components/ConfirmationDialog';
 import { requestAppNavigation } from '../navigation';
 import { Select } from '../components/Select';
+import { getGuiSettings, listDeepSeekHarnessProfiles, saveDeepSeekHarnessProfile } from '../services/appSettings';
 
 const setupErrors: Record<string, MessageKey> = {
   COPILOT_SETUP_REQUIRED: 'agents.copilotSetup.required',
@@ -606,6 +607,8 @@ export function AgentsPage({ embedded = false, onConfigurationApplied }: AgentsP
     pid: null,
     mode: null,
   });
+  const [deepSeekHarnessProfiles, setDeepSeekHarnessProfiles] = useState<string[]>(['desktop']);
+  const [deepSeekHarnessProfile, setDeepSeekHarnessProfile] = useState('desktop');
   const [launchDirectoryHistory, setLaunchDirectoryHistory] = useState(
     readAgentLaunchDirectoryHistory,
   );
@@ -671,6 +674,26 @@ export function AgentsPage({ embedded = false, onConfigurationApplied }: AgentsP
     const status = await getDeepSeekHarnessProcessStatus();
     setDeepSeekHarnessProcessStatus(status);
   }, []);
+
+  useEffect(() => {
+    if (selected !== 'deepseek-harness') return;
+    void Promise.all([getGuiSettings(), listDeepSeekHarnessProfiles()]).then(([settings, profiles]) => {
+      setDeepSeekHarnessProfile(settings.deepseekHarnessProfile || 'desktop');
+      setDeepSeekHarnessProfiles(profiles);
+    }).catch(() => undefined);
+  }, [selected]);
+
+  const changeDeepSeekHarnessProfile = async (profile: string) => {
+    setConfigurationError('');
+    try {
+      await saveDeepSeekHarnessProfile(profile);
+      setDeepSeekHarnessProfile(profile);
+      await loadStatuses(true);
+      await loadModels('deepseek-harness', '', true);
+    } catch (error) {
+      setConfigurationError(String(error));
+    }
+  };
 
   const loadModels = useCallback(async (client: AgentClientId, preferredModel = '', background = false) => {
     const requestId = modelRequestRef.current + 1;
@@ -1929,6 +1952,14 @@ export function AgentsPage({ embedded = false, onConfigurationApplied }: AgentsP
               role="tabpanel"
               aria-labelledby="agent-subpage-tab-core"
             >
+              {isDeepSeekHarnessClient ? (
+                <label className="agent-minimal-field">
+                  <span>{t('agents.harness.profile')}</span>
+                  <Select value={deepSeekHarnessProfile} disabled={busy} onChange={(event) => void changeDeepSeekHarnessProfile(event.currentTarget.value)}>
+                    {deepSeekHarnessProfiles.map((profile) => <option key={profile} value={profile}>{profile}</option>)}
+                  </Select>
+                </label>
+              ) : null}
               <div className={`agent-status-grid ${hasIndependentCliAndApp ? 'dual-install-status-grid' : isPiClient || selected === 'vscode-copilot' ? 'pi-status-grid' : ''}`}>
                 <div>
                   <span><BadgeCheck size={14} />{t('agents.installStatus')}</span>

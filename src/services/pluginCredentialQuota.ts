@@ -77,6 +77,23 @@ export async function loadPluginCredentialQuota(file: AuthFile): Promise<QuotaSt
     if (generation !== captureQuotaCacheGeneration()) throw new Error('Connection changed during quota lookup');
     const authIndex = normalizeAuthIndex(file.auth_index ?? file.authIndex);
     if (!plugin || !authIndex || file.disabled === true) throw new Error('Plugin quota is unavailable for this credential');
-    return parsePluginCredentialQuota(await managementApi.post(`/plugins/${encodeURIComponent(plugin)}/quota`, { auth_index: authIndex }));
+    const requestQuota = () => managementApi.post(`/plugins/${encodeURIComponent(plugin!)}/quota`, { auth_index: authIndex });
+    try {
+      return parsePluginCredentialQuota(await requestQuota());
+    } catch (firstError) {
+      // The plugin quota route may surface an expired credential as a generic
+      // management error. Run the plugin's persisted keepalive path once, then
+      // retry quota with the host-reloaded credential instead of requiring a
+      // separate manual keepalive click.
+      if (!isAuthExpiredMessage(firstError)) throw firstError;
+      await managementApi.post(`/plugins/${encodeURIComponent(plugin)}/keepalive`, { account_ids: [authIndex], refresh_credentials: true });
+      if (generation !== captureQuotaCacheGeneration()) throw new Error('Connection changed during quota lookup');
+      return parsePluginCredentialQuota(await requestQuota());
+    }
   } catch (reason) { return { status: 'error', rows: [], error: reason instanceof Error ? reason.message : String(reason) }; }
+}
+
+function isAuthExpiredMessage(reason: unknown): boolean {
+  const message = reason instanceof Error ? reason.message : String(reason);
+  return /(?:401|unauthori[sz]ed|invalid access token|token expired|access token expired|登录已过期|token 失效)/i.test(message);
 }

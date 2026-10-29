@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { harnessContextDefault, harnessDraft, parseHarnessDraft, sameHarnessDraft, updateHarnessDraft } from '../src/services/deepSeekHarnessCatalog';
+import { harnessContextDefault, harnessDraft, harnessInputSource, parseHarnessDraft, sameHarnessDraft, updateHarnessDraft } from '../src/services/deepSeekHarnessCatalog';
 
 describe('DSH catalog overrides', () => {
   test('context values use model metadata, provider configuration, then DSH defaults', () => {
@@ -7,6 +7,16 @@ describe('DSH catalog overrides', () => {
     expect(harnessContextDefault({}, { defaultContextWindow: '64000' })).toEqual({ value: 64000, source: 'provider' });
     expect(harnessContextDefault({}, {})).toEqual({ value: 262144, source: 'default' });
     expect(harnessContextDefault({ contextWindow: null }, { defaultContextWindow: '0' })).toEqual({ value: 262144, source: 'default' });
+  });
+  test('automatic input distinguishes model API capability from provider fallback', () => {
+    expect(harnessInputSource({ input: ['text', 'image'] })).toBe('model');
+    expect(harnessInputSource({ input: ['text'] })).toBe('model');
+    expect(harnessInputSource({ input: [] })).toBe('provider');
+    expect(harnessInputSource({ input: undefined })).toBe('unknown');
+    expect(harnessInputSource({}, { defaultInput: ['text'] })).toBe('provider');
+    expect(harnessInputSource({ input: ['text', 'image'] }, { defaultInput: ['text'] })).toBe('model');
+    expect(harnessInputSource({})).toBe('unknown');
+    expect(harnessInputSource({}, { defaultInput: ['text', 'image'] })).toBe('provider');
   });
   test('empty values inherit while explicit false and zero remain overrides', () => {
     const draft = harnessDraft({ timeoutMs: 0, retryPolicy: { mode: 'normal', maxRetries: 0 }, compat: { supportsStore: false } }, 'provider');
